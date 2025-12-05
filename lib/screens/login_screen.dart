@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hamro_deal/screens/register_screen.dart';
 import 'package:hamro_deal/widgets/my_button.dart';
 import 'package:hamro_deal/widgets/my_textformfield.dart';
 
@@ -52,6 +53,21 @@ class LoginScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 color: Colors.blue,
+              ),
+
+              const SizedBox(height: 20),
+
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterScreen()),
+                  );
+                },
+                child: const Text(
+                  "Don't have an account? Sign Up",
+                  style: TextStyle(fontSize: 15),
+                ),
               ),
             ],
           ),
