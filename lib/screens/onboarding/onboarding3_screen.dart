@@ -7,11 +7,11 @@ class OnboardingPage3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // White background
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Center(
+        child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -28,7 +28,7 @@ class OnboardingPage3 extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, // Black text
+                    color: Colors.black,
                   ),
                 ),
                 SizedBox(height: 16),
@@ -39,16 +39,14 @@ class OnboardingPage3 extends StatelessWidget {
                 ),
                 SizedBox(height: 40),
                 SizedBox(
-                  width: double.infinity, // Button takes full width
+                  width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black, // Button color reversed
-                      foregroundColor: Colors.white, // Text color reversed
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          30,
-                        ), // Circular edges
+                        borderRadius: BorderRadius.circular(30),
                       ),
                       textStyle: TextStyle(
                         fontSize: 18,
