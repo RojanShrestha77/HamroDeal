@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hamro_deal/screens/home_screen.dart';
 import 'package:hamro_deal/screens/register_screen.dart';
 import 'package:hamro_deal/widgets/my_button.dart';
 import 'package:hamro_deal/widgets/my_textformfield.dart';
@@ -40,13 +41,17 @@ class LoginScreen extends StatelessWidget {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     // All fields valid
-                    String username = usernameController.text;
-                    String password = passwordController.text;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+                    // String username = usernameController.text;
+                    // String password = passwordController.text;
 
-                    // ignore: avoid_print
-                    print('Username: $username');
-                    // ignore: avoid_print
-                    print('Password: $password');
+                    // // ignore: avoid_print
+                    // print('Username: $username');
+                    // // ignore: avoid_print
+                    // print('Password: $password');
                   }
                 },
                 text: "Login",
