@@ -23,6 +23,30 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset(
+                'assets/images/login1.png',
+                width: 330,
+                height: 400,
+                fit: BoxFit.contain,
+              ),
+              // SizedBox(height: 30),
+              Text(
+                "Welcome",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E1E1E),
+                  // letterSpacing: 1.2,
+                ),
+              ),
+
+              // const SizedBox(height: 20),
+              Text(
+                "Login to your account",
+                style: TextStyle(fontSize: 18, color: Color(0xFF1E1E1E)),
+              ),
+              const SizedBox(height: 25),
+
               MyTextformfield(
                 firstcontroller: usernameController,
                 text: 'Username',
@@ -35,7 +59,7 @@ class LoginScreen extends StatelessWidget {
                 text: 'Password',
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 90),
 
               MyButton(
                 onPressed: () {
@@ -56,11 +80,11 @@ class LoginScreen extends StatelessWidget {
                 },
                 text: "Login",
                 width: double.infinity,
-                height: 50,
-                color: Colors.blue,
+                height: 65,
+                // color: Colors.blue,
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               TextButton(
                 onPressed: () {
@@ -69,9 +93,22 @@ class LoginScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => RegisterScreen()),
                   );
                 },
-                child: const Text(
-                  "Don't have an account? Sign Up",
-                  style: TextStyle(fontSize: 15),
+
+                child: RichText(
+                  text: TextSpan(
+                    text: "Don't have an account?",
+                    style: TextStyle(fontSize: 17, color: Color(0xFF1E1E1E)),
+                    children: [
+                      TextSpan(
+                        text: "Sign Up",
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: Color(0xFF147AFF),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
