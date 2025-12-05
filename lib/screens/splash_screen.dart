@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:hamro_deal/screens/onboarding%20scree/onboarding_screen.dart';
+import 'package:hamro_deal/screens/onboarding%20screen/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Image.asset('assets/images/logo.png', width: 150, height: 150),
+        child: Image.asset('assets/images/logo.png', width: 250, height: 250),
       ),
     );
   }
