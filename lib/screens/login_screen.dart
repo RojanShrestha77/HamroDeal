@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hamro_deal/screens/home_screen.dart';
+import 'package:hamro_deal/screens/bottom_navigation_screen.dart';
+import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
 import 'package:hamro_deal/screens/register_screen.dart';
 import 'package:hamro_deal/widgets/my_button.dart';
 import 'package:hamro_deal/widgets/my_textformfield.dart';
@@ -57,7 +58,9 @@ class LoginScreen extends StatelessWidget {
                       if (_formKey.currentState!.validate()) {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => BottomNavigationScreen(),
+                          ),
                         );
                       }
                     },

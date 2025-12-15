@@ -36,7 +36,7 @@ class OnboardingPage1 extends StatelessWidget {
                 Text(
                   "Your one-stop solution to find amazing deals and offers.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Color(0xFF828282)),
+                  style: TextStyle(fontSize: 16),
                 ),
                 SizedBox(height: 40),
                 SizedBox(
