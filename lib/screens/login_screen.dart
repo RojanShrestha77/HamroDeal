@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hamro_deal/screens/bottom_navigation_screen.dart';
-import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
 import 'package:hamro_deal/screens/register_screen.dart';
 import 'package:hamro_deal/widgets/my_button.dart';
 import 'package:hamro_deal/widgets/my_textformfield.dart';
