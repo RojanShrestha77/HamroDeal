@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 ThemeData getApplicationTheme() {
   return ThemeData(
     fontFamily: 'Jost Regular',
-    scaffoldBackgroundColor: Color(0xFFFAFAFA),
+    scaffoldBackgroundColor: Colors.grey[200],
     textTheme: const TextTheme(
       bodyLarge: TextStyle(
         color: Colors.black,
@@ -12,6 +12,7 @@ ThemeData getApplicationTheme() {
       ),
     ),
 
+    //AppBarTheme
     appBarTheme: AppBarTheme(
       foregroundColor: Colors.black,
       backgroundColor: Colors.white,
@@ -21,8 +22,12 @@ ThemeData getApplicationTheme() {
         color: Colors.black,
         fontSize: 22,
         letterSpacing: 0.5,
-        // fontWeight: FontWeight.bold,
       ),
+    ),
+
+    //BottomNavigationTheme
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: Colors.white,
     ),
   );
 }
