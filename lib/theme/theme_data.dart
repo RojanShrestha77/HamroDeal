@@ -25,9 +25,15 @@ ThemeData getApplicationTheme() {
       ),
     ),
 
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(0)),
+    ),
+
     //BottomNavigationTheme
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
+      selectedIconTheme: IconThemeData(size: 28),
+      unselectedIconTheme: IconThemeData(size: 28),
     ),
   );
 }
