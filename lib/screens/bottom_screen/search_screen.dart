@@ -46,14 +46,12 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   prefixIcon: _controller.text.isEmpty
                       ? Padding(
-                          padding: const EdgeInsets.only(
-                            left: 150,
-                          ), // left padding
+                          padding: const EdgeInsets.only(left: 150),
                           child: const Icon(Icons.search, color: Colors.black),
                         )
                       : null,
                   prefixIconConstraints: const BoxConstraints(
-                    minWidth: 0, // ensures the padding is respected
+                    minWidth: 0,
                     minHeight: 0,
                   ),
                 ),

@@ -17,7 +17,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          // ← Makes the whole page scrollable
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 24.0),
             child: Column(
@@ -66,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // Horizontal ListView
                 SizedBox(
-                  height: 300, // Keep fixed height for horizontal scroll
+                  height: 300,
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     scrollDirection: Axis.horizontal,
@@ -99,15 +98,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 4),
 
-                // Vertical GridView (now inside scrollable column)
+                // Vertical GridView
                 GridView.builder(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,
                   ),
-                  physics: const NeverScrollableScrollPhysics(), // Important!
-                  shrinkWrap:
-                      true, // Important! Allows GridView inside SingleChildScrollView
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
                   itemCount: products.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -124,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
 
-                const SizedBox(height: 24), // Extra bottom space
+                const SizedBox(height: 24),
               ],
             ),
           ),
