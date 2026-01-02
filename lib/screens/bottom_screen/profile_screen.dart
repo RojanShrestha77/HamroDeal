@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hamro_deal/screens/bottom_screen/cart_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/order_screen.dart';
-import 'package:hamro_deal/screens/login_screen.dart';
+import 'package:hamro_deal/features/auth/presentation/pages/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

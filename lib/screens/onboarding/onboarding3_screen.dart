@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hamro_deal/screens/login_screen.dart';
+import 'package:hamro_deal/features/auth/presentation/pages/login_screen.dart';
 
 class OnboardingPage3 extends StatelessWidget {
   const OnboardingPage3({super.key});

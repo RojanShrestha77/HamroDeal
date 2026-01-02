@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hamro_deal/screens/bottom_screen/cart_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/search_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
-import 'package:hamro_deal/screens/bottom_screen/profile_screen.dart';
 import 'package:hamro_deal/screens/category_screen.dart';
+import 'package:hamro_deal/screens/bottom_screen/profile_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   const BottomNavigationScreen({super.key});
@@ -20,8 +20,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     HomeScreen(), // index 0
     const SearchScreen(),
     const CartScreen(), // index 1
-    const ProfileScreen(), // index 2
     const CategoryScreen(), // index 2
+    const ProfileScreen(), // index 2
   ];
 
   @override
@@ -55,16 +55,16 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             label: "Cart",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_2_outlined),
-            activeIcon: Icon(Icons.person_2),
-
-            label: "Profile",
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.category_outlined),
             activeIcon: Icon(Icons.category),
 
             label: "Category",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_2_outlined),
+            activeIcon: Icon(Icons.person_2),
+
+            label: "Profile",
           ),
         ],
       ),
