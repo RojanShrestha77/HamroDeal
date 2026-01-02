@@ -71,6 +71,7 @@ class LoginScreen extends ConsumerWidget {
                   MyTextformfield(
                     firstcontroller: passwordController,
                     text: 'Password',
+                    obscureText: true,
                     validator: validatePassword,
                   ),
                   const SizedBox(height: 40),
@@ -95,10 +96,26 @@ class LoginScreen extends ConsumerWidget {
                               final state = ref.read(authControllerProvider);
 
                               if (state.isAuthenticated) {
+                                // Show success SnackBar
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Login successful!'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => BottomNavigationScreen(),
+                                  ),
+                                );
+                              } else if (state.errorMessage != null) {
+                                // Show error SnackBar
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(state.errorMessage!),
+                                    backgroundColor: Colors.red,
                                   ),
                                 );
                               }
@@ -109,7 +126,6 @@ class LoginScreen extends ConsumerWidget {
                     height: 65,
                   ),
                   const SizedBox(height: 10),
-                  // Updated Sign Up navigation
                   TextButton(
                     onPressed: () {
                       Navigator.push(
