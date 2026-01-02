@@ -96,7 +96,6 @@ class LoginScreen extends ConsumerWidget {
                               final state = ref.read(authControllerProvider);
 
                               if (state.isAuthenticated) {
-                                // Show success SnackBar
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Login successful!'),

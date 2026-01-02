@@ -43,7 +43,6 @@ class RegisterScreen extends ConsumerWidget {
       if (!next.isLoading &&
           previous?.isLoading == true &&
           next.isAuthenticated) {
-        // Success SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Registration successful! Please login.'),
