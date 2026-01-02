@@ -3,7 +3,7 @@ import 'package:hamro_deal/features/auth/domain/entities/auth_entity.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
-part 'auth_hive_model.g.dart'; // ← Critical line
+part 'auth_hive_model.g.dart';
 
 @HiveType(typeId: HiveTableConstants.authTypeId)
 class AuthHiveModel extends HiveObject {

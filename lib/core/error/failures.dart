@@ -7,7 +7,7 @@ class Failure {
   String toString() => message;
 }
 
-// Specific failure for local database (Hive) errors
+//failure for the local database
 class LocalDatabaseFailure extends Failure {
   LocalDatabaseFailure({String message = 'Local database error'})
     : super(message);

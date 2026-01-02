@@ -12,17 +12,11 @@ final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
   return LoginUseCase(repository);
 });
 
-/// Login UseCase
 class LoginUseCase {
   final AuthRepository _repository;
 
   LoginUseCase(this._repository);
 
-  /// Executes login
-  ///
-  /// Returns:
-  /// - Right(AuthEntity) on success
-  /// - Left(Failure) on error
   Future<Either<Failure, AuthEntity>> call(
     String email,
     String password,
