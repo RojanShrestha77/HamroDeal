@@ -172,4 +172,3 @@ class RegisterScreen extends ConsumerWidget {
     );
   }
 }
-// This is an registration page
