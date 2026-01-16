@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hamro_deal/core/services/hive_service.dart';
+import 'package:hamro_deal/core/services/hive/hive_service.dart';
 import 'package:hamro_deal/features/auth/data/datasources/auth_datasource.dart';
 import 'package:hamro_deal/features/auth/data/models/auth_hive_model.dart';
 
@@ -22,10 +22,10 @@ class AuthLocalDatasource implements IAuthDatasource {
 
   @override
   Future<bool> isEmailExists(String email) {
-    try{
+    try {
       final exists = _hiveService.isEmailExists(email);
       return Future.value(exists);
-    } catch(e) {
+    } catch (e) {
       return Future.value(false);
     }
   }
