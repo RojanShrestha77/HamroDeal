@@ -48,7 +48,7 @@ class ProfileScreen extends StatelessWidget {
 
             _buildMenuItem(context, "My orders", const OrderScreen()),
             _buildMenuItem(context, "home out", HomeScreen()),
-            _buildMenuItem(context, "Sign out", LoginScreen()),
+            _buildMenuItem(context, "Sign out", LoginPage()),
             _buildMenuItem(context, "Profile", ProfileScreen()),
             _buildMenuItem(context, "Cart", CartScreen()),
             _buildMenuItem(context, "Cart", CartScreen()),

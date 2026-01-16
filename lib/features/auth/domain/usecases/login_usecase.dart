@@ -1,26 +1,36 @@
 import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:hamro_deal/core/error/failures.dart';
+import 'package:hamro_deal/core/usecase/app_usecase.dart';
+import 'package:hamro_deal/features/auth/data/repositories/auth_repository.dart';
 import 'package:hamro_deal/features/auth/domain/entities/auth_entity.dart';
 import 'package:hamro_deal/features/auth/domain/repositories/auth_repository.dart';
-import 'package:hamro_deal/features/auth/data/repositories/auth_repository_impl.dart';
 
-/// Provider for LoginUseCase
-final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return LoginUseCase(repository);
+class LoginUsecaseParams extends Equatable {
+  final String username;
+  final String password;
+
+  const LoginUsecaseParams({required this.username, required this.password});
+
+  @override
+  List<Object?> get props => [username, password];
+}
+
+// provider for LoginUsecase
+final loginUsecaseProvider = Provider<LoginUsecase>((ref) {
+  final authRepository = ref.read(authRepositoryProvider);
+  return LoginUsecase(authRepository: authRepository);
 });
 
-class LoginUseCase {
-  final AuthRepository _repository;
+class LoginUsecase
+    implements UsecaseWithParams<AuthEntity, LoginUsecaseParams> {
+  final IAuthRepository _authRepository;
 
-  LoginUseCase(this._repository);
-
-  Future<Either<Failure, AuthEntity>> call(
-    String email,
-    String password,
-  ) async {
-    return await _repository.login(email, password);
+  LoginUsecase({required IAuthRepository authRepository})
+    : _authRepository = authRepository;
+  @override
+  Future<Either<Failure, AuthEntity>> call(LoginUsecaseParams params) {
+    return _authRepository.login(params.username, params.password);
   }
 }

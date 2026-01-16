@@ -1,54 +1,75 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/constants/hive_table_constants.dart';
 import 'package:hamro_deal/features/auth/data/models/auth_hive_model.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 
-final hiveServiceProvider = Provider<HiveService>((ref) => HiveService());
+final hiveServiceProvider = Provider<HiveService>((ref) {
+  return HiveService();
+});
 
 class HiveService {
   Future<void> init() async {
-    await Hive.initFlutter();
-    Hive.registerAdapter(AuthHiveModelAdapter());
+    final directory = await getApplicationDocumentsDirectory();
+    final path = '${directory.path}/${HiveTableConstants.dbName}';
+    Hive.init(path);
+    _registerAdapter();
+    await openBoxes();
+  }
+  // Register Adapter
+  // Open Boxes
+  // close Boxes
+  // Queries
 
-    await Hive.openBox<AuthHiveModel>(HiveTableConstants.authTable);
-    await Hive.openBox(HiveTableConstants.settingsBox);
+  // Register Adapter
+  void _registerAdapter() {
+    if (!Hive.isAdapterRegistered(HiveTableConstants.authTypeId)) {
+      Hive.registerAdapter(AuthHiveModelAdapter());
+    }
   }
 
+  // Open Boxes
+  Future<void> openBoxes() async {
+    await Hive.openBox<AuthHiveModel>(HiveTableConstants.authTable);
+  }
+
+  // close boxes
+  Future<void> close() async {
+    await Hive.close();
+  }
+
+  // =============== Auth QUERIES  ================
   Box<AuthHiveModel> get _authBox =>
       Hive.box<AuthHiveModel>(HiveTableConstants.authTable);
-  Box get _settingsBox => Hive.box(HiveTableConstants.settingsBox);
 
-  // Register user
-  Future<bool> registerUser(AuthHiveModel user) async {
-    if (_authBox.containsKey(user.email)) return false;
-    await _authBox.put(user.email, user);
-    await _settingsBox.put(HiveTableConstants.currentUserKey, user.email);
-    return true;
+  // register
+  Future<AuthHiveModel> registerUser(AuthHiveModel model) async {
+    await _authBox.put(model.userId, model);
+    return model;
   }
 
-  // Login user
+  // login
   Future<AuthHiveModel?> loginUser(String email, String password) async {
-    final user = _authBox.get(email);
-
-    // Clear any previous logged in user if login fails
-    if (user == null || user.password != password) {
-      await _settingsBox.delete(HiveTableConstants.currentUserKey);
-      return null;
+    final users = _authBox.values.where(
+      (user) => user.email == email && user.password == password,
+    );
+    if (users.isNotEmpty) {
+      return users.first;
     }
-
-    // Login success → store current user
-    await _settingsBox.put(HiveTableConstants.currentUserKey, email);
-    return user;
+    return null;
   }
 
-  Future<AuthHiveModel?> getCurrentUser() async {
-    final currentEmail = _settingsBox.get(HiveTableConstants.currentUserKey);
-    return currentEmail != null ? _authBox.get(currentEmail) : null;
+  // logout
+  Future<void> logoutUser() async {}
+
+  // get user
+  AuthHiveModel? getCurrentUser(String authId) {
+    return _authBox.get(authId);
   }
 
-  Future<void> logoutUser() async {
-    await _settingsBox.delete(HiveTableConstants.currentUserKey);
+  // is email exists
+  bool isEmailExists(String email) {
+    final users = _authBox.values.where((user) => user.email == email);
+    return users.isNotEmpty;
   }
-
-  bool isEmailExists(String email) => _authBox.containsKey(email);
 }

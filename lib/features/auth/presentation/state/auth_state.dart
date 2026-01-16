@@ -1,23 +1,39 @@
-class AuthState {
-  final bool isLoading;
-  final bool isAuthenticated;
+import 'package:equatable/equatable.dart';
+import 'package:hamro_deal/features/auth/domain/entities/auth_entity.dart';
+
+enum AuthStatus {
+  intial,
+  loading,
+  authenticated,
+  unauthenticated,
+  registered,
+  error,
+}
+
+class AuthState extends Equatable {
+  final AuthStatus status;
+  final AuthEntity? authEntity;
   final String? errorMessage;
 
-  AuthState({
-    this.isLoading = false,
-    this.isAuthenticated = false,
+  const AuthState({
+    this.status = AuthStatus.intial,
+    this.authEntity,
     this.errorMessage,
   });
 
+  // copyWith
   AuthState copyWith({
-    bool? isLoading,
-    bool? isAuthenticated,
+    AuthStatus? status,
+    AuthEntity? authEntity,
     String? errorMessage,
   }) {
     return AuthState(
-      isLoading: isLoading ?? this.isLoading,
-      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
-      errorMessage: errorMessage,
+      status: status ?? this.status,
+      authEntity: authEntity ?? this.authEntity,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
+
+  @override
+  List<Object?> get props => [status, authEntity, errorMessage];
 }

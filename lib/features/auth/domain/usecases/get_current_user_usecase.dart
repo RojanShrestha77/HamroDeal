@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/error/failures.dart';
 import 'package:hamro_deal/features/auth/domain/entities/auth_entity.dart';
 import 'package:hamro_deal/features/auth/domain/repositories/auth_repository.dart';
-import 'package:hamro_deal/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:hamro_deal/features/auth/data/repositories/auth_repository.dart';
 
 final getCurrentUserUseCaseProvider = Provider<GetCurrentUserUseCase>((ref) {
   return GetCurrentUserUseCase(ref.watch(authRepositoryProvider));
 });
 
 class GetCurrentUserUseCase {
-  final AuthRepository _repository;
+  final IAuthRepository _repository;
 
   GetCurrentUserUseCase(this._repository);
 

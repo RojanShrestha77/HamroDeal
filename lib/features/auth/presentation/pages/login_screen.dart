@@ -1,148 +1,335 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hamro_deal/features/auth/presentation/providers/auth_provider.dart';
-import 'package:hamro_deal/screens/bottom_navigation_screen.dart';
-import 'package:hamro_deal/features/auth/presentation/pages/register_screen.dart';
-import 'package:hamro_deal/widgets/my_button.dart';
-import 'package:hamro_deal/widgets/my_textformfield.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hamro_deal/core/utils/snakbar_utils.dart';
+import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
 
-class LoginScreen extends ConsumerWidget {
-  LoginScreen({super.key});
+import '../../../../app/routes/app_routes.dart';
+import '../../../../app/theme/app_colors.dart';
+import '../../presentation/state/auth_state.dart';
+import '../../presentation/view_model/auth_view_model.dart';
+import 'signup_page.dart';
 
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class LoginPage extends ConsumerStatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  ConsumerState<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  // Email validation
-  String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) return 'Email is required';
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(value)) return 'Enter a valid email';
-    return null;
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
-  // Password validation
-  String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'Password is required';
-    if (value.length < 6) return 'Password must be at least 6 characters';
-    return null;
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    await ref
+        .read(authViewModelProvider.notifier)
+        .login(
+          username: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+  }
+
+  void _navigateToSignup() {
+    AppRoutes.push(context, const SignupPage());
+  }
+
+  void _handleForgotPassword() {
+    SnackbarUtils.showInfo(context, 'Forgot password feature coming soon');
+  }
+
+  void _handleGoogleSignIn() {
+    SnackbarUtils.showInfo(context, 'Google Sign In coming soon');
+  }
+
+  void _handleAppleSignIn() {
+    SnackbarUtils.showInfo(context, 'Apple Sign In coming soon');
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authControllerProvider);
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authViewModelProvider);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? AppColors.textDark;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodySmall?.color ?? AppColors.textMuted;
+
+    // Listen for state changes (errors, success)
+    ref.listen<AuthState>(authViewModelProvider, (previous, next) {
+      if (next.status == AuthStatus.error) {
+        SnackbarUtils.showError(
+          context,
+          next.errorMessage ?? 'Login failed. Please try again.',
+        );
+      } else if (next.status == AuthStatus.authenticated) {
+        SnackbarUtils.showSuccess(context, 'Login successful! Welcome back.');
+        AppRoutes.pushReplacement(context, const HomeScreen());
+      }
+    });
 
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/login1.png',
-                    width: 330,
-                    height: 400,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Welcome",
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E1E1E),
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 40),
+
+                Center(
+                  child: SvgPicture.asset(
+                    'assets/svg/softwarica_logo.svg',
+                    width: 200,
+                    height: 70,
+                    colorFilter: ColorFilter.mode(
+                      isDarkMode
+                          ? AppColors.darkTextPrimary
+                          : AppColors.primary,
+                      BlendMode.srcIn,
                     ),
                   ),
-                  const Text(
-                    "Login to your account",
-                    style: TextStyle(fontSize: 18, color: Color(0xFF1E1E1E)),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Title
+                Text(
+                  'Welcome Back!',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
                   ),
-                  const SizedBox(height: 25),
-                  MyTextformfield(
-                    firstcontroller: usernameController,
-                    text: 'Email',
-                    validator: validateEmail,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Sign in to continue',
+                  style: TextStyle(fontSize: 16, color: secondaryTextColor),
+                ),
+
+                const SizedBox(height: 40),
+
+                // Email Field
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(color: textColor),
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    hintText: 'Enter your email',
+                    prefixIcon: Icon(Icons.email_outlined),
                   ),
-                  const SizedBox(height: 20),
-                  MyTextformfield(
-                    firstcontroller: passwordController,
-                    text: 'Password',
-                    obscureText: true,
-                    validator: validatePassword,
-                  ),
-                  const SizedBox(height: 40),
-                  if (authState.errorMessage != null)
-                    Text(
-                      authState.errorMessage!,
-                      style: const TextStyle(color: Colors.red),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    if (!value.contains('@') || !value.contains('.')) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Password Field
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  style: TextStyle(color: textColor),
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    hintText: 'Enter your password',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
-                  const SizedBox(height: 20),
-                  MyButton(
-                    onPressed: authState.isLoading
-                        ? () {}
-                        : () async {
-                            if (_formKey.currentState!.validate()) {
-                              await ref
-                                  .read(authControllerProvider.notifier)
-                                  .login(
-                                    usernameController.text,
-                                    passwordController.text,
-                                  );
-
-                              final state = ref.read(authControllerProvider);
-
-                              if (state.isAuthenticated) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Login successful!'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => BottomNavigationScreen(),
-                                  ),
-                                );
-                              } else if (state.errorMessage != null) {
-                                // Show error SnackBar
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(state.errorMessage!),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                    text: authState.isLoading ? "Logging in..." : "Login",
-                    width: double.infinity,
-                    height: 65,
                   ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => RegisterScreen()),
-                      );
-                    },
-                    child: const Text(
-                      "Don't have an account? Sign Up",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 8),
+
+                // Forgot Password
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _handleForgotPassword,
+                    child: Text(
+                      'Forgot Password?',
                       style: TextStyle(
-                        fontSize: 17,
-                        color: Color(0xFF147AFF),
-                        fontWeight: FontWeight.bold,
+                        color: AppColors.authPrimary,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Login Button
+                SizedBox(
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: authState.status == AuthStatus.loading
+                        ? null
+                        : _handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.authPrimary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: authState.status == AuthStatus.loading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // OR divider
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(
+                          color: secondaryTextColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: Divider()),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // Social Login Buttons (same as prof)
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _handleGoogleSignIn,
+                        icon: SvgPicture.asset(
+                          'assets/icons/google_logo.svg',
+                          width: 20,
+                          height: 20,
+                          colorFilter: isDarkMode
+                              ? const ColorFilter.mode(
+                                  AppColors.darkTextPrimary,
+                                  BlendMode.srcIn,
+                                )
+                              : null,
+                        ),
+                        label: const Text('Google'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _handleAppleSignIn,
+                        icon: SvgPicture.asset(
+                          'assets/icons/apple_logo.svg',
+                          width: 20,
+                          height: 20,
+                          colorFilter: isDarkMode
+                              ? const ColorFilter.mode(
+                                  AppColors.darkTextPrimary,
+                                  BlendMode.srcIn,
+                                )
+                              : null,
+                        ),
+                        label: const Text('Apple'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // Sign Up Link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account? ",
+                      style: TextStyle(color: secondaryTextColor),
+                    ),
+                    TextButton(
+                      onPressed: _navigateToSignup,
+                      child: Text(
+                        'Sign Up',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
