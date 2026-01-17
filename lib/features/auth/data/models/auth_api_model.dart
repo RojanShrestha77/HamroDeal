@@ -20,7 +20,6 @@ class AuthApiModel {
   // toJson
   Map<String, dynamic> toJson() {
     return {
-      'userId': userId,
       'fullName': fullName,
       'email': email,
       'username': username,
@@ -32,11 +31,11 @@ class AuthApiModel {
   // fromJson
   factory AuthApiModel.fromJson(Map<String, dynamic> json) {
     return AuthApiModel(
-      userId: json['userId'] as String?,
+      userId: json['_id'] as String? ?? json['userId'] as String?,
       fullName: json['fullName'] as String,
       email: json['email'] as String,
       username: json['username'] as String,
-      password: json['password'] as String,
+      password: json['password'] as String?,
       profileImage: json['profilePicture'] as String?,
     );
   }
@@ -52,13 +51,14 @@ class AuthApiModel {
     );
   }
 
-  // fromEntity
+  // fromEntity - FIX: Include password!
   factory AuthApiModel.fromEntity(AuthEntity entity) {
     return AuthApiModel(
       userId: entity.userId,
       fullName: entity.fullName,
       email: entity.email,
       username: entity.username,
+      password: entity.password, // <-- ADD THIS LINE
       profileImage: entity.profileImage,
     );
   }

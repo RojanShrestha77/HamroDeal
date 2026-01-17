@@ -18,19 +18,20 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _usernameController = TextEditingController();
+  final _usernameController =
+      TextEditingController(); // added username controller
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _isLoading = false;
   bool _agreedToTerms = false;
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _usernameController.dispose(); // dispose username controller
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -49,9 +50,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
       ref
           .read(authViewModelProvider.notifier)
           .register(
-            fullName: _nameController.text,
-            email: _emailController.text,
-            username: _usernameController.text.trim().split('@').first,
+            fullName: _nameController.text.trim(),
+            email: _emailController.text.trim(),
+            username: _usernameController.text.trim(), // pass username
             password: _passwordController.text,
           );
     }
@@ -66,14 +67,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     final authState = ref.watch(authViewModelProvider);
 
     ref.listen<AuthState>(authViewModelProvider, (previous, next) {
-      // Only show error if status changed to error AND there's a new message
       if (next.status == AuthStatus.error &&
           next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
         SnackbarUtils.showError(context, next.errorMessage!);
-      }
-      // Show success only on registered (and clear any old error)
-      else if (next.status == AuthStatus.registered) {
+      } else if (next.status == AuthStatus.registered) {
         SnackbarUtils.showSuccess(
           context,
           'Registration successful! Please login.',
@@ -168,6 +166,27 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                       }
                       if (value.length < 3) {
                         return 'Name must be at least 3 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Username Field (NEW)
+                  TextFormField(
+                    controller: _usernameController,
+                    keyboardType: TextInputType.text,
+                    decoration: const InputDecoration(
+                      labelText: 'Username',
+                      hintText: 'Choose a username',
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a username';
+                      }
+                      if (value.length < 3) {
+                        return 'Username must be at least 3 characters';
                       }
                       return null;
                     },
