@@ -40,7 +40,6 @@ class AuthRepository implements IAuthRepository {
 
   @override
   Future<Either<Failure, AuthEntity?>> getCurrentUser() {
-    // TODO: implement getCurrentUser
     throw UnimplementedError();
   }
 
