@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/services/storage/user_session_service.dart';
+import 'package:hamro_deal/screens/bottom_navigation_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
 import 'package:hamro_deal/screens/onboarding/onboarding_screen.dart';
 
@@ -31,7 +32,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (isLoggedIn) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const BottomNavigationScreen()),
       );
     } else {
       Navigator.pushReplacement(
