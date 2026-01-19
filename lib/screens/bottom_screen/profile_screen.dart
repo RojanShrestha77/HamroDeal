@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hamro_deal/screens/add_product_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/cart_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/order_screen.dart';
@@ -51,7 +52,7 @@ class ProfileScreen extends StatelessWidget {
             _buildMenuItem(context, "Sign out", LoginPage()),
             _buildMenuItem(context, "Profile", ProfileScreen()),
             _buildMenuItem(context, "Cart", CartScreen()),
-            _buildMenuItem(context, "Cart", CartScreen()),
+            _buildMenuItem(context, "Add Products", AddProductScreen()),
             _buildMenuItem(context, "Cart", CartScreen()),
             _buildMenuItem(context, "Cart", CartScreen()),
             _buildMenuItem(context, "Cart", CartScreen()),
