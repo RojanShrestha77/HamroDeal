@@ -1,11 +1,25 @@
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/error/failures.dart';
 import 'package:hamro_deal/core/services/connectivity/network_info.dart';
+import 'package:hamro_deal/features/product/data/datasources/local/product_local_datasource.dart';
 import 'package:hamro_deal/features/product/data/datasources/product_datasource.dart';
+import 'package:hamro_deal/features/product/data/datasources/remote/product_remote_datasource.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/domain/repositories/product_repository.dart';
+
+final productRepositoryProvider = Provider<IProductRepository>((ref) {
+  final productDatasource = ref.read(productLocalDatasourceProvider);
+  final networkInfo = ref.read(networkInfoProvider);
+  final productRemoteDataSource = ref.read(productRemoteDatasourceProvider);
+  return ProductRepository(
+    productDataSource: productDatasource,
+    productRemoteDataSource: productRemoteDataSource,
+    networkInfo: networkInfo,
+  );
+});
 
 class ProductRepository extends IProductRepository {
   final IProductLocalDataSource _productDataSource;
@@ -83,5 +97,13 @@ class ProductRepository extends IProductRepository {
     } else {
       return Left(ApiFailure(message: 'No internet Connection'));
     }
+  }
+
+  @override
+  Future<Either<Failure, List<ProductEntity>>> getProductsByUser(
+    String userId,
+  ) {
+    // TODO: implement getProductsByUser
+    throw UnimplementedError();
   }
 }

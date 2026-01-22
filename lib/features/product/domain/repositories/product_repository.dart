@@ -7,6 +7,7 @@ import 'package:hamro_deal/features/product/domain/entities/product_entity.dart'
 abstract class IProductRepository {
   Future<Either<Failure, bool>> createProduct(ProductEntity product);
   Future<Either<Failure, List<ProductEntity>>> getAllProducts();
+  Future<Either<Failure, List<ProductEntity>>> getProductsByUser(String userId);
   Future<Either<Failure, ProductEntity>> getProductsById(String productId);
   Future<Either<Failure, List<ProductEntity>>> getProductsByCategory(
     String categoryId,
