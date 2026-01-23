@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'auth_hive_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class AuthHiveModelAdapter extends TypeAdapter<AuthHiveModel> {
   @override
@@ -23,16 +29,18 @@ class AuthHiveModelAdapter extends TypeAdapter<AuthHiveModel> {
   @override
   void write(BinaryWriter writer, AuthHiveModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.userId)
       ..writeByte(1)
-      ..write(obj.userName)
+      ..write(obj.fullName)
       ..writeByte(2)
-      ..write(obj.email)
+      ..write(obj.userName)
       ..writeByte(3)
-      ..write(obj.password)
+      ..write(obj.email)
       ..writeByte(4)
+      ..write(obj.password)
+      ..writeByte(5)
       ..write(obj.profileImage);
   }
 

@@ -54,7 +54,7 @@ class CreateProductUsecase
   @override
   Future<Either<Failure, bool>> call(CreateProductParams params) {
     final productEntity = ProductEntity(
-      title: params.title,
+      productName: params.title,
       description: params.description,
       category: params.category,
       price: params.price,

@@ -11,6 +11,9 @@ import 'package:hamro_deal/features/product/domain/usecases/upload_photo_usecase
 import 'package:hamro_deal/features/product/domain/usecases/upload_video_usecase.dart';
 import 'package:hamro_deal/features/product/presentation/state/product_state.dart';
 
+final productViewModelProvider =
+    NotifierProvider<ProductViewModel, ProductState>(ProductViewModel.new);
+
 class ProductViewModel extends Notifier<ProductState> {
   late final GetAllProductsUsecase _getAllProductsUsecase;
   late final CreateProductUsecase _createProductUsecase;
@@ -135,21 +138,19 @@ class ProductViewModel extends Notifier<ProductState> {
     required String category,
     String? media,
     String? mediaType,
-    bool isClaimed = false,
     String? status,
   }) async {
     state = state.copyWith(status: ProductStatus.loading);
 
     final params = UpdateProductParams(
       productId: productId,
-      title: title,
+      productName: title,
       description: description,
       price: price,
       quantity: quantity,
       category: category,
       media: media,
       mediaType: mediaType,
-      isClaimed: isClaimed,
       status: status,
     );
 

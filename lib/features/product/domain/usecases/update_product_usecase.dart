@@ -9,40 +9,36 @@ import 'package:hamro_deal/features/product/domain/repositories/product_reposito
 
 class UpdateProductParams extends Equatable {
   final String? productId;
-  final String title;
+  final String productName;
   final String description;
   final double price;
   final int quantity;
   final String category;
   final String? media;
   final String? mediaType;
-  final bool isClaimed;
   final String? status;
 
   const UpdateProductParams({
     this.productId,
-    required this.title,
+    required this.productName,
     required this.description,
     required this.price,
     required this.quantity,
     required this.category,
     this.media,
     this.mediaType,
-
-    this.isClaimed = false,
     this.status,
   });
   @override
   List<Object?> get props => [
     productId,
-    title,
+    productName,
     description,
     price,
     quantity,
     category,
     media,
     mediaType,
-    isClaimed,
     status,
   ];
 }
@@ -62,14 +58,13 @@ class UpdateProductUsecase
   Future<Either<Failure, bool>> call(UpdateProductParams params) {
     final porductEntity = ProductEntity(
       productId: params.productId,
-      title: params.title,
+      productName: params.productName,
       description: params.description,
       price: params.price,
       quantity: params.quantity,
       category: params.category,
       media: params.media,
       mediaType: params.mediaType,
-      isClaimed: params.isClaimed,
       status: params.status,
     );
 

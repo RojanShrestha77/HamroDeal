@@ -43,7 +43,7 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
       formData: formData,
       options: Options(headers: {'authorization': 'Bearer $token'}),
     );
-    var a = response.data['success'];
+    var a = response.data['data'];
     return a;
   }
 

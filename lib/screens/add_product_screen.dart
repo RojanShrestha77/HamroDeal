@@ -1,19 +1,21 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/app/theme/theme_extensions.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
+import 'package:hamro_deal/features/product/presentation/view_model/product_view_mode.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class AddProductScreen extends StatefulWidget {
+class AddProductScreen extends ConsumerStatefulWidget {
   const AddProductScreen({super.key});
 
   @override
-  State<AddProductScreen> createState() => _AddProductScreenState();
+  ConsumerState<AddProductScreen> createState() => _AddProductScreenState();
 }
 
-class _AddProductScreenState extends State<AddProductScreen> {
+class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   // permission code
   final List<XFile> _selectedMedia =
       []; //adds the photo in the required place or the storage
@@ -67,6 +69,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
           photo,
         ); //add the photo in tyhe required storage throught thr imagepcikeslectedImage
       });
+
+      // code foe sending the image to the server or the backend
+      await ref
+          .read(productViewModelProvider.notifier)
+          .uploadPhoto(File(photo.path));
     }
   }
 
@@ -89,6 +96,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
           source: ImageSource.gallery,
           imageQuality: 80,
         );
+        if (image != null) {
+          setState(() {
+            _selectedMedia.clear();
+            _selectedMedia.add(image);
+          });
+
+          await ref
+              .read(productViewModelProvider.notifier)
+              .uploadPhoto(File(image.path));
+        }
       }
     } catch (e) {
       debugPrint('Gallery Error $e');

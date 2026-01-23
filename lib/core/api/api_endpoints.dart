@@ -50,8 +50,8 @@ class ApiEndpoints {
   static const String items = '/items';
   static String itemById(String id) => '/items/$id';
   static String itemClaim(String id) => '/items/$id/claim';
-  static String itemUploadPhoto = 'items/upload-photo';
-  static String itemUploadVideo = 'items/upload-video';
+  static String itemUploadPhoto = '/items/upload-photo';
+  static String itemUploadVideo = '/items/upload-video';
 
   // ========= comment Endpoints =========
   static const String comments = '/comments';
