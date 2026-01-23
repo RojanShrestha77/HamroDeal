@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_client.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/core/services/storage/token_service.dart';
 import 'package:hamro_deal/features/product/data/datasources/product_datasource.dart';
+import 'package:hamro_deal/features/product/data/models/product_api_model.dart';
+import 'package:hamro_deal/features/product/data/models/product_hive_model.dart';
 
 // provider
 final productRemoteDatasourceProvider = Provider<IProductRemoteDataSource>((
@@ -65,5 +68,70 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
     );
     var a = response.data['success'];
     return a;
+  }
+
+  @override
+  Future<ProductApiModel> createProduct(ProductApiModel product) async {
+    final token = _tokenService.getToken();
+    final response = await _apiClient.post(
+      ApiEndpoints.items,
+      data: product.toJson(),
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    return ProductApiModel.fromJson(response.data['data']);
+  }
+
+  @override
+  Future<bool> deleteProduct(String productId) async {
+    final token = _tokenService.getToken();
+    await _apiClient.delete(
+      ApiEndpoints.itemById(productId),
+      options: Options(headers: {'Authorization': 'Bearer$token'}),
+    );
+    return true;
+  }
+
+  @override
+  Future<List<ProductApiModel>> getAllProducts() async {
+    final response = await _apiClient.get(ApiEndpoints.items);
+    final data = response.data['data'] as List;
+    return data.map((json) => ProductApiModel.fromJson(json)).toList();
+  }
+
+  @override
+  Future<ProductApiModel> getProductById(String productId) async {
+    final response = await _apiClient.get(ApiEndpoints.itemById(productId));
+    return ProductApiModel.fromJson(response.data['data']);
+  }
+
+  @override
+  Future<List<ProductApiModel>> getProductsByCategory(String categoryId) async {
+    final response = await _apiClient.get(
+      ApiEndpoints.items,
+      queryParameters: {'category': categoryId},
+    );
+    final data = response.data['data'] as List;
+    return data.map((json) => ProductApiModel.fromJson(json)).toList();
+  }
+
+  @override
+  Future<List<ProductApiModel>> getProductsByUser(String userId) async {
+    final response = await _apiClient.get(
+      ApiEndpoints.items,
+      queryParameters: {'id': userId},
+    );
+    final data = response.data['data'] as List;
+    return data.map((json) => ProductApiModel.fromJson(json)).toList();
+  }
+
+  @override
+  Future<bool> updateProduct(ProductApiModel product) async {
+    final token = await _tokenService.getToken();
+    await _apiClient.put(
+      ApiEndpoints.itemById(product.id!),
+      data: product.toJson(),
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    return true;
   }
 }

@@ -94,6 +94,21 @@ class ApiClient {
     );
   }
 
+  // put request
+  Future<Response> put(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return _dio.put(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+
   // Delete req
   Future<Response> delete(
     String path, {

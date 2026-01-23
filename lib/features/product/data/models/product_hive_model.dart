@@ -9,36 +9,39 @@ part 'product_hive_model.g.dart';
 @HiveType(typeId: HiveTableConstants.productTypeId)
 class ProductHiveModel extends HiveObject {
   @HiveField(0)
+  final String? id;
+  @HiveField(1)
   final String? productId;
 
-  @HiveField(1)
+  @HiveField(2)
   final String productName;
 
-  @HiveField(2)
+  @HiveField(3)
   final String description;
 
-  @HiveField(3)
+  @HiveField(4)
   final double price;
 
-  @HiveField(4)
+  @HiveField(5)
   final int quantity;
 
-  @HiveField(5)
+  @HiveField(6)
   final String? media;
 
-  @HiveField(6)
+  @HiveField(7)
   final String? mediaType;
 
-  @HiveField(7)
+  @HiveField(8)
   final bool isClaimed;
 
-  @HiveField(8)
+  @HiveField(9)
   final String? status;
 
-  @HiveField(9)
+  @HiveField(10)
   final String? category;
 
   ProductHiveModel({
+    this.id,
     String? productId,
     required this.productName,
     required this.description,
