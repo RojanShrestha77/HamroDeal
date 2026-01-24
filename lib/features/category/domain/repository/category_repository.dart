@@ -4,10 +4,8 @@ import 'package:hamro_deal/features/category/domain/entities/category_entitty.da
 
 abstract interface class ICategoryRepository {
   Future<Either<Failure, List<CategoryEntity>>> getAllCategories();
-  Future<Either<Failure, List<CategoryEntity>>> getCategoryById(
-    String categoryId,
-  );
+  Future<Either<Failure, CategoryEntity>> getCategoryById(String categoryId);
   Future<Either<Failure, bool>> createCategory(CategoryEntity category);
   Future<Either<Failure, bool>> updateCategory(CategoryEntity category);
-  Future<Either<Failure, bool>> deloeteCategory(String categoryId);
+  Future<Either<Failure, bool>> deleteCategory(String categoryId);
 }
