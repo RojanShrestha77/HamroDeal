@@ -1,0 +1,47 @@
+// import 'package:dartz/dartz.dart';
+// import 'package:equatable/equatable.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:hamro_deal/core/error/failures.dart';
+// import 'package:hamro_deal/core/usecase/app_usecase.dart';
+// import 'package:hamro_deal/features/category/domain/entities/category_entitty.dart';
+// import 'package:hamro_deal/features/category/domain/repository/category_repository.dart';
+
+// class CreateCategoryParams extends Equatable {
+//   final String name;
+//   final String? description;
+
+//   const CreateCategoryParams({
+//     required this.name,
+//     this.description,
+//   });
+  
+//   @override
+//   // TODO: implement props
+//   List<Object?> get props => [name, description];
+
+// }
+
+// // provider  
+// final createCategoryUsecaseProvider = Provider<CreateCategoryUsecase>((ref) {
+//   final categoryRepository = ref.read(categoryRepositoryProvider);
+//   return CreateCategoryUsecase(categoryRepository: );
+// });
+
+
+// class CreateCategoryUsecase implements UsecaseWithParams<bool, CreateCategoryParams>{
+//   final ICategoryRepository _categoryRepository;
+
+//   CreateCategoryUsecase({
+//     required ICategoryRepository categoryRepository,
+//   }) : _categoryRepository = categoryRepository;
+
+//   @override
+//   Future<Either<Failure, bool>> call(CreateCategoryParams params) {
+//     final categoryEntity = CategoryEntity(
+//       name: params.name, 
+//       description: params.description
+//       );
+
+//       return _categoryRepository.createCategory(categoryEntity);
+//   }
+// }

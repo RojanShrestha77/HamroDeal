@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/constants/hive_table_constants.dart';
 import 'package:hamro_deal/features/auth/data/models/auth_hive_model.dart';
+import 'package:hamro_deal/features/category/data/models/category_hive_model.dart';
 import 'package:hamro_deal/features/product/data/models/product_hive_model.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -118,6 +119,43 @@ class HiveService {
     await _productBox.clear();
     for (var product in products) {
       await _productBox.put(product.productId, product);
+    }
+  }
+
+  // ====================== Category Quaries ===================
+  Box<CategoryHiveModel> get _categoryBox =>
+      Hive.box<CategoryHiveModel>(HiveTableConstants.categoryTable);
+
+  Future<CategoryHiveModel> createCategory(CategoryHiveModel category) async {
+    await _categoryBox.put(category.categoryId, category);
+    return category;
+  }
+
+  List<CategoryHiveModel> getAllCategories() {
+    return _categoryBox.values.toList();
+  }
+
+  CategoryHiveModel? getCategoryById(String categoryId) {
+    return _categoryBox.get(categoryId);
+  }
+
+  Future<bool> updateCategory(CategoryHiveModel category) async {
+    if (_categoryBox.containsKey(category.categoryId)) {
+      await _categoryBox.put(category.categoryId, category);
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> deleteCategory(String categoryId) async {
+    await _categoryBox.delete(categoryId);
+  }
+
+  // cache all categories (clear ezxisting and replace with new data)
+  Future<void> cacheAllCategories(List<CategoryHiveModel> categories) async {
+    await _categoryBox.clear();
+    for (var category in categories) {
+      await _categoryBox.put(category.categoryId, category);
     }
   }
 }
