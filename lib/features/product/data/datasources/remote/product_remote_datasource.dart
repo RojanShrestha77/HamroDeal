@@ -126,7 +126,7 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
 
   @override
   Future<bool> updateProduct(ProductApiModel product) async {
-    final token = await _tokenService.getToken();
+    final token = _tokenService.getToken();
     await _apiClient.put(
       ApiEndpoints.itemById(product.id!),
       data: product.toJson(),

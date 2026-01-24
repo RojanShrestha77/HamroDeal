@@ -7,75 +7,183 @@ import 'package:hamro_deal/core/services/connectivity/network_info.dart';
 import 'package:hamro_deal/features/product/data/datasources/local/product_local_datasource.dart';
 import 'package:hamro_deal/features/product/data/datasources/product_datasource.dart';
 import 'package:hamro_deal/features/product/data/datasources/remote/product_remote_datasource.dart';
+import 'package:hamro_deal/features/product/data/models/product_api_model.dart';
+import 'package:hamro_deal/features/product/data/models/product_hive_model.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/domain/repositories/product_repository.dart';
 
 final productRepositoryProvider = Provider<IProductRepository>((ref) {
-  final productDatasource = ref.read(productLocalDatasourceProvider);
+  final localDatasource = ref.read(productLocalDatasourceProvider);
   final networkInfo = ref.read(networkInfoProvider);
-  final productRemoteDataSource = ref.read(productRemoteDatasourceProvider);
+  final remoteDataSource = ref.read(productRemoteDatasourceProvider);
   return ProductRepository(
-    productDataSource: productDatasource,
-    productRemoteDataSource: productRemoteDataSource,
+    localDataSource: localDatasource,
+    remoteDataSource: remoteDataSource,
     networkInfo: networkInfo,
   );
 });
 
 class ProductRepository extends IProductRepository {
-  final IProductLocalDataSource _productDataSource;
-  final IProductRemoteDataSource _productRemoteDataSource;
+  final ProductLocalDatasource _localDataSource;
+  final IProductRemoteDataSource _remoteDataSource;
   final NetworkInfo _networkInfo;
 
   ProductRepository({
-    required IProductLocalDataSource productDataSource,
-    required IProductRemoteDataSource productRemoteDataSource,
+    required ProductLocalDatasource localDataSource,
+    required IProductRemoteDataSource remoteDataSource,
     required NetworkInfo networkInfo,
-  }) : _productDataSource = productDataSource,
-       _productRemoteDataSource = productRemoteDataSource,
+  }) : _localDataSource = localDataSource,
+       _remoteDataSource = remoteDataSource,
        _networkInfo = networkInfo;
   @override
-  Future<Either<Failure, bool>> createProduct(ProductEntity product) {
-    // TODO: implement createProduct
-    throw UnimplementedError();
+  Future<Either<Failure, bool>> createProduct(ProductEntity product) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final productApiModel = ProductApiModel.fromEntity(product);
+        await _remoteDataSource.createProduct(productApiModel);
+        return const Right(true);
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      return const Left(LocalDatabaseFailure(message: 'No internet available'));
+    }
   }
 
   @override
-  Future<Either<Failure, bool>> deleteProduct(String productId) {
-    // TODO: implement deleteProduct
-    throw UnimplementedError();
+  Future<Either<Failure, bool>> deleteProduct(String productId) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.deleteProduct(productId);
+
+        return const Right(true);
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      try {
+        final result = await _localDataSource.deleteProduct(productId);
+        if (result) {
+          return const Right(true);
+        } else {
+          return Left(LocalDatabaseFailure(message: 'Failed to delete item'));
+        }
+      } catch (e) {
+        return Left(LocalDatabaseFailure(message: e.toString()));
+      }
+    }
   }
 
   @override
-  Future<Either<Failure, List<ProductEntity>>> getAllProducts() {
-    // TODO: implement getAllProducts
-    throw UnimplementedError();
+  Future<Either<Failure, List<ProductEntity>>> getAllProducts() async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final models = await _remoteDataSource.getAllProducts();
+        // cache the data
+        final hiveModels = ProductHiveModel.fromApiModelList(models);
+        await _localDataSource.cacheAllProducts(hiveModels);
+        final entities = ProductApiModel.toEntityList(models);
+        return Right(entities);
+      } catch (e) {
+        return _getCachedItems();
+      }
+    } else {
+      return _getCachedItems();
+    }
+  }
+
+  // helper method to get the cached items
+  Future<Either<Failure, List<ProductEntity>>> _getCachedItems() async {
+    try {
+      final models = await _localDataSource.getAllProducts();
+      final entities = ProductHiveModel.toEntityList(models);
+      return Right(entities);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
 
   @override
   Future<Either<Failure, List<ProductEntity>>> getProductsByCategory(
     String categoryId,
-  ) {
-    // TODO: implement getProductsByCategory
-    throw UnimplementedError();
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final models = await _remoteDataSource.getProductsByCategory(
+          categoryId,
+        );
+        final entities = ProductApiModel.toEntityList(models);
+        return Right(entities);
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      try {
+        final models = await _localDataSource.getProductsByCategory(categoryId);
+        final entities = ProductHiveModel.toEntityList(models);
+        return Right(entities);
+      } catch (e) {
+        return Left(LocalDatabaseFailure(message: e.toString()));
+      }
+    }
   }
 
   @override
-  Future<Either<Failure, ProductEntity>> getProductsById(String productId) {
-    // TODO: implement getProductsById
-    throw UnimplementedError();
+  Future<Either<Failure, ProductEntity>> getProductsById(
+    String productId,
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final model = await _remoteDataSource.getProductById(productId);
+        return Right(model.toEntity());
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      try {
+        final model = await _localDataSource.getProductsById(productId);
+        if (model != null) {
+          return Right(model.toEntity());
+        }
+        return const Left(LocalDatabaseFailure(message: 'Item not found'));
+      } catch (e) {
+        return Left(LocalDatabaseFailure(message: e.toString()));
+      }
+    }
   }
 
   @override
-  Future<Either<Failure, bool>> updateProduct(ProductEntity product) {
-    // TODO: implement updateProduct
-    throw UnimplementedError();
+  Future<Either<Failure, bool>> updateProduct(ProductEntity product) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final productApiModel = ProductApiModel.fromEntity(product);
+        await _remoteDataSource.updateProduct(productApiModel);
+        return const Right(true);
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      try {
+        final productHiveModel = ProductHiveModel.fromEntity(product);
+        final result = await _localDataSource.updateProduct(productHiveModel);
+        if (result) {
+          return const Right(true);
+        } else {
+          return Left(
+            LocalDatabaseFailure(message: 'unable to update product'),
+          );
+        }
+      } catch (e) {
+        return Left(LocalDatabaseFailure(message: e.toString()));
+      }
+    }
   }
 
   @override
   Future<Either<Failure, String>> uploadPhoto(File photo) async {
     if (await _networkInfo.isConnected) {
       try {
-        final url = await _productRemoteDataSource.uploadImage(photo);
+        final url = await _remoteDataSource.uploadImage(photo);
         return Right(url);
       } catch (e) {
         return Left(ApiFailure(message: e.toString()));
@@ -89,7 +197,7 @@ class ProductRepository extends IProductRepository {
   Future<Either<Failure, String>> uploadVideo(File video) async {
     if (await _networkInfo.isConnected) {
       try {
-        final url = await _productRemoteDataSource.uploadVideo(video);
+        final url = await _remoteDataSource.uploadVideo(video);
         return Right(url);
       } catch (e) {
         return Left(ApiFailure(message: e.toString()));
@@ -102,8 +210,23 @@ class ProductRepository extends IProductRepository {
   @override
   Future<Either<Failure, List<ProductEntity>>> getProductsByUser(
     String userId,
-  ) {
-    // TODO: implement getProductsByUser
-    throw UnimplementedError();
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final models = await _remoteDataSource.getProductsByUser(userId);
+        final entities = ProductApiModel.toEntityList(models);
+        return Right(entities);
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      try {
+        final models = await _localDataSource.getProductsByUser(userId);
+        final entities = ProductHiveModel.toEntityList(models);
+        return Right(entities);
+      } catch (e) {
+        return Left(LocalDatabaseFailure(message: e.toString()));
+      }
+    }
   }
 }

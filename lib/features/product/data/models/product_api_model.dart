@@ -97,7 +97,7 @@ class ProductApiModel {
     );
   }
 
-  static List<ProductEntity> toProductList(List<ProductApiModel> models) {
+  static List<ProductEntity> toEntityList(List<ProductApiModel> models) {
     return models.map((model) => model.toEntity()).toList();
   }
 }
