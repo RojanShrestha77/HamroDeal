@@ -76,7 +76,7 @@ class UserSessionService {
     return _prefs.getBool(_keyIsLoggedIn) ?? false;
   }
 
-  String? getUserId() {
+  String? getCurrrentUserId() {
     return _prefs.getString(_keyUserId);
   }
 

@@ -14,43 +14,63 @@ class HiveService {
   Future<void> init() async {
     final directory = await getApplicationDocumentsDirectory();
     final path = '${directory.path}/${HiveTableConstants.dbName}';
-    Hive.init(path);
-    _registerAdapter();
-    await openBoxes();
-  }
-  // Register Adapter
-  // Open Boxes
-  // close Boxes
-  // Queries
 
-  // Register Adapter
-  void _registerAdapter() {
+    Hive.init(path);
+
+    _registerAdapters();
+    await _openBoxes();
+  }
+
+  // =================== Register Adapters ===================
+  void _registerAdapters() {
+    // Auth
     if (!Hive.isAdapterRegistered(HiveTableConstants.authTypeId)) {
       Hive.registerAdapter(AuthHiveModelAdapter());
     }
+
+    // Product
+    if (!Hive.isAdapterRegistered(HiveTableConstants.productTypeId)) {
+      Hive.registerAdapter(ProductHiveModelAdapter());
+    }
+
+    // Category
+    if (!Hive.isAdapterRegistered(HiveTableConstants.categoryTypeId)) {
+      Hive.registerAdapter(CategoryHiveModelAdapter());
+    }
   }
 
-  // Open Boxes
-  Future<void> openBoxes() async {
-    await Hive.openBox<AuthHiveModel>(HiveTableConstants.authTable);
+  // =================== Open Boxes ===================
+  Future<void> _openBoxes() async {
+    // Auth box
+    if (!Hive.isBoxOpen(HiveTableConstants.authTable)) {
+      await Hive.openBox<AuthHiveModel>(HiveTableConstants.authTable);
+    }
+
+    // Product box
+    if (!Hive.isBoxOpen(HiveTableConstants.productTable)) {
+      await Hive.openBox<ProductHiveModel>(HiveTableConstants.productTable);
+    }
+
+    // Category box
+    if (!Hive.isBoxOpen(HiveTableConstants.categoryTable)) {
+      await Hive.openBox<CategoryHiveModel>(HiveTableConstants.categoryTable);
+    }
   }
 
-  // close boxes
+  // =================== Close ===================
   Future<void> close() async {
     await Hive.close();
   }
 
-  // =============== Auth QUERIES  ================
+  // =================== Auth Queries ===================
   Box<AuthHiveModel> get _authBox =>
       Hive.box<AuthHiveModel>(HiveTableConstants.authTable);
 
-  // register
   Future<AuthHiveModel> registerUser(AuthHiveModel model) async {
     await _authBox.put(model.userId, model);
     return model;
   }
 
-  // login
   Future<AuthHiveModel?> loginUser(String email, String password) async {
     final users = _authBox.values.where(
       (user) => user.email == email && user.password == password,
@@ -61,26 +81,23 @@ class HiveService {
     return null;
   }
 
-  // logout
   Future<void> logoutUser() async {}
 
-  // get user
   AuthHiveModel? getCurrentUser(String authId) {
     return _authBox.get(authId);
   }
 
-  // is email exists
   bool isEmailExists(String email) {
     final users = _authBox.values.where((user) => user.email == email);
     return users.isNotEmpty;
   }
 
-  // ====================== product queries ===================
-
+  // =================== Product Queries ===================
   Box<ProductHiveModel> get _productBox =>
       Hive.box<ProductHiveModel>(HiveTableConstants.productTable);
 
   Future<ProductHiveModel> createProduct(ProductHiveModel product) async {
+    // product.productId MUST NOT be null
     await _productBox.put(product.productId, product);
     return product;
   }
@@ -97,9 +114,9 @@ class HiveService {
     return _productBox.values.where((product) => product.id == userId).toList();
   }
 
-  List<ProductHiveModel> getProductsByCategory(String categoryid) {
+  List<ProductHiveModel> getProductsByCategory(String categoryId) {
     return _productBox.values
-        .where((product) => product.category == categoryid)
+        .where((product) => product.category == categoryId)
         .toList();
   }
 
@@ -117,16 +134,17 @@ class HiveService {
 
   Future<void> cacheAllProducts(List<ProductHiveModel> products) async {
     await _productBox.clear();
-    for (var product in products) {
+    for (final product in products) {
       await _productBox.put(product.productId, product);
     }
   }
 
-  // ====================== Category Quaries ===================
+  // =================== Category Queries ===================
   Box<CategoryHiveModel> get _categoryBox =>
       Hive.box<CategoryHiveModel>(HiveTableConstants.categoryTable);
 
   Future<CategoryHiveModel> createCategory(CategoryHiveModel category) async {
+    // category.categoryId MUST NOT be null
     await _categoryBox.put(category.categoryId, category);
     return category;
   }
@@ -151,10 +169,9 @@ class HiveService {
     await _categoryBox.delete(categoryId);
   }
 
-  // cache all categories (clear ezxisting and replace with new data)
   Future<void> cacheAllCategories(List<CategoryHiveModel> categories) async {
     await _categoryBox.clear();
-    for (var category in categories) {
+    for (final category in categories) {
       await _categoryBox.put(category.categoryId, category);
     }
   }
