@@ -8,7 +8,7 @@ import 'package:hamro_deal/features/product/domain/entities/product_entity.dart'
 import 'package:hamro_deal/features/product/domain/repositories/product_repository.dart';
 
 class CreateProductParams extends Equatable {
-  final String title;
+  final String productName;
   final String description;
   final double price;
   final int quantity;
@@ -17,7 +17,7 @@ class CreateProductParams extends Equatable {
   final String? mediaType;
 
   const CreateProductParams({
-    required this.title,
+    required this.productName,
     required this.description,
     required this.price,
     required this.quantity,
@@ -29,7 +29,7 @@ class CreateProductParams extends Equatable {
   @override
   // TODO: implement props
   List<Object?> get props => [
-    title,
+    productName,
     description,
     price,
     quantity,
@@ -54,7 +54,7 @@ class CreateProductUsecase
   @override
   Future<Either<Failure, bool>> call(CreateProductParams params) {
     final productEntity = ProductEntity(
-      productName: params.title,
+      productName: params.productName,
       description: params.description,
       category: params.category,
       price: params.price,

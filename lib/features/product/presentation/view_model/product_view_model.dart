@@ -92,7 +92,7 @@ class ProductViewModel extends Notifier<ProductState> {
   }
 
   Future<void> createProduct({
-    required String title,
+    required String productName,
     required String description,
     required double price,
     required int quantity,
@@ -103,7 +103,7 @@ class ProductViewModel extends Notifier<ProductState> {
     state = state.copyWith(status: ProductStatus.loading);
 
     final params = CreateProductParams(
-      title: title,
+      productName: productName,
       description: description,
       price: price,
       quantity: quantity,
