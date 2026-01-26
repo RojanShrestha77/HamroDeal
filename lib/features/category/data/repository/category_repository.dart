@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/error/failures.dart';
 import 'package:hamro_deal/core/services/connectivity/network_info.dart';
 import 'package:hamro_deal/features/category/data/datasources/local/category_local_datasource.dart';
@@ -7,6 +8,18 @@ import 'package:hamro_deal/features/category/data/models/category_api_model.dart
 import 'package:hamro_deal/features/category/data/models/category_hive_model.dart';
 import 'package:hamro_deal/features/category/domain/entities/category_entitty.dart';
 import 'package:hamro_deal/features/category/domain/repository/category_repository.dart';
+
+// provider
+final categoryRepositoryProvider = Provider<ICategoryRepository>((ref) {
+  final categoryLocalDatasource = ref.read(categoryLocalDatasourceProvider);
+  final categoryRemoteDatasource = ref.read(categoryRemoteDatasourceProvider);
+  final networkInfo = ref.read(networkInfoProvider);
+  return CategoryRepository(
+    categoryLocalDatasource: categoryLocalDatasource,
+    categoryRemoteDatasource: categoryRemoteDatasource,
+    networkInfo: networkInfo,
+  );
+});
 
 class CategoryRepository implements ICategoryRepository {
   final CategoryLocalDatasource _categoryLocalDatasource;

@@ -14,15 +14,15 @@ class CategoryApiModel {
   });
 
   Map<String, dynamic> toJson() {
-    return {'name': name, if (description != null) 'desciption': description};
+    return {'name': name, if (description != null) 'description': description};
   }
 
   factory CategoryApiModel.fromJson(Map<String, dynamic> json) {
     return CategoryApiModel(
       id: json['_id'] as String?,
-      name: json['_name'] as String,
-      description: json['_description'] as String?,
-      status: json['_status'] as String?,
+      name: json['name'] as String,
+      description: json['description'] as String?,
+      status: json['status'] as String?,
     );
   }
 

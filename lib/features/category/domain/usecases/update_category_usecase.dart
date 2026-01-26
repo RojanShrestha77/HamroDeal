@@ -7,36 +7,44 @@ import 'package:hamro_deal/features/category/data/repository/category_repository
 import 'package:hamro_deal/features/category/domain/entities/category_entitty.dart';
 import 'package:hamro_deal/features/category/domain/repository/category_repository.dart';
 
-class CreateCategoryParams extends Equatable {
+class UpdateCategoryParams extends Equatable {
+  final String categoryId;
   final String name;
   final String? description;
+  final String? status;
 
-  const CreateCategoryParams({required this.name, this.description});
+  const UpdateCategoryParams({
+    required this.categoryId,
+    required this.name,
+    this.description,
+    this.status,
+  });
 
   @override
-  List<Object?> get props => [name, description];
+  List<Object?> get props => [categoryId, name, description, status];
 }
 
-// provider
-final createCategoryUsecaseProvider = Provider<CreateCategoryUsecase>((ref) {
+final updateCategoryUsecaseProvider = Provider<UpdateCategoryUsecase>((ref) {
   final categoryRepository = ref.read(categoryRepositoryProvider);
-  return CreateCategoryUsecase(categoryRepository: categoryRepository);
+  return UpdateCategoryUsecase(categoryRepository: categoryRepository);
 });
 
-class CreateCategoryUsecase
-    implements UsecaseWithParams<bool, CreateCategoryParams> {
+class UpdateCategoryUsecase
+    implements UsecaseWithParams<bool, UpdateCategoryParams> {
   final ICategoryRepository _categoryRepository;
 
-  CreateCategoryUsecase({required ICategoryRepository categoryRepository})
+  UpdateCategoryUsecase({required ICategoryRepository categoryRepository})
     : _categoryRepository = categoryRepository;
 
   @override
-  Future<Either<Failure, bool>> call(CreateCategoryParams params) {
+  Future<Either<Failure, bool>> call(UpdateCategoryParams params) {
     final categoryEntity = CategoryEntity(
+      categoryId: params.categoryId,
       name: params.name,
       description: params.description,
+      status: params.status,
     );
 
-    return _categoryRepository.createCategory(categoryEntity);
+    return _categoryRepository.updateCategory(categoryEntity);
   }
 }

@@ -49,7 +49,7 @@ class CategoryLocalDatasource implements ICategoryDatasource {
   @override
   Future<CategoryHiveModel?> getCategoryById(String categoryId) async {
     try {
-      return getCategoryById(categoryId);
+      return _hiveService.getCategoryById(categoryId);
     } catch (e) {
       return null;
     }
