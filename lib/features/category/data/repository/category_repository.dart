@@ -68,29 +68,42 @@ class CategoryRepository implements ICategoryRepository {
 
   @override
   Future<Either<Failure, List<CategoryEntity>>> getAllCategories() async {
+    // print('🔵 [Repo] getAllCategories called');
+    // print('🔵 [Repo] Checking network connection...');
+
     if (await _networkInfo.isConnected) {
+      // print('🟢 [Repo] Network connected - fetching from API');
       try {
         final models = await _categoryRemoteDatasource.getAllCategories();
-        // cache all the data locally for offline accesss
+        // print('🟢 [Repo] API returned ${models.length} categories');
+
+        // cache all the data locally for offline access
         final hiveModels = CategoryHiveModel.fromApiModelList(models);
         await _categoryLocalDatasource.cacheAllCategories(hiveModels);
+        // print('🟢 [Repo] Cached ${hiveModels.length} categories to Hive');
+
         final entities = CategoryApiModel.toEntityList(models);
+        // print('🟢 [Repo] Returning ${entities.length} entities');
         return Right(entities);
       } catch (e) {
+        // print('🔴 [Repo] API failed: $e');
+        // print('🔴 [Repo] Falling back to cache');
         return _getCachedCategories();
       }
     } else {
+      // print('🔴 [Repo] No network - using cache');
       return _getCachedCategories();
     }
   }
 
-  // helper method for the getCacheCatgories
   Future<Either<Failure, List<CategoryEntity>>> _getCachedCategories() async {
     try {
       final models = await _categoryLocalDatasource.getAllCategories();
+      // print('🟢 [Repo] Got ${models.length} cached categories');
       final entities = CategoryHiveModel.toEntityList(models);
       return Right(entities);
     } catch (e) {
+      // print('🔴 [Repo] Cache retrieval failed: $e');
       return Left(LocalDatabaseFailure(message: e.toString()));
     }
   }

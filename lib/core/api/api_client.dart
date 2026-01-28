@@ -155,7 +155,7 @@ class _AuthInterceptor extends Interceptor {
       ApiEndpoints.batches,
       ApiEndpoints.categories,
       ApiEndpoints.studentLogin,
-      ApiEndpoints,
+      ApiEndpoints.items,
       ApiEndpoints.studentRegister,
     ];
 

@@ -242,7 +242,17 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       SnackbarUtils.showError(context, 'Please select a category');
       return;
     }
+    ;
 
+    // Check if media was selected but upload failed
+    if (_selectedMedia.isNotEmpty &&
+        ref.read(productViewModelProvider).uploadedMediaUrl == null) {
+      SnackbarUtils.showError(
+        context,
+        'Please wait for media upload to complete',
+      );
+      return;
+    }
     final uploadedPhotoUrl = ref
         .read(productViewModelProvider)
         .uploadedMediaUrl;
