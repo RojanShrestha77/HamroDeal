@@ -6,6 +6,7 @@ import 'package:hamro_deal/core/services/storage/user_session_service.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
+import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
 import 'package:hamro_deal/features/product/presentation/state/product_state.dart';
 import 'package:hamro_deal/features/product/presentation/view_model/product_view_model.dart';
 
@@ -160,6 +161,12 @@ class _MyProductsPageState extends ConsumerState<MyProductsPage> {
             categoryName: categoryName,
             onTap: () {
               // Navigate to the product details
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductDetailPage(product: product),
+                ),
+              );
             },
             onEdit: () {
               // Navigate to the edit product
@@ -340,7 +347,7 @@ class _ProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // ✅ Fixed Price/Stock Row
+                  // Price/Stock Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
