@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:hamro_deal/features/auth/data/models/auth_api_model.dart';
 import 'package:hamro_deal/features/auth/data/models/auth_hive_model.dart';
 
@@ -10,6 +12,7 @@ abstract interface class IAuthLocalDatasource {
 }
 
 abstract interface class IAuthRemoteDatasource {
+  Future<String> uploadImage(File image);
   Future<AuthApiModel> register(AuthApiModel user);
   Future<AuthApiModel?> login(String email, String password);
   Future<AuthApiModel?> getUserById(String authId);

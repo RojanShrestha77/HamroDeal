@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_client.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
@@ -72,5 +75,28 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
       return registerUser;
     }
     return user;
+  }
+
+  @override
+  Future<String> uploadImage(File image) async {
+    final fileName = image.path.split('/').last;
+    // formdata = used when need to send the image/video and the data together
+    //.fromMap() = coverts a dat map into formdata so it can be as a multyipart form data to the backend
+
+    final formData = FormData.fromMap({
+      'profilePicture': await MultipartFile.fromFile(
+        image.path,
+        filename: fileName,
+      ),
+    });
+    // get token from the token service
+    final token = _tokenService.getToken();
+    final response = await _apiClient.uploadFile(
+      ApiEndpoints.uploadProfilePicture,
+      formData: formData,
+      options: Options(headers: {'authorization': 'Bearer $token'}),
+    );
+    var imageUrl = response.data['data'];
+    return imageUrl;
   }
 }

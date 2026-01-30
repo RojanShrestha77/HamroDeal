@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:dartz/dartz.dart';
@@ -113,6 +114,20 @@ class AuthRepository implements IAuthRepository {
       } catch (e) {
         return Left(LocalDatabaseFailure(message: e.toString()));
       }
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> uploadProfilePicture(File photo) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final url = await _authRemoteDatasource.uploadImage(photo);
+        return Right(url);
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      return Left(ApiFailure(message: 'No internet connection'));
     }
   }
 }

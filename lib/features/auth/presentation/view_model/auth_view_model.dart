@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/login_usecase.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/register_usecase.dart';
+import 'package:hamro_deal/features/auth/domain/usecases/upload_profile_picture_usecase.dart';
 import 'package:hamro_deal/features/auth/presentation/state/auth_state.dart';
+import 'package:hamro_deal/features/product/presentation/state/product_state.dart';
 
 // provider
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
@@ -11,10 +15,14 @@ final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
 class AuthViewModel extends Notifier<AuthState> {
   late final RegisterUsecase _registerUsecase;
   late final LoginUsecase _loginUsecase;
+  late final UploadProfilePictureUsecase _uploadProfilePictureUsecase;
   @override
   AuthState build() {
     _registerUsecase = ref.read(registerUsecaseProvider);
     _loginUsecase = ref.read(loginUsecaseProvider);
+    _uploadProfilePictureUsecase = ref.read(
+      uploadProfilePictureUsecaseProvider,
+    );
     return AuthState();
   }
 
@@ -80,6 +88,37 @@ class AuthViewModel extends Notifier<AuthState> {
           errorMessage: null,
         );
       },
+    );
+  }
+
+  // for the profile picture
+  Future<String?> uploadProfilePicture(File photo) async {
+    state = state.copyWith(status: AuthStatus.loading);
+
+    final result = await _uploadProfilePictureUsecase(photo);
+
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: failure.message,
+        );
+        return null;
+      },
+      (url) {
+        state = state.copyWith(
+          status: AuthStatus.loaded,
+          uploadedProfilePictureUrl: url,
+        );
+        return url;
+      },
+    );
+  }
+
+  void clearUploadedProfilePicture() {
+    state = state.copyWith(
+      uploadedProfilePictureUrl: null,
+      resetUploadedProfilePictureUrl: true,
     );
   }
 }
