@@ -131,7 +131,7 @@ class ProductViewModel extends Notifier<ProductState> {
 
   Future<void> updateProduct({
     required String productId,
-    required String title,
+    required String productName,
     required String description,
     required double price,
     required int quantity,
@@ -144,7 +144,7 @@ class ProductViewModel extends Notifier<ProductState> {
 
     final params = UpdateProductParams(
       productId: productId,
-      productName: title,
+      productName: productName,
       description: description,
       price: price,
       quantity: quantity,

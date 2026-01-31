@@ -3,7 +3,7 @@ import 'package:hamro_deal/screens/bottom_screen/cart_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/search_screen.dart';
 import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
 import 'package:hamro_deal/screens/category_screen.dart';
-import 'package:hamro_deal/screens/bottom_screen/profile_screen.dart';
+import 'package:hamro_deal/features/auth/presentation/pages/profile_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   const BottomNavigationScreen({super.key});

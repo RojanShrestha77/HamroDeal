@@ -109,33 +109,33 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           ),
 
           //Product GRid
-          Expanded(
-            child: filteredProducts.isEmpty
-                ? const Center(
-                    child: Text(
-                      "No products available",
-                      style: TextStyle(fontSize: 18, color: Colors.black54),
-                    ),
-                  )
-                : GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredProducts.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.7, //(width/height)
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                        ),
-                    itemBuilder: (context, index) {
-                      final product = filteredProducts[index];
-                      return VerticalProductCard(
-                        title: product.title,
-                        image: product.image,
-                      );
-                    },
-                  ),
-          ),
+          // Expanded(
+          //   child: filteredProducts.isEmpty
+          //       ? const Center(
+          //           child: Text(
+          //             "No products available",
+          //             style: TextStyle(fontSize: 18, color: Colors.black54),
+          //           ),
+          //         )
+          //       : GridView.builder(
+          //           padding: const EdgeInsets.all(16),
+          //           itemCount: filteredProducts.length,
+          //           gridDelegate:
+          //               const SliverGridDelegateWithFixedCrossAxisCount(
+          //                 crossAxisCount: 2,
+          //                 childAspectRatio: 0.7, //(width/height)
+          //                 mainAxisSpacing: 16,
+          //                 crossAxisSpacing: 16,
+          //               ),
+          //           itemBuilder: (context, index) {
+          //             final product = filteredProducts[index];
+          //             // return VerticalProductCard(
+          //             //   title: product.title,
+          //             //   image: product.image,
+          //             // );
+          //           },
+          //         ),
+          // ),
         ],
       ),
     );

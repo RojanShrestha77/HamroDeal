@@ -40,6 +40,9 @@ class ApiEndpoints {
   static String studentById(String id) => '/students/$id';
   static String studentPhoto(String id) => '/students/$id/photo';
 
+  // ============== Profile Picture ==============
+  static const String uploadProfilePicture = '/students/upload-profile-picture';
+
   // ======= Item/Product Endpoints =========
   static const String items = '/items';
   static String itemById(String id) => '/items/$id';
@@ -54,7 +57,6 @@ class ApiEndpoints {
   static String commentLike(String id) => '/comments/$id/like';
 
   // ==================== Media Helper Methods ==================
-  // ✅ Clean, simple, like professor's code
   static String itemPicture(String filename) =>
       '$mediaServerUrl/item_photos/$filename';
 

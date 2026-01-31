@@ -6,6 +6,7 @@ import 'package:hamro_deal/core/services/storage/user_session_service.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
+import 'package:hamro_deal/features/product/presentation/page/edit_product_page.dart';
 import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
 import 'package:hamro_deal/features/product/presentation/state/product_state.dart';
 import 'package:hamro_deal/features/product/presentation/view_model/product_view_model.dart';
@@ -170,6 +171,12 @@ class _MyProductsPageState extends ConsumerState<MyProductsPage> {
             },
             onEdit: () {
               // Navigate to the edit product
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditProductPage(product: product),
+                ),
+              );
             },
             onDelete: () => _showDeleteDialog(context, product),
           ),
