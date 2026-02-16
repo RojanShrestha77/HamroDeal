@@ -37,9 +37,9 @@ class HorizontalProductCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(16),
               ),
-              child: product.media != null
+              child: product.images != null
                   ? Image.network(
-                      ApiEndpoints.itemPicture(product.media!),
+                      ApiEndpoints.productImage(product.images!),
                       height: 200,
                       width: 200,
                       fit: BoxFit.cover,
@@ -83,7 +83,7 @@ class HorizontalProductCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product.productName,
+                    product.title,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

@@ -3,9 +3,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/error/failures.dart';
 import 'package:hamro_deal/core/usecase/app_usecase.dart';
-import 'package:hamro_deal/features/category/data/repository/category_repository.dart';
+import 'package:hamro_deal/features/category/data/repositories/category_repository.dart';
 import 'package:hamro_deal/features/category/domain/entities/category_entitty.dart';
-import 'package:hamro_deal/features/category/domain/repository/category_repository.dart';
+import 'package:hamro_deal/features/category/domain/repositories/category_repository.dart';
 
 class GetCategoryByIdParams extends Equatable {
   final String categoryId;

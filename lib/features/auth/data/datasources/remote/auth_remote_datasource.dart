@@ -9,7 +9,6 @@ import 'package:hamro_deal/core/services/storage/user_session_service.dart';
 import 'package:hamro_deal/features/auth/data/datasources/auth_datasource.dart';
 import 'package:hamro_deal/features/auth/data/models/auth_api_model.dart';
 
-// create provider
 final authRemoteDatasourceProvider = Provider<IAuthRemoteDatasource>((ref) {
   return AuthRemoteDatasource(
     apiClient: ref.read(apiClientProvider),
@@ -32,15 +31,24 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
        _tokenService = tokenService;
 
   @override
-  Future<AuthApiModel?> getUserById(String authId) {
-    // TODO: implement getUserById
-    throw UnimplementedError();
+  Future<AuthApiModel?> getUserById(String authId) async {
+    final token = _tokenService.getToken();
+    final response = await _apiClient.get(
+      ApiEndpoints.whoami,
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+
+    if (response.data['success'] == true) {
+      final data = response.data['data'] as Map<String, dynamic>;
+      return AuthApiModel.fromJson(data);
+    }
+    return null;
   }
 
   @override
   Future<AuthApiModel?> login(String email, String password) async {
     final response = await _apiClient.post(
-      ApiEndpoints.studentLogin,
+      ApiEndpoints.login,
       data: {'email': email, 'password': password},
     );
 
@@ -51,10 +59,13 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
       await _userSessionService.saveUserSession(
         userId: user.userId!,
         email: user.email,
-        fullName: user.fullName,
+        fullName: '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
         username: user.username,
+        profileImage: user.imageUrl,
+        role: user.role,
+        isApproved: user.isApproved,
       );
-      // save token
+
       final token = response.data['token'] as String?;
       await _tokenService.saveToken(token!);
       return user;
@@ -65,7 +76,7 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
   @override
   Future<AuthApiModel> register(AuthApiModel user) async {
     final response = await _apiClient.post(
-      ApiEndpoints.students,
+      ApiEndpoints.register,
       data: user.toJson(),
     );
 
@@ -80,23 +91,20 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
   @override
   Future<String> uploadImage(File image) async {
     final fileName = image.path.split('/').last;
-    // formdata = used when need to send the image/video and the data together
-    //.fromMap() = coverts a dat map into formdata so it can be as a multyipart form data to the backend
 
     final formData = FormData.fromMap({
-      'profilePicture': await MultipartFile.fromFile(
-        image.path,
-        filename: fileName,
-      ),
+      'image': await MultipartFile.fromFile(image.path, filename: fileName),
     });
-    // get token from the token service
+
     final token = _tokenService.getToken();
-    final response = await _apiClient.uploadFile(
-      ApiEndpoints.uploadProfilePicture,
-      formData: formData,
-      options: Options(headers: {'authorization': 'Bearer $token'}),
+
+    final response = await _apiClient.put(
+      ApiEndpoints.updateProfile,
+      data: formData,
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
-    var imageUrl = response.data['data'];
+
+    var imageUrl = response.data['data']['imageUrl'];
     return imageUrl;
   }
 }

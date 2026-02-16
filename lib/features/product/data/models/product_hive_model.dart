@@ -10,11 +10,12 @@ part 'product_hive_model.g.dart';
 class ProductHiveModel extends HiveObject {
   @HiveField(0)
   final String? id;
+
   @HiveField(1)
   final String? productId;
 
   @HiveField(2)
-  final String productName;
+  final String title;
 
   @HiveField(3)
   final String description;
@@ -23,65 +24,52 @@ class ProductHiveModel extends HiveObject {
   final double price;
 
   @HiveField(5)
-  final int quantity;
+  final int stock;
 
   @HiveField(6)
-  final String? media;
+  final String? images;
 
   @HiveField(7)
-  final String? mediaType;
+  final String? categoryId;
 
   @HiveField(8)
-  final bool isClaimed;
-
-  @HiveField(9)
-  final String? status;
-
-  @HiveField(10)
-  final String? category;
+  final String? sellerId;
 
   ProductHiveModel({
     this.id,
     String? productId,
-    required this.productName,
+    required this.title,
     required this.description,
     required this.price,
-    this.media,
-    this.mediaType,
-    required this.quantity,
-
-    bool? isClaimed,
-    String? status,
-    this.category,
-  }) : productId = productId ?? const Uuid().v4(),
-       isClaimed = isClaimed ?? false,
-       status = status ?? 'available';
+    required this.stock,
+    this.images,
+    this.categoryId,
+    this.sellerId,
+  }) : productId = productId ?? const Uuid().v4();
 
   ProductEntity toEntity() {
     return ProductEntity(
       productId: productId,
-      productName: productName,
+      title: title,
       description: description,
       price: price,
-      quantity: quantity,
-      category: category,
-      media: media,
-      mediaType: mediaType,
-      status: status,
+      stock: stock,
+      categoryId: categoryId,
+      images: images,
+      sellerId: sellerId,
     );
   }
 
   factory ProductHiveModel.fromEntity(ProductEntity entity) {
     return ProductHiveModel(
       productId: entity.productId,
-      productName: entity.productName,
+      title: entity.title,
       description: entity.description,
       price: entity.price,
-      quantity: entity.quantity,
-      category: entity.category,
-      media: entity.media,
-      mediaType: entity.mediaType,
-      status: entity.status,
+      stock: entity.stock,
+      categoryId: entity.categoryId,
+      images: entity.images,
+      sellerId: entity.sellerId,
     );
   }
 
@@ -89,23 +77,19 @@ class ProductHiveModel extends HiveObject {
     return models.map((model) => model.toEntity()).toList();
   }
 
-  // cache
-  // convert the api model into the hive model for caching
   factory ProductHiveModel.fromApiModel(ProductApiModel apiModel) {
     return ProductHiveModel(
       productId: apiModel.id,
-      category: apiModel.category,
-      productName: apiModel.productName,
+      title: apiModel.title,
       description: apiModel.description,
       price: apiModel.price,
-      quantity: apiModel.quantity,
-      media: apiModel.media,
-      mediaType: apiModel.mediaType,
-      status: apiModel.status,
+      stock: apiModel.stock,
+      categoryId: apiModel.categoryId,
+      images: apiModel.images,
+      sellerId: apiModel.sellerId,
     );
   }
 
-  // convert list of Api models to Hive models
   static List<ProductHiveModel> fromApiModelList(
     List<ProductApiModel> apiModels,
   ) {

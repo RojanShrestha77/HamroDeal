@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hamro_deal/screens/onboarding/onboarding1_screen.dart';
-import 'package:hamro_deal/screens/onboarding/onboarding2_screen.dart';
-import 'package:hamro_deal/screens/onboarding/onboarding3_screen.dart';
+import 'package:hamro_deal/features/onboarding/presentation/pages/onboarding1_screen.dart';
+import 'package:hamro_deal/features/onboarding/presentation/pages/onboarding2_screen.dart';
+import 'package:hamro_deal/features/onboarding/presentation/pages/onboarding3_screen.dart';
 // import 'onboarding_page1.dart';
 // import 'onboarding_page2.dart';
 // import 'onboarding_page3.dart';

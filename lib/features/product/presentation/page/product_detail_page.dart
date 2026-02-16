@@ -43,7 +43,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: Text(
-          'Are you sure you want to delete "${widget.product.productName}"?',
+          'Are you sure you want to delete "${widget.product.title}"?',
         ),
         actions: [
           TextButton(
@@ -80,20 +80,20 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final categoryName = _getCategoryName(widget.product.category);
+    final categoryName = _getCategoryName(widget.product.categoryId);
     return Scaffold(
-      appBar: AppBar(title: Text(widget.product.productName)),
+      appBar: AppBar(title: Text(widget.product.title)),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // product imageCache
-            if (widget.product.media != null)
+            if (widget.product.images != null)
               AspectRatio(
                 aspectRatio: 1.0,
 
                 child: Image.network(
-                  ApiEndpoints.itemPicture(widget.product.media!),
+                  ApiEndpoints.productImage(widget.product.images!),
                   width: double.infinity,
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
@@ -145,7 +145,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          widget.product.productName,
+                          widget.product.title,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -222,11 +222,11 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                             ),
                           ),
                           Text(
-                            '${widget.product.quantity} units',
+                            '${widget.product.stock} units',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: widget.product.quantity > 0
+                              color: widget.product.stock > 0
                                   ? Colors.green
                                   : Colors.red,
                             ),

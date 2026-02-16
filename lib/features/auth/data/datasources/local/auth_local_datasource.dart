@@ -4,7 +4,6 @@ import 'package:hamro_deal/core/services/storage/user_session_service.dart';
 import 'package:hamro_deal/features/auth/data/datasources/auth_datasource.dart';
 import 'package:hamro_deal/features/auth/data/models/auth_hive_model.dart';
 
-// provider
 final authLocalDatasourceProvider = Provider((ref) {
   final hiveService = ref.read(hiveServiceProvider);
   final userSessionService = ref.read(userSessionServiceProvider);
@@ -23,9 +22,9 @@ class AuthLocalDatasource implements IAuthLocalDatasource {
     required UserSessionService userSessionService,
   }) : _hiveService = hiveService,
        _userSessionService = userSessionService;
+
   @override
   Future<AuthHiveModel?> getCurrentUser() {
-    // TODO: implement getCurrentUser
     throw UnimplementedError();
   }
 
@@ -44,11 +43,18 @@ class AuthLocalDatasource implements IAuthLocalDatasource {
     try {
       final user = await _hiveService.loginUser(email, password);
       if (user != null) {
+        // Combine firstName and lastName for fullName
+        final fullName = '${user.firstName ?? ''} ${user.lastName ?? ''}'
+            .trim();
+
         await _userSessionService.saveUserSession(
           userId: user.userId!,
           email: user.email,
-          fullName: user.fullName,
+          fullName: fullName,
           username: user.userName,
+          profileImage: user.imageUrl,
+          role: user.role,
+          isApproved: user.isApproved,
         );
       }
       return user;

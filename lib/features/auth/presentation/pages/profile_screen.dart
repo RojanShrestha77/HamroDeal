@@ -6,9 +6,9 @@ import 'package:hamro_deal/features/auth/presentation/view_model/auth_view_model
 import 'package:hamro_deal/features/category/presentation/pages/add_category_screen.dart';
 import 'package:hamro_deal/features/product/presentation/page/add_product_screen.dart';
 import 'package:hamro_deal/features/product/presentation/page/my_products_page.dart';
-import 'package:hamro_deal/screens/bottom_screen/cart_screen.dart';
-import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
-import 'package:hamro_deal/screens/bottom_screen/order_screen.dart';
+import 'package:hamro_deal/features/cart/presentation/pages/cart_screen.dart';
+import 'package:hamro_deal/features/home/presentation/pages/home_screen.dart';
+import 'package:hamro_deal/features/order/presentation/pages/order_screen.dart';
 import 'package:hamro_deal/features/auth/presentation/pages/login_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -16,7 +16,6 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Get auth state
     final authState = ref.watch(authViewModelProvider);
     final user = authState.authEntity;
 
@@ -27,12 +26,10 @@ class ProfileScreen extends ConsumerWidget {
           children: [
             const SizedBox(height: 45),
 
-            // ✨ PROFILE HEADER SECTION
             _buildProfileHeader(context, user),
 
             const SizedBox(height: 16),
 
-            // ✨ USER NAME (Dynamic)
             const Text("Hi,", textAlign: TextAlign.center),
             Text(
               user?.fullName ?? "Guest User", // ← Dynamic name
@@ -58,7 +55,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // ✨ PROFILE HEADER WITH PICTURE
   Widget _buildProfileHeader(BuildContext context, dynamic user) {
     return SizedBox(
       height: 120,
@@ -72,15 +68,16 @@ class ProfileScreen extends ConsumerWidget {
             radius: 55,
             backgroundColor: const Color.fromARGB(255, 40, 39, 39),
             backgroundImage: _getProfileImage(user),
-            onBackgroundImageError: (exception, stackTrace) {
-              debugPrint('Error loading profile image: $exception');
-            },
+            onBackgroundImageError: _getProfileImage(user) != null
+                ? (exception, stackTrace) {
+                    debugPrint('Error loading profile image: $exception');
+                  }
+                : null, // ← null when no image
             child: _getProfileImage(user) == null
                 ? _getInitials(user?.fullName ?? "Guest")
                 : null,
           ),
 
-          // ✨ Edit button overlay
           Positioned(
             bottom: 0,
             right: MediaQuery.of(context).size.width / 2 - 75,
@@ -109,28 +106,40 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // ✨ GET PROFILE IMAGE
   ImageProvider? _getProfileImage(dynamic user) {
-    if (user?.profileImage != null && user!.profileImage!.isNotEmpty) {
-      final imageUrl = user.profileImage!;
+    if (user?.imageUrl != null && user!.imageUrl!.isNotEmpty) {
+      final imageUrl = user.imageUrl!;
 
-      // If already full URL, use as is
-      if (imageUrl.startsWith('http')) {
-        return NetworkImage(imageUrl);
-      }
-
-      // Otherwise, construct full URL
-      return NetworkImage('${ApiEndpoints.mediaServerUrl}/$imageUrl');
+      // Use the helper method that handles /uploads/ prefix correctly
+      return NetworkImage(ApiEndpoints.userProfileImage(imageUrl));
     }
     return null;
   }
 
-  // ✨ GET USER INITIALS FOR AVATAR
   Widget _getInitials(String name) {
-    final nameParts = name.trim().split(' ');
-    final initials = nameParts.length >= 2
-        ? '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase()
-        : (name.isNotEmpty ? name[0].toUpperCase() : '?');
+    final trimmedName = name.trim();
+
+    // Handle empty name
+    if (trimmedName.isEmpty) {
+      return const Text(
+        '?',
+        style: TextStyle(color: Colors.white, fontSize: 30),
+      );
+    }
+
+    final nameParts = trimmedName
+        .split(' ')
+        .where((part) => part.isNotEmpty)
+        .toList();
+
+    String initials;
+    if (nameParts.isEmpty) {
+      initials = '?';
+    } else if (nameParts.length >= 2) {
+      initials = '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase();
+    } else {
+      initials = nameParts[0][0].toUpperCase();
+    }
 
     return Text(
       initials,
@@ -139,7 +148,6 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ✨ MENU ITEM BUILDER
 Widget _buildMenuItem(BuildContext context, String title, Widget destination) {
   return Column(
     children: [

@@ -39,9 +39,9 @@ class VerticalProductCard extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(16),
                   ),
-                  child: product.media != null
+                  child: product.images != null
                       ? Image.network(
-                          ApiEndpoints.itemPicture(product.media!),
+                          ApiEndpoints.productImage(product.images!),
                           width: double.infinity,
                           fit: BoxFit.cover,
                           loadingBuilder: (context, child, loadingProgress) {
@@ -82,7 +82,7 @@ class VerticalProductCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      product.productName,
+                      product.title,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -101,10 +101,10 @@ class VerticalProductCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${product.quantity} in stock',
+                      '${product.stock} in stock',
                       style: TextStyle(
                         fontSize: 12,
-                        color: product.quantity > 0 ? Colors.green : Colors.red,
+                        color: product.stock > 0 ? Colors.green : Colors.red,
                       ),
                     ),
                   ],

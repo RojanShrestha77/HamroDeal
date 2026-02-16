@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/services/storage/user_session_service.dart';
-import 'package:hamro_deal/screens/bottom_navigation_screen.dart';
-import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
-import 'package:hamro_deal/screens/onboarding/onboarding_screen.dart';
+import 'package:hamro_deal/app/shell/bottom_navigation_screen.dart';
+import 'package:hamro_deal/features/home/presentation/pages/home_screen.dart';
+import 'package:hamro_deal/features/onboarding/presentation/pages/onboarding_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});

@@ -2,68 +2,81 @@ import 'package:hamro_deal/features/auth/domain/entities/auth_entity.dart';
 
 class AuthApiModel {
   final String? userId;
-  final String fullName;
+  final String? firstName;
+  final String? lastName;
   final String email;
   final String username;
   final String? password;
-  final String? profileImage;
+  final String? imageUrl;
+  final String? role;
+  final bool? isApproved;
 
   AuthApiModel({
     this.userId,
-    required this.fullName,
+    this.firstName,
+    this.lastName,
     required this.email,
     required this.username,
     this.password,
-    this.profileImage,
+    this.imageUrl,
+    this.role,
+    this.isApproved,
   });
 
-  // toJson
   Map<String, dynamic> toJson() {
     return {
-      'fullName': fullName,
+      if (firstName != null) 'firstName': firstName,
+      if (lastName != null) 'lastName': lastName,
       'email': email,
       'username': username,
-      'password': password,
-      'profilePicture': profileImage,
+      if (password != null) 'password': password,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+      if (role != null) 'role': role,
     };
   }
 
-  // fromJson
   factory AuthApiModel.fromJson(Map<String, dynamic> json) {
     return AuthApiModel(
-      userId: json['_id'] as String? ?? json['userId'] as String?,
-      fullName: json['fullName'] as String,
+      userId: json['_id'] as String?,
+      firstName: json['firstName'] as String?,
+      lastName: json['lastName'] as String?,
       email: json['email'] as String,
       username: json['username'] as String,
       password: json['password'] as String?,
-      profileImage: json['profilePicture'] as String?,
+      imageUrl: json['imageUrl'] as String?,
+      role: json['role'] as String?,
+      isApproved: json['isApproved'] as bool?,
     );
   }
 
-  // toEntity
   AuthEntity toEntity() {
     return AuthEntity(
       userId: userId,
-      fullName: fullName,
+      firstName: firstName,
+      lastName: lastName,
       email: email,
       username: username,
-      profileImage: profileImage,
+      password: password,
+      imageUrl: imageUrl,
+      role: role,
+      isApproved: isApproved,
     );
   }
 
-  // fromEntity - FIX: Include password!
   factory AuthApiModel.fromEntity(AuthEntity entity) {
     return AuthApiModel(
       userId: entity.userId,
-      fullName: entity.fullName,
+      firstName: entity.firstName,
+      lastName: entity.lastName,
       email: entity.email,
       username: entity.username,
-      password: entity.password, // <-- ADD THIS LINE
-      profileImage: entity.profileImage,
+      password: entity.password,
+      imageUrl: entity.imageUrl,
+      role: entity.role,
+      isApproved: entity.isApproved,
     );
   }
 
-  // toEntityList
   static List<AuthEntity> toEntityList(List<AuthApiModel> models) {
     return models.map((model) => model.toEntity()).toList();
   }

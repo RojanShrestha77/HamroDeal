@@ -8,34 +8,30 @@ import 'package:hamro_deal/features/product/domain/entities/product_entity.dart'
 import 'package:hamro_deal/features/product/domain/repositories/product_repository.dart';
 
 class CreateProductParams extends Equatable {
-  final String productName;
+  final String title;
   final String description;
   final double price;
-  final int quantity;
-  final String category;
-  final String? media;
-  final String? mediaType;
+  final int stock;
+  final String categoryId;
+  final String? images;
 
   const CreateProductParams({
-    required this.productName,
+    required this.title,
     required this.description,
     required this.price,
-    required this.quantity,
-    required this.category,
-    this.media,
-    this.mediaType,
+    required this.stock,
+    required this.categoryId,
+    this.images,
   });
 
   @override
-  // TODO: implement props
   List<Object?> get props => [
-    productName,
+    title,
     description,
     price,
-    quantity,
-    category,
-    media,
-    mediaType,
+    stock,
+    categoryId,
+    images,
   ];
 }
 
@@ -54,15 +50,13 @@ class CreateProductUsecase
   @override
   Future<Either<Failure, bool>> call(CreateProductParams params) {
     final productEntity = ProductEntity(
-      productName: params.productName,
+      title: params.title,
       description: params.description,
-      category: params.category,
+      categoryId: params.categoryId,
       price: params.price,
-      quantity: params.quantity,
-      media: params.media,
-      mediaType: params.mediaType,
+      stock: params.stock,
+      images: params.images,
     );
-
     return _productRepository.createProduct(productEntity);
   }
 }

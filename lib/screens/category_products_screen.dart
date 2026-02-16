@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hamro_deal/models/category_model.dart';
 import 'package:hamro_deal/models/product_model.dart';
-import 'package:hamro_deal/widgets/vertical_product_card.dart';
+import 'package:hamro_deal/features/home/presentation/widgets/vertical_product_card.dart';
 
 class Subcategory {
   final String id;

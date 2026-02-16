@@ -8,31 +8,33 @@ import 'package:hamro_deal/features/auth/domain/entities/auth_entity.dart';
 import 'package:hamro_deal/features/auth/domain/repositories/auth_repository.dart';
 
 class RegisterUsecaseParams extends Equatable {
-  final String fullName;
+  final String? firstName;
+  final String? lastName;
   final String email;
   final String username;
   final String password;
-  final String? profileImage;
+  final String? imageUrl;
 
   const RegisterUsecaseParams({
-    required this.fullName,
+    this.firstName,
+    this.lastName,
     required this.email,
     required this.username,
     required this.password,
-    this.profileImage,
+    this.imageUrl,
   });
 
   @override
   List<Object?> get props => [
-    fullName,
+    firstName,
+    lastName,
     email,
     username,
     password,
-    profileImage,
+    imageUrl,
   ];
 }
 
-// provider
 final registerUsecaseProvider = Provider<RegisterUsecase>((ref) {
   final authRepository = ref.read(authRepositoryProvider);
   return RegisterUsecase(authRepository: authRepository);
@@ -44,14 +46,16 @@ class RegisterUsecase
 
   RegisterUsecase({required IAuthRepository authRepository})
     : _authRepository = authRepository;
+
   @override
   Future<Either<Failure, bool>> call(RegisterUsecaseParams params) {
     final entity = AuthEntity(
-      fullName: params.fullName,
+      firstName: params.firstName,
+      lastName: params.lastName,
       username: params.username,
       email: params.email,
       password: params.password,
-      profileImage: params.profileImage,
+      imageUrl: params.imageUrl,
     );
     return _authRepository.register(entity);
   }

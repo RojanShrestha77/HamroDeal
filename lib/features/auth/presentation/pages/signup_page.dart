@@ -46,10 +46,18 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     }
 
     if (_formKey.currentState!.validate()) {
+      // Split the full name into first and last name
+      final nameParts = _nameController.text.trim().split(' ');
+      final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+      final lastName = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : '';
+
       ref
           .read(authViewModelProvider.notifier)
           .register(
-            fullName: _nameController.text.trim(),
+            firstName: firstName,
+            lastName: lastName,
             email: _emailController.text.trim(),
             username: _usernameController.text.trim(),
             password: _passwordController.text,

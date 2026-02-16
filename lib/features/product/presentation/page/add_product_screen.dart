@@ -25,16 +25,15 @@ class AddProductScreen extends ConsumerStatefulWidget {
 class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   // Form controllers
   final _formKey = GlobalKey<FormState>();
-  final _productNameController = TextEditingController();
+  final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _priceController = TextEditingController();
-  final _qtyController = TextEditingController();
+  final _stockController = TextEditingController();
 
-  // Media handling - using XFile like professor
+  // Media handling
   final List<XFile> _selectedMedia = [];
   final ImagePicker _imagePicker = ImagePicker();
   String? _selectedCategoryId;
-  String? _selectedMediaType; // 'photo' or 'video'
 
   @override
   void initState() {
@@ -46,10 +45,10 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
   @override
   void dispose() {
-    _productNameController.dispose();
+    _titleController.dispose();
     _descController.dispose();
     _priceController.dispose();
-    _qtyController.dispose();
+    _stockController.dispose();
     super.dispose();
   }
 
@@ -104,7 +103,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           _selectedMedia
             ..clear()
             ..add(photo);
-          _selectedMediaType = 'photo';
         });
 
         // Upload immediately for preview
@@ -132,7 +130,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           _selectedMedia
             ..clear()
             ..add(image);
-          _selectedMediaType = 'photo';
         });
 
         // Upload immediately for preview
@@ -169,13 +166,12 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           _selectedMedia
             ..clear()
             ..add(video);
-          _selectedMediaType = 'video';
         });
 
-        // Upload video
+        // Upload video (using same upload method as photos)
         await ref
             .read(productViewModelProvider.notifier)
-            .uploadVideo(File(video.path));
+            .uploadPhoto(File(video.path));
       }
     } catch (e) {
       debugPrint('Video error: $e');
@@ -230,7 +226,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   void _removeMedia() {
     setState(() {
       _selectedMedia.clear();
-      _selectedMediaType = null;
     });
   }
 
@@ -241,7 +236,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       SnackbarUtils.showError(context, 'Please select a category');
       return;
     }
-    ;
 
     // Check if media was selected but upload failed
     if (_selectedMedia.isNotEmpty &&
@@ -252,6 +246,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       );
       return;
     }
+
     final uploadedPhotoUrl = ref
         .read(productViewModelProvider)
         .uploadedMediaUrl;
@@ -259,13 +254,12 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     await ref
         .read(productViewModelProvider.notifier)
         .createProduct(
-          productName: _productNameController.text.trim(),
+          title: _titleController.text.trim(),
           description: _descController.text.trim(),
           price: double.parse(_priceController.text.trim()),
-          quantity: int.parse(_qtyController.text.trim()),
-          category: _selectedCategoryId!,
-          media: uploadedPhotoUrl,
-          mediaType: uploadedPhotoUrl != null ? _selectedMediaType : null,
+          stock: int.parse(_stockController.text.trim()),
+          categoryId: _selectedCategoryId!,
+          images: uploadedPhotoUrl,
         );
   }
 
@@ -398,7 +392,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
                 // Form Fields
                 ProductStyledTextField(
-                  controller: _productNameController,
+                  controller: _titleController,
                   hintText: 'Product name',
                   validator: (v) => (v == null || v.trim().isEmpty)
                       ? "Enter product name"
@@ -428,7 +422,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                 ),
                 const SizedBox(height: 12),
                 ProductStyledTextField(
-                  controller: _qtyController,
+                  controller: _stockController,
                   hintText: 'Quantity',
                   keyboardType: TextInputType.number,
                   validator: (v) {

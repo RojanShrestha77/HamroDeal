@@ -27,7 +27,6 @@ class ApiClient {
     );
 
     // Add interceptors
-    // an interceptor in dio is like a 'middleware' or 'hook' that runs automatically for every req, and every res and every error that goes through this DIo instance
     _dio.interceptors.add(_AuthInterceptor());
 
     // Auto retry on network failures
@@ -41,9 +40,6 @@ class ApiClient {
           Duration(seconds: 3),
         ],
         retryEvaluator: (error, attempt) {
-          // Retry on connection errors and timeouts, not on 4xx/5xx
-          // 4xx = client error , you(the client) made a mistake
-          // 5xx = server error, the server(backend, database), your req was correct, server failed
           return error.type == DioExceptionType.connectionTimeout ||
               error.type == DioExceptionType.sendTimeout ||
               error.type == DioExceptionType.receiveTimeout ||
@@ -53,7 +49,6 @@ class ApiClient {
     );
 
     // Only add logger in debug mode
-    // logger refers to a tool/system that recors(log) infon about what ur app is doing while it runs
     if (kDebugMode) {
       _dio.interceptors.add(
         PrettyDioLogger(
@@ -150,24 +145,24 @@ class _AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // skip auth for public endpoints
+    // ✅ Updated public endpoints to match new API structure
     final publicEndpoints = [
-      ApiEndpoints.batches,
-      ApiEndpoints.categories,
-      ApiEndpoints.studentLogin,
-      ApiEndpoints.items,
-      ApiEndpoints.studentRegister,
+      ApiEndpoints.categories, // GET /categories is public
+      ApiEndpoints.products, // GET /products is public
+      ApiEndpoints.searchProducts, // GET /products/search is public
+      ApiEndpoints.blogs, // GET /blogs is public
     ];
+
+    // ✅ Updated auth endpoints
+    final authEndpoints = [ApiEndpoints.login, ApiEndpoints.register];
 
     final isPublicGet =
         options.method == 'GET' &&
-        publicEndpoints.any(
-          (endpoint) => options.path.startsWith(endpoint as String),
-        );
+        publicEndpoints.any((endpoint) => options.path.startsWith(endpoint));
 
-    final isAuthEndpoint =
-        options.path == ApiEndpoints.studentLogin ||
-        options.path == ApiEndpoints.studentRegister;
+    final isAuthEndpoint = authEndpoints.any(
+      (endpoint) => options.path == endpoint,
+    );
 
     if (!isPublicGet && !isAuthEndpoint) {
       final token = await _storage.read(key: _tokenKey);
@@ -181,7 +176,7 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Handle 401 Unauthorized - token expored
+    // Handle 401 Unauthorized - token expired
     if (err.response?.statusCode == 401) {
       // clear token and redirect to login
       _storage.delete(key: _tokenKey);

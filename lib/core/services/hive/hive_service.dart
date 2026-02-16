@@ -116,7 +116,7 @@ class HiveService {
 
   List<ProductHiveModel> getProductsByCategory(String categoryId) {
     return _productBox.values
-        .where((product) => product.category == categoryId)
+        .where((product) => product.categoryId == categoryId)
         .toList();
   }
 

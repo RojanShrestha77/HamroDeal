@@ -7,7 +7,7 @@ import 'package:hamro_deal/features/category/data/datasources/remote/category_re
 import 'package:hamro_deal/features/category/data/models/category_api_model.dart';
 import 'package:hamro_deal/features/category/data/models/category_hive_model.dart';
 import 'package:hamro_deal/features/category/domain/entities/category_entitty.dart';
-import 'package:hamro_deal/features/category/domain/repository/category_repository.dart';
+import 'package:hamro_deal/features/category/domain/repositories/category_repository.dart';
 
 // provider
 final categoryRepositoryProvider = Provider<ICategoryRepository>((ref) {

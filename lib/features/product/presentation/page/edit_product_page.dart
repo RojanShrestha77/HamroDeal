@@ -25,6 +25,44 @@ class EditProductPage extends ConsumerStatefulWidget {
 }
 
 class _EditProductPageState extends ConsumerState<EditProductPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _descController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _stockController = TextEditingController();
+
+  final List<XFile> _selectedMedia = [];
+  final ImagePicker _imagePicker = ImagePicker();
+  String? _selectedCategoryId;
+
+  // track if user upload new media
+  bool _hasNewMedia = false;
+  String? _existingMediaUrl;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // pre-fill controllers with existing data
+    _titleController.text = widget.product.title;
+    _descController.text = widget.product.description;
+    _priceController.text = widget.product.price.toString();
+    _stockController.text = widget.product.stock.toString();
+    _selectedCategoryId = widget.product.categoryId;
+
+    // store existing media url
+    _existingMediaUrl = widget.product.images;
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descController.dispose();
+    _priceController.dispose();
+    _stockController.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickFromGallery() async {
     try {
       final XFile? image = await _imagePicker.pickImage(
@@ -38,10 +76,9 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
             ..clear()
             ..add(image);
           _hasNewMedia = true;
-          _selectedMediaType = 'photo';
         });
 
-        // uploade image
+        // upload image
         await ref
             .read(productViewModelProvider.notifier)
             .uploadPhoto(File(image.path));
@@ -51,7 +88,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
       if (mounted) {
         SnackbarUtils.showError(
           context,
-          "CAnnot access the gallery. Please try the Camera",
+          "Cannot access the gallery. Please try the Camera",
         );
       }
     }
@@ -71,7 +108,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
       finalMediaUrl = ref.read(productViewModelProvider).uploadedMediaUrl;
 
       if (finalMediaUrl == null) {
-        SnackbarUtils.showError(context, "PLease wait for image upload ");
+        SnackbarUtils.showError(context, "Please wait for image upload");
         return;
       }
     } else {
@@ -85,53 +122,13 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
         .read(productViewModelProvider.notifier)
         .updateProduct(
           productId: widget.product.productId!,
-          productName: _productNameController.text.trim(),
+          title: _titleController.text.trim(),
           description: _descController.text.trim(),
           price: double.parse(_priceController.text.trim()),
-          quantity: int.parse(_qtyController.text.trim()),
-          category: _selectedCategoryId!,
-          media: finalMediaUrl,
-          mediaType: _selectedMediaType,
+          stock: int.parse(_stockController.text.trim()),
+          categoryId: _selectedCategoryId!,
+          images: finalMediaUrl,
         );
-  }
-
-  final _formKey = GlobalKey<FormState>();
-  final _productNameController = TextEditingController();
-  final _descController = TextEditingController();
-  final _priceController = TextEditingController();
-  final _qtyController = TextEditingController();
-
-  final List<XFile> _selectedMedia = [];
-  final ImagePicker _imagePicker = ImagePicker();
-  String? _selectedCategoryId;
-  String? _selectedMediaType;
-
-  // track if user upload new media
-  bool _hasNewMedia = false;
-  String? _existingMediaUrl;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // pre-fill controllers with existing data
-    _productNameController.text = widget.product.productName ?? '';
-    _descController.text = widget.product.description ?? '';
-    _priceController.text = widget.product.price?.toString() ?? '';
-    _qtyController.text = widget.product.quantity?.toString() ?? '';
-    _selectedCategoryId = widget.product.category;
-
-    // store existing media url
-    _existingMediaUrl = widget.product.media;
-  }
-
-  @override
-  void dispose() {
-    _productNameController.dispose();
-    _descController.dispose();
-    _priceController.dispose();
-    _qtyController.dispose();
-    super.dispose();
   }
 
   @override
@@ -139,7 +136,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
     final categoryState = ref.watch(categoryViewModelProvider);
     final productState = ref.watch(productViewModelProvider);
 
-    // listen for the success for the failure
+    // listen for the success or failure
     ref.listen<ProductState>(productViewModelProvider, (previous, next) {
       if (next.status == ProductStatus.updated) {
         SnackbarUtils.showSuccess(context, 'Product updated successfully');
@@ -149,6 +146,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
         SnackbarUtils.showError(context, next.errorMessage!);
       }
     });
+
     return Scaffold(
       appBar: AppBar(title: const Text("Edit Product"), centerTitle: true),
       body: SafeArea(
@@ -208,9 +206,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(width: 12),
-
                     if (_hasNewMedia && _selectedMedia.isNotEmpty)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
@@ -225,7 +221,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Image.network(
-                          ApiEndpoints.itemPicture(_existingMediaUrl!),
+                          ApiEndpoints.productImage(_existingMediaUrl!),
                           width: 120,
                           height: 120,
                           fit: BoxFit.cover,
@@ -262,7 +258,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
                 ),
                 const SizedBox(height: 12),
                 ProductStyledTextField(
-                  controller: _productNameController,
+                  controller: _titleController,
                   hintText: 'Product name',
                   validator: (v) => (v == null || v.trim().isEmpty)
                       ? "Enter product name"
@@ -292,7 +288,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
                 ),
                 const SizedBox(height: 12),
                 ProductStyledTextField(
-                  controller: _qtyController,
+                  controller: _stockController,
                   hintText: 'Quantity',
                   keyboardType: TextInputType.number,
                   validator: (v) {
@@ -301,6 +297,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 24),
                 // category selection
                 const ProductFormSectionHeader(title: 'Category'),
                 const SizedBox(height: 12),
@@ -311,7 +308,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
                     setState(() => _selectedCategoryId = id);
                   },
                 ),
-
+                const SizedBox(height: 32),
                 ProductGradientSubmitButton(
                   isLoading: productState.status == ProductStatus.loading,
                   text: "Update Product",

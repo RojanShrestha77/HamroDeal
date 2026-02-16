@@ -2,28 +2,39 @@ import 'package:equatable/equatable.dart';
 
 class AuthEntity extends Equatable {
   final String? userId;
-  final String fullName;
+  final String? firstName;
+  final String? lastName;
   final String username;
   final String email;
   final String? password;
-  final String? profileImage;
+  final String? imageUrl;
+  final String? role;
+  final bool? isApproved;
 
   AuthEntity({
     this.userId,
-    required this.fullName,
+    this.firstName,
+    this.lastName,
     required this.username,
     required this.email,
     this.password,
-    this.profileImage,
+    this.imageUrl,
+    this.role,
+    this.isApproved,
   });
 
+  String get fullName => '${firstName ?? ''} ${lastName ?? ''}'.trim();
+
   @override
-  // TODO: implement props
   List<Object?> get props => [
+    userId,
+    firstName,
+    lastName,
     email,
-    profileImage,
+    imageUrl,
     username,
     password,
-    fullName,
+    role,
+    isApproved,
   ];
 }

@@ -9,41 +9,36 @@ import 'package:hamro_deal/features/product/domain/repositories/product_reposito
 
 class UpdateProductParams extends Equatable {
   final String? productId;
-  final String productName;
+  final String title;
   final String description;
   final double price;
-  final int quantity;
-  final String category;
-  final String? media;
-  final String? mediaType;
-  final String? status;
+  final int stock;
+  final String categoryId;
+  final String? images;
 
   const UpdateProductParams({
     this.productId,
-    required this.productName,
+    required this.title,
     required this.description,
     required this.price,
-    required this.quantity,
-    required this.category,
-    this.media,
-    this.mediaType,
-    this.status,
+    required this.stock,
+    required this.categoryId,
+    this.images,
   });
+
   @override
   List<Object?> get props => [
     productId,
-    productName,
+    title,
     description,
     price,
-    quantity,
-    category,
-    media,
-    mediaType,
-    status,
+    stock,
+    categoryId,
+    images,
   ];
 }
 
-final updateUsecaseProvider = Provider<UpdateProductUsecase>((ref) {
+final updateProductUsecaseProvider = Provider<UpdateProductUsecase>((ref) {
   final productRepository = ref.read(productRepositoryProvider);
   return UpdateProductUsecase(productRepository: productRepository);
 });
@@ -54,20 +49,18 @@ class UpdateProductUsecase
 
   UpdateProductUsecase({required IProductRepository productRepository})
     : _productRepository = productRepository;
+
   @override
   Future<Either<Failure, bool>> call(UpdateProductParams params) {
-    final porductEntity = ProductEntity(
+    final productEntity = ProductEntity(
       productId: params.productId,
-      productName: params.productName,
+      title: params.title,
       description: params.description,
       price: params.price,
-      quantity: params.quantity,
-      category: params.category,
-      media: params.media,
-      mediaType: params.mediaType,
-      status: params.status,
+      stock: params.stock,
+      categoryId: params.categoryId,
+      images: params.images,
     );
-
-    return _productRepository.updateProduct(porductEntity);
+    return _productRepository.updateProduct(productEntity);
   }
 }

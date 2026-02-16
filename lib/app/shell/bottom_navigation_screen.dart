@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hamro_deal/screens/bottom_screen/cart_screen.dart';
-import 'package:hamro_deal/screens/bottom_screen/search_screen.dart';
-import 'package:hamro_deal/screens/bottom_screen/home_screen.dart';
+import 'package:hamro_deal/features/cart/presentation/pages/cart_screen.dart';
+import 'package:hamro_deal/features/search/presentation/pages/search_screen.dart';
+import 'package:hamro_deal/features/home/presentation/pages/home_screen.dart';
 import 'package:hamro_deal/screens/category_screen.dart';
 import 'package:hamro_deal/features/auth/presentation/pages/profile_screen.dart';
 

@@ -2,27 +2,25 @@ import 'package:equatable/equatable.dart';
 
 class ProductEntity extends Equatable {
   final String? productId;
-  final String productName;
+  final String title;
   final String description;
   final double price;
-  final int quantity;
-  final String? category;
-  final String? media;
-  final String? mediaType;
-  final String? status;
+  final int stock;
+  final String? categoryId;
+  final String? images;
+  final String? sellerId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   const ProductEntity({
     this.productId,
-    required this.productName,
+    required this.title,
     required this.description,
     required this.price,
-    required this.quantity,
-    this.category,
-    this.media,
-    this.mediaType,
-    this.status,
+    required this.stock,
+    this.categoryId,
+    this.images,
+    this.sellerId,
     this.createdAt,
     this.updatedAt,
   });
@@ -30,14 +28,13 @@ class ProductEntity extends Equatable {
   @override
   List<Object?> get props => [
     productId,
-    productName,
+    title,
     description,
     price,
-    quantity,
-    category,
-    media,
-    mediaType,
-    status,
+    stock,
+    categoryId,
+    images,
+    sellerId,
     createdAt,
     updatedAt,
   ];

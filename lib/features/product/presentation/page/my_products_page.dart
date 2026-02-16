@@ -28,7 +28,7 @@ class _MyProductsPageState extends ConsumerState<MyProductsPage> {
   void _loadData() {
     print(' 🔵 [MyProducts] _loadData called');
     final userSessionService = ref.read(userSessionServiceProvider);
-    final userId = userSessionService.getCurrrentUserId();
+    final userId = userSessionService.getCurrentUserId();
     print('🔵 [MyProducts] UserID: $userId');
     if (userId != null) {
       print('🔵 [MyProducts] caaling getMyProducts with userId: $userId');
@@ -143,9 +143,8 @@ class _MyProductsPageState extends ConsumerState<MyProductsPage> {
 
     print('TotAL PRODUCTS: ${products.length}');
     for (var product in products) {
-      print('Product ${product.productName}');
-      print('Media Url: ${product.media}');
-      print('Media type: ${product.mediaType}');
+      print('Product ${product.title}');
+      print('Images Url: ${product.images}');
     }
 
     return ListView.builder(
@@ -153,7 +152,7 @@ class _MyProductsPageState extends ConsumerState<MyProductsPage> {
       itemCount: products.length,
       itemBuilder: (context, index) {
         final product = products[index];
-        final categoryName = _getCategoryName(product.category);
+        final categoryName = _getCategoryName(product.categoryId);
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
@@ -194,9 +193,7 @@ class _MyProductsPageState extends ConsumerState<MyProductsPage> {
           'Delete Product',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: Text(
-          'Are you sure you want to delete "${product.productName}"?',
-        ),
+        content: Text('Are you sure you want to delete "${product.title}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -253,13 +250,13 @@ class _ProductCard extends StatelessWidget {
         child: Column(
           children: [
             // Product Image
-            if (product.media != null)
+            if (product.images != null)
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(20),
                 ),
                 child: Image.network(
-                  ApiEndpoints.itemPicture(product.media!),
+                  ApiEndpoints.productImage(product.images!),
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -270,7 +267,7 @@ class _ProductCard extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     print('🔴 Image error: $error');
                     print(
-                      '🔴 Tried URl: ${ApiEndpoints.itemPicture(product.media!)}',
+                      '🔴 Tried URl: ${ApiEndpoints.productImage(product.images!)}',
                     );
                     return Container(
                       height: 180,
@@ -312,7 +309,7 @@ class _ProductCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          product.productName,
+                          product.title,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -389,11 +386,11 @@ class _ProductCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${product.quantity} units',
+                            '${product.stock} units',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: product.quantity > 0
+                              color: product.stock > 0
                                   ? Colors.green
                                   : Colors.red,
                             ),

@@ -5,9 +5,7 @@ import 'package:hamro_deal/features/auth/domain/usecases/login_usecase.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/register_usecase.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/upload_profile_picture_usecase.dart';
 import 'package:hamro_deal/features/auth/presentation/state/auth_state.dart';
-import 'package:hamro_deal/features/product/presentation/state/product_state.dart';
 
-// provider
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
   () => AuthViewModel(),
 );
@@ -16,6 +14,7 @@ class AuthViewModel extends Notifier<AuthState> {
   late final RegisterUsecase _registerUsecase;
   late final LoginUsecase _loginUsecase;
   late final UploadProfilePictureUsecase _uploadProfilePictureUsecase;
+
   @override
   AuthState build() {
     _registerUsecase = ref.read(registerUsecaseProvider);
@@ -27,22 +26,22 @@ class AuthViewModel extends Notifier<AuthState> {
   }
 
   Future<void> register({
-    required String fullName,
+    String? firstName,
+    String? lastName,
     required String email,
     required String username,
     required String password,
-    String? profileImage,
+    String? imageUrl,
   }) async {
     state = state.copyWith(status: AuthStatus.loading);
-    // wait for 2 seconds to simulate network call
-    // await Future.delayed(const Duration(seconds: 2));
 
     final params = RegisterUsecaseParams(
-      fullName: fullName,
+      firstName: firstName,
+      lastName: lastName,
       email: email,
       username: username,
       password: password,
-      profileImage: profileImage,
+      imageUrl: imageUrl,
     );
 
     final result = await _registerUsecase(params);
@@ -63,7 +62,6 @@ class AuthViewModel extends Notifier<AuthState> {
     );
   }
 
-  // login
   Future<void> login({
     required String username,
     required String password,
@@ -91,7 +89,6 @@ class AuthViewModel extends Notifier<AuthState> {
     );
   }
 
-  // for the profile picture
   Future<String?> uploadProfilePicture(File photo) async {
     state = state.copyWith(status: AuthStatus.loading);
 

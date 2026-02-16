@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hamro_deal/app.dart';
+import 'package:hamro_deal/app/app.dart';
 import 'package:hamro_deal/core/services/hive/hive_service.dart';
 import 'package:hamro_deal/core/services/storage/user_session_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -7,7 +7,7 @@ class ApiEndpoints {
   // Configuration
   static const bool isPhysicalDevice = false;
   static const String _ipAddress = '192.168.1.1';
-  static const int _port = 3000;
+  static const int _port = 5050;
 
   // Base URLs
   static String get _host {
@@ -18,54 +18,69 @@ class ApiEndpoints {
   }
 
   static String get serverUrl => 'http://$_host:$_port';
-  static String get baseUrl => '$serverUrl/api/v1';
-  static String get mediaServerUrl => serverUrl; // ✅ This is the key!
+  static String get baseUrl => '$serverUrl/api';
+  static String get mediaServerUrl => serverUrl;
 
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
 
-  // ====== Batch Endpoints =========
-  static const String batches = '/batches';
-  static String batchById(String id) => '/batches/$id';
+  // ====== Auth Endpoints (was Student) =========
+  static const String register = '/auth/register';
+  static const String login = '/auth/login';
+  static const String whoami = '/auth/whoami';
+  static const String updateProfile = '/auth/update-profile';
+  static const String requestPasswordReset = '/auth/request-password-reset';
+  static String resetPassword(String token) => '/auth/reset-password/$token';
 
   // ====== Category Endpoints ======
   static const String categories = '/categories';
   static String categoryById(String id) => '/categories/$id';
 
-  // ======== Student Endpoints ========
-  static const String students = '/students';
-  static const String studentLogin = '/students/login';
-  static const String studentRegister = '/students/register';
-  static String studentById(String id) => '/students/$id';
-  static String studentPhoto(String id) => '/students/$id/photo';
+  // ======= Product Endpoints (was Items) =========
+  static const String products = '/products';
+  static String productById(String id) => '/products/$id';
+  static const String searchProducts = '/products/search';
+  static const String productsByCategory = '/products/category';
+  static const String myProducts = '/products/my-products';
 
-  // ============== Profile Picture ==============
-  static const String uploadProfilePicture = '/students/upload-profile-picture';
+  // ========= Cart Endpoints (NEW) =========
+  static const String cart = '/cart';
+  static String updateCartItem(String productId) => '/cart/$productId';
+  static String removeFromCart(String productId) => '/cart/$productId';
+  static const String clearCart = '/cart/clear/all';
 
-  // ======= Item/Product Endpoints =========
-  static const String items = '/items';
-  static String itemById(String id) => '/items/$id';
-  static String itemClaim(String id) => '/items/$id/claim';
-  static const String itemUploadPhoto = '/items/upload-photo';
-  static const String itemUploadVideo = '/items/upload-video';
+  // ========= Wishlist Endpoints (NEW) =========
+  static const String wishlist = '/wishlist';
+  static String addToWishlist(String productId) => '/wishlist/$productId';
+  static String removeFromWishlist(String productId) => '/wishlist/$productId';
 
-  // ========= Comment Endpoints =========
-  static const String comments = '/comments';
-  static String commentById(String id) => '/comments/$id';
-  static String commentsByItem(String itemId) => '/comments/items/$itemId';
-  static String commentLike(String id) => '/comments/$id/like';
+  // ========= Order Endpoints (NEW) =========
+  static const String orders = '/orders';
+  static String orderById(String id) => '/orders/$id';
+  static String cancelOrder(String id) => '/orders/$id/cancel';
+
+  // ========= Blog Endpoints (NEW) =========
+  static const String blogs = '/blogs';
+  static String blogById(String id) => '/blogs/$id';
 
   // ==================== Media Helper Methods ==================
-  static String itemPicture(String filename) =>
-      '$mediaServerUrl/item_photos/$filename';
+  static String productImage(String filename) {
+    // Backend returns /uploads/filename, so just append to server URL
+    if (filename.startsWith('/')) {
+      return '$mediaServerUrl$filename';
+    }
+    // Fallback for just filename
+    return '$mediaServerUrl/uploads/$filename';
+  }
 
-  static String itemVideo(String filename) =>
-      '$mediaServerUrl/item_videos/$filename';
+  static String categoryImage(String filename) =>
+      '$mediaServerUrl/uploads/$filename';
 
-  static String categoryPicture(String filename) =>
-      '$mediaServerUrl/categories/$filename';
-
-  static String studentPicture(String filename) =>
-      '$mediaServerUrl/profile_pictures/$filename';
+  static String userProfileImage(String filename) {
+    if (filename.startsWith('/')) {
+      return '$mediaServerUrl$filename';
+    }
+    return '$mediaServerUrl/uploads/$filename';
+  }
 }

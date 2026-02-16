@@ -2,61 +2,56 @@ import 'package:hamro_deal/features/product/domain/entities/product_entity.dart'
 
 class ProductApiModel {
   final String? id;
-  final String productName;
+  final String title;
   final String description;
   final double price;
-  final int quantity;
-  final String? category; //categoryId
-  final String? media;
-  final String? mediaType;
-  final String? status;
+  final int stock;
+  final String? categoryId;
+  final String? images;
+  final String? sellerId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   ProductApiModel({
     this.id,
-    required this.productName,
+    required this.title,
     required this.description,
     required this.price,
-    required this.quantity,
-    this.category,
-    this.media,
-    this.mediaType,
-    this.status,
+    required this.stock,
+    this.categoryId,
+    this.images,
+    this.sellerId,
     this.createdAt,
     this.updatedAt,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'productName': productName,
+      'title': title,
       'description': description,
       'price': price,
-      'quantity': quantity,
-      'category': category,
-      if (media != null) 'media': media,
-      if (mediaType != null) 'mediaType': mediaType,
-      if (status != null) 'status': status,
+      'stock': stock,
+      'categoryId': categoryId,
+      if (images != null) 'images': images,
     };
   }
 
   factory ProductApiModel.fromJson(Map<String, dynamic> json) {
     String? extractId(dynamic value) {
       if (value == null) return null;
-      if (value is Map) return value['id'] as String?;
+      if (value is Map) return value['_id'] as String?;
       return value as String?;
     }
 
     return ProductApiModel(
       id: json['_id'] as String?,
-      category: extractId(json['category']),
-      productName: json['productName'] as String,
+      title: json['title'] as String,
       description: json['description'] as String,
       price: (json['price'] as num).toDouble(),
-      quantity: (json['quantity'] as num).toInt(),
-      media: json['media'] as String,
-      mediaType: json['mediaType'] as String?,
-      status: json['status'] as String?,
+      stock: (json['stock'] as num).toInt(),
+      categoryId: extractId(json['categoryId']),
+      sellerId: extractId(json['sellerId']),
+      images: json['images'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
@@ -65,17 +60,17 @@ class ProductApiModel {
           : null,
     );
   }
+
   ProductEntity toEntity() {
     return ProductEntity(
       productId: id,
-      productName: productName,
+      title: title,
       description: description,
       price: price,
-      quantity: quantity,
-      category: category,
-      media: media,
-      mediaType: mediaType,
-      status: status,
+      stock: stock,
+      categoryId: categoryId,
+      images: images,
+      sellerId: sellerId,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -84,14 +79,13 @@ class ProductApiModel {
   factory ProductApiModel.fromEntity(ProductEntity entity) {
     return ProductApiModel(
       id: entity.productId,
-      productName: entity.productName,
+      title: entity.title,
       description: entity.description,
       price: entity.price,
-      quantity: entity.quantity,
-      category: entity.category,
-      media: entity.media,
-      mediaType: entity.mediaType,
-      status: entity.status,
+      stock: entity.stock,
+      categoryId: entity.categoryId,
+      images: entity.images,
+      sellerId: entity.sellerId,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );

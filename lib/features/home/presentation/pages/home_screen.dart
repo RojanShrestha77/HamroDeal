@@ -4,9 +4,9 @@ import 'package:hamro_deal/features/product/domain/entities/product_entity.dart'
 import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
 import 'package:hamro_deal/features/product/presentation/state/product_state.dart';
 import 'package:hamro_deal/features/product/presentation/view_model/product_view_model.dart';
-import 'package:hamro_deal/screens/bottom_screen/search_screen.dart';
-import 'package:hamro_deal/widgets/vertical_product_card.dart';
-import 'package:hamro_deal/widgets/horizontal_product_card.dart';
+import 'package:hamro_deal/features/search/presentation/pages/search_screen.dart';
+import 'package:hamro_deal/features/home/presentation/widgets/vertical_product_card.dart';
+import 'package:hamro_deal/features/home/presentation/widgets/horizontal_product_card.dart';
 import 'package:hamro_deal/models/product_model.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hamro_deal/widgets/my_button.dart';
+import 'package:hamro_deal/core/widgets/my_button.dart';
 
 void main() {
   testWidgets('MyButton displays the correct text', (
