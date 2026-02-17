@@ -7,6 +7,7 @@ class AuthApiModel {
   final String email;
   final String username;
   final String? password;
+  final String? confirmPassword;
   final String? imageUrl;
   final String? role;
   final bool? isApproved;
@@ -18,6 +19,7 @@ class AuthApiModel {
     required this.email,
     required this.username,
     this.password,
+    this.confirmPassword,
     this.imageUrl,
     this.role,
     this.isApproved,
@@ -30,6 +32,8 @@ class AuthApiModel {
       'email': email,
       'username': username,
       if (password != null) 'password': password,
+      if (password != null && confirmPassword != null)
+        'confirmPassword': confirmPassword,
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (role != null) 'role': role,
     };
@@ -57,6 +61,7 @@ class AuthApiModel {
       email: email,
       username: username,
       password: password,
+      confirmPassword: confirmPassword,
       imageUrl: imageUrl,
       role: role,
       isApproved: isApproved,
@@ -71,6 +76,7 @@ class AuthApiModel {
       email: entity.email,
       username: entity.username,
       password: entity.password,
+      confirmPassword: entity.confirmPassword,
       imageUrl: entity.imageUrl,
       role: entity.role,
       isApproved: entity.isApproved,

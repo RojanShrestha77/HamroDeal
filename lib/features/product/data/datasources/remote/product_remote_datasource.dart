@@ -26,24 +26,10 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
     required TokenService tokenService,
   }) : _apiClient = apiClient,
        _tokenService = tokenService;
-
   @override
   Future<String> uploadImage(File image) async {
-    final fileName = image.path.split('/').last;
-
-    final formData = FormData.fromMap({
-      'images': await MultipartFile.fromFile(image.path, filename: fileName),
-    });
-
-    final token = _tokenService.getToken();
-    final response = await _apiClient.post(
-      ApiEndpoints.products,
-      data: formData,
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-
-    var imageUrl = response.data['data']['images'];
-    return imageUrl;
+    // Just return the file path - don't make any API calls
+    return image.path;
   }
 
   @override
@@ -55,12 +41,54 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
   @override
   Future<ProductApiModel> createProduct(ProductApiModel product) async {
     final token = _tokenService.getToken();
-    final response = await _apiClient.post(
-      ApiEndpoints.products,
-      data: product.toJson(),
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-    return ProductApiModel.fromJson(response.data['data']);
+
+    try {
+      // Check if product has a local file path
+      if (product.images != null && File(product.images!).existsSync()) {
+        // Upload with FormData (includes image file)
+        final formData = FormData.fromMap({
+          'title': product.title,
+          'description': product.description,
+          'price': product.price.toString(),
+          'stock': product.stock.toString(),
+          'categoryId': product.categoryId,
+          'images': await MultipartFile.fromFile(
+            product.images!,
+            filename: product.images!.split('/').last,
+          ),
+        });
+
+        print('🔵 Sending product data:');
+        print('Title: ${product.title}');
+        print('Description: ${product.description}');
+        print('Price: ${product.price}');
+        print('Stock: ${product.stock}');
+        print('CategoryId: ${product.categoryId}');
+        print('Image path: ${product.images}');
+
+        final response = await _apiClient.post(
+          ApiEndpoints.products,
+          data: formData,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'multipart/form-data',
+            },
+          ),
+        );
+        return ProductApiModel.fromJson(response.data['data']);
+      } else {
+        throw Exception('Product image is required');
+      }
+    } catch (e) {
+      if (e is DioException) {
+        print('🔴 DioException details:');
+        print('Status code: ${e.response?.statusCode}');
+        print('Response data: ${e.response?.data}');
+        print('Request data: ${e.requestOptions.data}');
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -110,11 +138,57 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
   @override
   Future<bool> updateProduct(ProductApiModel product) async {
     final token = _tokenService.getToken();
-    await _apiClient.put(
-      ApiEndpoints.productById(product.id!),
-      data: product.toJson(),
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-    return true;
+
+    try {
+      // Check if product has a new local file path (new image uploaded)
+      if (product.images != null && 
+          product.images!.isNotEmpty && 
+          File(product.images!).existsSync()) {
+        // Upload with FormData (includes new image file)
+        final formData = FormData.fromMap({
+          'title': product.title,
+          'description': product.description,
+          'price': product.price.toString(),
+          'stock': product.stock.toString(),
+          'categoryId': product.categoryId,
+          'images': await MultipartFile.fromFile(
+            product.images!,
+            filename: product.images!.split('/').last,
+          ),
+        });
+
+        print('🟡 Updating product with new image:');
+        print('Product ID: ${product.id}');
+        print('Title: ${product.title}');
+        print('Image path: ${product.images}');
+
+        await _apiClient.put(
+          ApiEndpoints.productById(product.id!),
+          data: formData,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'multipart/form-data',
+            },
+          ),
+        );
+      } else {
+        // No new image - send JSON data only
+        print('🟡 Updating product without new image');
+        await _apiClient.put(
+          ApiEndpoints.productById(product.id!),
+          data: product.toJson(),
+          options: Options(headers: {'Authorization': 'Bearer $token'}),
+        );
+      }
+      return true;
+    } catch (e) {
+      if (e is DioException) {
+        print('🔴 Update Product DioException:');
+        print('Status code: ${e.response?.statusCode}');
+        print('Response data: ${e.response?.data}');
+      }
+      rethrow;
+    }
   }
 }

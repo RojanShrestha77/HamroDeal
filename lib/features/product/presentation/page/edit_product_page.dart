@@ -77,11 +77,6 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
             ..add(image);
           _hasNewMedia = true;
         });
-
-        // upload image
-        await ref
-            .read(productViewModelProvider.notifier)
-            .uploadPhoto(File(image.path));
       }
     } catch (e) {
       debugPrint('Gallery error: $e');
@@ -105,17 +100,14 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
     String? finalMediaUrl;
 
     if (_hasNewMedia && _selectedMedia.isNotEmpty) {
-      finalMediaUrl = ref.read(productViewModelProvider).uploadedMediaUrl;
-
-      if (finalMediaUrl == null) {
-        SnackbarUtils.showError(context, "Please wait for image upload");
-        return;
-      }
+      // Use the local file path for new image (backend will handle upload)
+      finalMediaUrl = _selectedMedia.first.path;
+      print('🟢 Using new image path: $finalMediaUrl');
     } else {
+      // Keep existing image URL from backend
       finalMediaUrl = _existingMediaUrl;
+      print('🟢 Keeping existing image: $finalMediaUrl');
     }
-
-    print('🟢 Final media URL: $finalMediaUrl');
 
     // calling the api to update
     await ref

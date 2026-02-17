@@ -104,11 +104,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
             ..clear()
             ..add(photo);
         });
-
-        // Upload immediately for preview
-        await ref
-            .read(productViewModelProvider.notifier)
-            .uploadPhoto(File(photo.path));
       }
     } catch (e) {
       debugPrint('Camera error: $e');
@@ -131,11 +126,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
             ..clear()
             ..add(image);
         });
-
-        // Upload immediately for preview
-        await ref
-            .read(productViewModelProvider.notifier)
-            .uploadPhoto(File(image.path));
       }
     } catch (e) {
       debugPrint('Gallery error: $e');
@@ -167,11 +157,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
             ..clear()
             ..add(video);
         });
-
-        // Upload video (using same upload method as photos)
-        await ref
-            .read(productViewModelProvider.notifier)
-            .uploadPhoto(File(video.path));
       }
     } catch (e) {
       debugPrint('Video error: $e');
@@ -237,19 +222,14 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       return;
     }
 
-    // Check if media was selected but upload failed
-    if (_selectedMedia.isNotEmpty &&
-        ref.read(productViewModelProvider).uploadedMediaUrl == null) {
-      SnackbarUtils.showError(
-        context,
-        'Please wait for media upload to complete',
-      );
+    // Check if media was selected
+    if (_selectedMedia.isEmpty) {
+      SnackbarUtils.showError(context, 'Please select a product image');
       return;
     }
 
-    final uploadedPhotoUrl = ref
-        .read(productViewModelProvider)
-        .uploadedMediaUrl;
+    // Use the local file path directly
+    final imagePath = _selectedMedia.first.path;
 
     await ref
         .read(productViewModelProvider.notifier)
@@ -259,7 +239,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           price: double.parse(_priceController.text.trim()),
           stock: int.parse(_stockController.text.trim()),
           categoryId: _selectedCategoryId!,
-          images: uploadedPhotoUrl,
+          images: imagePath, // Local file path
         );
   }
 

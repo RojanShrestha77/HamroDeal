@@ -61,6 +61,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             email: _emailController.text.trim(),
             username: _usernameController.text.trim(),
             password: _passwordController.text,
+            confirmPassword: _confirmPasswordController.text, // ← Add this line
           );
     }
   }

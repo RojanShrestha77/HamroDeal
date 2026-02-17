@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/app/theme/theme_extensions.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
+import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/presentation/view_model/product_view_model.dart';
@@ -23,6 +24,8 @@ class ProductDetailPage extends ConsumerStatefulWidget {
 }
 
 class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
+  int _quantity = 1;
+
   String _getCategoryName(String? categoryId) {
     if (categoryId == null) return 'Other';
     final categoryState = ref.read(categoryViewModelProvider);
@@ -32,7 +35,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
     return category.isNotEmpty ? category.first.name : 'Other';
   }
 
-  // show delte confirmation dialog
+  // show delete confirmation dialog
   void _showDeleteDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -64,7 +67,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                 Navigator.pop(context);
                 SnackbarUtils.showSuccess(
                   context,
-                  'Product deleted successfullly',
+                  'Product deleted successfully',
                 );
               }
             },
@@ -81,17 +84,18 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   @override
   Widget build(BuildContext context) {
     final categoryName = _getCategoryName(widget.product.categoryId);
+    final cartViewModel = ref.read(cartViewModelProvider.notifier);
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.product.title)),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // product imageCache
+            // product image
             if (widget.product.images != null)
               AspectRatio(
                 aspectRatio: 1.0,
-
                 child: Image.network(
                   ApiEndpoints.productImage(widget.product.images!),
                   width: double.infinity,
@@ -107,7 +111,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                       ),
                     );
                   },
-                  errorBuilder: (context, error, StackTrace) {
+                  errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: context.borderColor,
                       child: Center(
@@ -187,7 +191,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 12),
-                  // prize/stock row
+                  // price/stock row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -238,22 +242,91 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                 ],
               ),
             ),
-            // Row(
-            //   children: [
-            //     Expanded(
-            //       child: Text(
-            //         // what goes here
-            //         style: TextStyle(
-            //           fontSize: 24,
-            //           fontWeight: FontWeight.bold,
-            //           color: context.textPrimary,
-            //         )
-            //       )
-            //     ),
-            //     // todo: add category badge
-            //   ],
-            // )
           ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, -3),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Row(
+            children: [
+              // Quantity Selector
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[300]!),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: _quantity > 1
+                          ? () => setState(() => _quantity--)
+                          : null,
+                    ),
+                    Text(
+                      '$_quantity',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: _quantity < widget.product.stock
+                          ? () => setState(() => _quantity++)
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Add to Cart Button
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: widget.product.stock > 0
+                      ? () async {
+                          final success = await cartViewModel.addToCart(
+                            widget.product.productId!,
+                            _quantity,
+                          );
+
+                          if (success && mounted) {
+                            SnackbarUtils.showSuccess(
+                              context,
+                              'Added to cart successfully',
+                            );
+                          } else if (mounted) {
+                            SnackbarUtils.showError(
+                              context,
+                              'Failed to add to cart',
+                            );
+                          }
+                        }
+                      : null,
+                  icon: const Icon(Icons.shopping_cart),
+                  label: const Text('Add to Cart'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
