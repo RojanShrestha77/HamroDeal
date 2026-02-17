@@ -7,6 +7,7 @@ import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/presentation/view_model/product_view_model.dart';
+import 'package:hamro_deal/features/wishlist/presentation/view_model/wishlist_view_model.dart';
 
 class ProductDetailPage extends ConsumerStatefulWidget {
   final ProductEntity product;
@@ -25,6 +26,15 @@ class ProductDetailPage extends ConsumerStatefulWidget {
 
 class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   int _quantity = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load wishlist to check if product is in wishlist
+    Future.microtask(
+      () => ref.read(wishlistViewModelProvider.notifier).getWishlist(),
+    );
+  }
 
   String _getCategoryName(String? categoryId) {
     if (categoryId == null) return 'Other';
@@ -85,9 +95,41 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   Widget build(BuildContext context) {
     final categoryName = _getCategoryName(widget.product.categoryId);
     final cartViewModel = ref.read(cartViewModelProvider.notifier);
+    final wishlistViewModel = ref.read(wishlistViewModelProvider.notifier);
+    final isInWishlist = wishlistViewModel.isInWishlist(
+      widget.product.productId ?? '',
+    );
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.product.title)),
+      appBar: AppBar(
+        title: Text(widget.product.title),
+        actions: [
+          // Wishlist Icon Button in AppBar
+          IconButton(
+            icon: Icon(
+              isInWishlist ? Icons.favorite : Icons.favorite_border,
+              color: isInWishlist ? Colors.red : null,
+            ),
+            onPressed: () async {
+              if (isInWishlist) {
+                final success = await wishlistViewModel.removeFromWishlist(
+                  widget.product.productId!,
+                );
+                if (success && mounted) {
+                  SnackbarUtils.showSuccess(context, 'Removed from wishlist');
+                }
+              } else {
+                final success = await wishlistViewModel.addToWishlist(
+                  widget.product.productId!,
+                );
+                if (success && mounted) {
+                  SnackbarUtils.showSuccess(context, 'Added to wishlist');
+                }
+              }
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
