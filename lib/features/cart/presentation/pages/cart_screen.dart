@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/features/cart/presentation/state/cart_state.dart';
 import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
+import 'package:hamro_deal/features/order/presentation/pages/checkout_screen.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
@@ -260,8 +261,11 @@ class _CartScreenState extends ConsumerState<CartScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Checkout coming soon!')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CheckoutScreen(),
+                    ),
                   );
                 },
                 child: const Text(

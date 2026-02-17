@@ -89,7 +89,7 @@ class ApiClient {
     );
   }
 
-  // put request
+  // Put request
   Future<Response> put(
     String path, {
     dynamic data,
@@ -104,7 +104,22 @@ class ApiClient {
     );
   }
 
-  // Delete req
+  // Patch request
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return _dio.patch(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+
+  // Delete request
   Future<Response> delete(
     String path, {
     dynamic data,
@@ -119,7 +134,7 @@ class ApiClient {
     );
   }
 
-  // multipart request for file uploads
+  // Multipart request for file uploads
   Future<Response> uploadFile(
     String path, {
     required FormData formData,
@@ -145,7 +160,7 @@ class _AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // ✅ Updated public endpoints to match new API structure
+    //  Updated public endpoints to match new API structure
     final publicEndpoints = [
       ApiEndpoints.categories, // GET /categories is public
       ApiEndpoints.products, // GET /products is public
@@ -153,7 +168,7 @@ class _AuthInterceptor extends Interceptor {
       ApiEndpoints.blogs, // GET /blogs is public
     ];
 
-    // ✅ Updated auth endpoints
+    //  Updated auth endpoints
     final authEndpoints = [ApiEndpoints.login, ApiEndpoints.register];
 
     final isPublicGet =

@@ -60,6 +60,7 @@ class ApiEndpoints {
   static const String orders = '/orders';
   static String orderById(String id) => '/orders/$id';
   static String cancelOrder(String id) => '/orders/$id/cancel';
+  static const String myOrders = '/orders/my-orders';
 
   // ========= Blog Endpoints (NEW) =========
   static const String blogs = '/blogs';
