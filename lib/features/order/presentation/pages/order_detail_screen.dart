@@ -4,6 +4,7 @@ import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/features/order/domain/entities/order_entity.dart';
 import 'package:hamro_deal/features/order/presentation/state/order_state.dart';
 import 'package:hamro_deal/features/order/presentation/view_model/order_view_model.dart';
+import 'package:hamro_deal/features/order/presentation/widgets/order_detail_widgets.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
   final String orderId;
@@ -18,7 +19,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Load order details
     Future.microtask(
       () => ref
           .read(orderViewModelProvider.notifier)
@@ -67,18 +67,19 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   const SizedBox(height: 24),
 
                   // Order items
-                  _buildSectionTitle('Order Items'),
+                  OrderDetailWidgets.buildSectionTitle('Order Items'),
                   ...order.items.map((item) => _buildOrderItem(item)),
                   const SizedBox(height: 24),
 
-                  // Shipping address
-                  _buildSectionTitle('Shipping Address'),
-                  _buildShippingAddress(order),
+                  // Shipping address - USING SHARED WIDGET
+                  OrderDetailWidgets.buildSectionTitle('Shipping Address'),
+                  OrderDetailWidgets.buildShippingAddress(
+                    order.shippingAddress,
+                  ),
                   const SizedBox(height: 24),
 
-                  // Order summary
-                  _buildSectionTitle('Order Summary'),
-                  _buildOrderSummary(order),
+                  // Order summary - USING SHARED WIDGET
+                  OrderDetailWidgets.buildPriceSummary(order),
                   const SizedBox(height: 24),
 
                   // Cancel button
@@ -117,10 +118,12 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Placed on ${_formatDate(order.createdAt)}',
+                  'Placed on ${OrderDetailWidgets.formatDate(order.createdAt)}', // USING SHARED METHOD
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
-                _buildStatusChip(order.status),
+                OrderDetailWidgets.buildStatusChip(
+                  order.status,
+                ), // USING SHARED WIDGET
               ],
             ),
             if (order.notes != null && order.notes!.isNotEmpty) ...[
@@ -132,16 +135,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ],
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -219,141 +212,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         ),
       ),
     );
-  }
-
-  Widget _buildShippingAddress(OrderEntity order) {
-    final address = order.shippingAddress;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              address.fullName,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(address.phone),
-            const SizedBox(height: 4),
-            Text(address.address),
-            Text('${address.city}, ${address.state ?? ''} ${address.zipCode}'),
-            Text(address.country),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOrderSummary(OrderEntity order) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildSummaryRow('Subtotal', order.subtotal),
-            const SizedBox(height: 8),
-            _buildSummaryRow('Shipping', order.shippingCost),
-            const SizedBox(height: 8),
-            _buildSummaryRow('Tax', order.tax),
-            const Divider(height: 24),
-            _buildSummaryRow('Total', order.total, isTotal: true),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Payment Method'),
-                Text(_getPaymentMethodText(order.paymentMethod)),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, double amount, {bool isTotal = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: isTotal ? 16 : 14,
-            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-        Text(
-          'Rs. ${amount.toStringAsFixed(2)}',
-          style: TextStyle(
-            fontSize: isTotal ? 18 : 14,
-            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-            color: isTotal ? Theme.of(context).primaryColor : null,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatusChip(OrderStatus status) {
-    Color color;
-    String text;
-
-    switch (status) {
-      case OrderStatus.pending:
-        color = Colors.orange;
-        text = 'Pending';
-        break;
-      case OrderStatus.processing:
-        color = Colors.blue;
-        text = 'Processing';
-        break;
-      case OrderStatus.shipped:
-        color = Colors.purple;
-        text = 'Shipped';
-        break;
-      case OrderStatus.delivered:
-        color = Colors.green;
-        text = 'Delivered';
-        break;
-      case OrderStatus.cancelled:
-        color = Colors.red;
-        text = 'Cancelled';
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'N/A';
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  String _getPaymentMethodText(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cashOnDelivery:
-        return 'Cash on Delivery';
-      case PaymentMethod.card:
-        return 'Card Payment';
-      case PaymentMethod.online:
-        return 'Online Payment';
-    }
   }
 
   void _showCancelDialog(String orderId) {
