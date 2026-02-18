@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
+import 'package:hamro_deal/features/admin/pages/admin_dashboard_screen.dart';
 import 'package:hamro_deal/features/auth/presentation/pages/edit_profile_page.dart';
 import 'package:hamro_deal/features/auth/presentation/view_model/auth_view_model.dart';
 import 'package:hamro_deal/features/category/presentation/pages/add_category_screen.dart';
@@ -52,6 +53,7 @@ class ProfileScreen extends ConsumerWidget {
             _buildMenuItem(context, "My Products", const MyProductsPage()),
             _buildMenuItem(context, "Wishlist", const WishlistScreen()),
             _buildMenuItem(context, "Order List", const OrderListScreen()),
+            _buildMenuItem(context, "Admin", const AdminDashboardScreen()),
           ],
         ),
       ),

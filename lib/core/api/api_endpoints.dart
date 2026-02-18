@@ -45,26 +45,32 @@ class ApiEndpoints {
   static const String myProducts = '/products/my-products';
   // static const String productUploadImage = '/products/upload-image';
 
-  // ========= Cart Endpoints (NEW) =========
+  // ========= Cart Endpoints =========
   static const String cart = '/cart';
   static String updateCartItem(String productId) => '/cart/$productId';
   static String removeFromCart(String productId) => '/cart/$productId';
   static const String clearCart = '/cart/clear/all';
 
-  // ========= Wishlist Endpoints (NEW) =========
+  // ========= Wishlist Endpoints =========
   static const String wishlist = '/wishlist';
   static String addToWishlist(String productId) => '/wishlist/$productId';
   static String removeFromWishlist(String productId) => '/wishlist/$productId';
 
-  // ========= Order Endpoints (NEW) =========
+  // ========= Order Endpoints =========
   static const String orders = '/orders';
   static String orderById(String id) => '/orders/$id';
   static String cancelOrder(String id) => '/orders/$id/cancel';
   static const String myOrders = '/orders/my-orders';
 
-  // ========= Blog Endpoints (NEW) =========
+  // ========= Blog Endpoints =========
   static const String blogs = '/blogs';
   static String blogById(String id) => '/blogs/$id';
+
+  // ======== admin order endpoints ================
+  static const String adminOrders = '/admin/orders';
+  static String adminOrderById(String id) => '/admin/orders/$id';
+  static String adminUpdateOrderStatus(String id) => '/admin/orders/$id/status';
+  static String adminDeleteOrder(String id) => '/admin/orders/$id';
 
   // ==================== Media Helper Methods ==================
   static String productImage(String filename) {
