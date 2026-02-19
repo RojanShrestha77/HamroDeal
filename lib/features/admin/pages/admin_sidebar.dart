@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hamro_deal/features/admin/orders/presentation/pages/admin_orders_screen.dart';
+import 'package:hamro_deal/features/admin/users/presentation/pages/admin_users_screen.dart';
 
 class AdminSidebar extends StatelessWidget {
   final bool isExpanded;
@@ -93,8 +94,11 @@ class AdminSidebar extends StatelessWidget {
                   icon: Icons.people,
                   label: 'Users',
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Users page coming soon')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminUsersScreen(),
+                      ),
                     );
                   },
                 ),

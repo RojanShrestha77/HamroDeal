@@ -72,6 +72,15 @@ class ApiEndpoints {
   static String adminUpdateOrderStatus(String id) => '/admin/orders/$id/status';
   static String adminDeleteOrder(String id) => '/admin/orders/$id';
 
+  // ======== admin user endpoints ================
+  static const String adminUsers = '/admin/users';
+  static String adminUserById(String id) => '/admin/users/$id';
+  static String adminUserDetails(String id) => '/admin/users/$id/details';
+  static String adminUpdateUser(String id) => '/admin/users/$id';
+  static String adminDeleteUser(String id) => '/admin/users/$id';
+  static String adminApproveSeller(String id) =>
+      '/admin/users/$id/approve-seller';
+
   // ==================== Media Helper Methods ==================
   static String productImage(String filename) {
     // Backend returns /uploads/filename, so just append to server URL
