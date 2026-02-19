@@ -25,7 +25,7 @@ class ApiEndpoints {
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
 
-  // ====== Auth Endpoints (was Student) =========
+  // ====== Auth Endpoints  =========
   static const String register = '/auth/register';
   static const String login = '/auth/login';
   static const String whoami = '/auth/whoami';

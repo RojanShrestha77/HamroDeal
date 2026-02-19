@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/login_usecase.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/register_usecase.dart';
+import 'package:hamro_deal/features/auth/domain/usecases/update_profile_usecase.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/upload_profile_picture_usecase.dart';
 import 'package:hamro_deal/features/auth/presentation/state/auth_state.dart';
 
@@ -13,6 +14,7 @@ class AuthViewModel extends Notifier<AuthState> {
   late final RegisterUsecase _registerUsecase;
   late final LoginUsecase _loginUsecase;
   late final UploadProfilePictureUsecase _uploadProfilePictureUsecase;
+  late final UpdateProfileUsecase _updateProfileUsecase;
 
   @override
   AuthState build() {
@@ -21,6 +23,7 @@ class AuthViewModel extends Notifier<AuthState> {
     _uploadProfilePictureUsecase = ref.read(
       uploadProfilePictureUsecaseProvider,
     );
+    _updateProfileUsecase = ref.read(updateProfileUsecaseProvider);
     return AuthState();
   }
 
@@ -108,6 +111,40 @@ class AuthViewModel extends Notifier<AuthState> {
           uploadedProfilePictureUrl: url,
         );
         return url;
+      },
+    );
+  }
+
+  Future<bool> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? email,
+  }) async {
+    state = state.copyWith(status: AuthStatus.loading);
+
+    final params = UpdateProfileUsecaseParams(
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+    );
+
+    final result = await _updateProfileUsecase(params);
+
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: failure.message,
+        );
+        return false;
+      },
+      (updatedUser) {
+        state = state.copyWith(
+          status: AuthStatus.authenticated,
+          authEntity: updatedUser,
+          errorMessage: null,
+        );
+        return true;
       },
     );
   }

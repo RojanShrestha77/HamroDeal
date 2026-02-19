@@ -10,4 +10,9 @@ abstract class IAuthRepository {
   Future<Either<Failure, AuthEntity?>> getCurrentUser();
   Future<Either<Failure, bool>> logout();
   Future<Either<Failure, String>> uploadProfilePicture(File photo);
+  Future<Either<Failure, AuthEntity>> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? email,
+  });
 }

@@ -107,4 +107,26 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
     var imageUrl = response.data['data']['imageUrl'];
     return imageUrl;
   }
+
+  @override
+  Future<AuthApiModel> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? email,
+  }) async {
+    final token = _tokenService.getToken();
+
+    final data = <String, dynamic>{};
+    if (firstName != null) data['firstName'] = firstName;
+    if (lastName != null) data['lastName'] = lastName;
+    if (email != null) data['email'] = email;
+
+    final response = await _apiClient.put(
+      ApiEndpoints.updateProfile,
+      data: data,
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+
+    return AuthApiModel.fromJson(response.data['data']);
+  }
 }

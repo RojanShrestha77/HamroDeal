@@ -16,4 +16,9 @@ abstract interface class IAuthRemoteDatasource {
   Future<AuthApiModel> register(AuthApiModel user);
   Future<AuthApiModel?> login(String email, String password);
   Future<AuthApiModel?> getUserById(String authId);
+  Future<AuthApiModel> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? email,
+  });
 }
