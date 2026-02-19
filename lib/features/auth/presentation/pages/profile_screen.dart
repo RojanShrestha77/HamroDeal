@@ -6,12 +6,11 @@ import 'package:hamro_deal/features/auth/presentation/pages/edit_profile_page.da
 import 'package:hamro_deal/features/auth/presentation/view_model/auth_view_model.dart';
 import 'package:hamro_deal/features/category/presentation/pages/add_category_screen.dart';
 import 'package:hamro_deal/features/order/presentation/pages/order_list_screen.dart';
-import 'package:hamro_deal/features/product/presentation/page/add_product_screen.dart';
-import 'package:hamro_deal/features/product/presentation/page/my_products_page.dart';
 import 'package:hamro_deal/features/cart/presentation/pages/cart_screen.dart';
 import 'package:hamro_deal/features/home/presentation/pages/home_screen.dart';
 import 'package:hamro_deal/features/order/presentation/pages/order_screen.dart';
 import 'package:hamro_deal/features/auth/presentation/pages/login_screen.dart';
+import 'package:hamro_deal/features/seller/presentation/pages/seller_dashboard_screen.dart';
 import 'package:hamro_deal/features/wishlist/presentation/page/wishlist_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -35,7 +34,7 @@ class ProfileScreen extends ConsumerWidget {
 
             const Text("Hi,", textAlign: TextAlign.center),
             Text(
-              user?.fullName ?? "Guest User", // ← Dynamic name
+              user?.fullName ?? "Guest User",
               textAlign: TextAlign.center,
               style: const TextStyle(fontFamily: 'Jost Bold', fontSize: 16),
             ),
@@ -47,13 +46,14 @@ class ProfileScreen extends ConsumerWidget {
             _buildMenuItem(context, "Home", HomeScreen()),
             _buildMenuItem(context, "Sign out", LoginPage()),
             _buildMenuItem(context, "Cart", const CartScreen()),
-            _buildMenuItem(context, "Add Products", const AddProductScreen()),
             _buildMenuItem(context, "Edit Profile", const EditProfilePage()),
             _buildMenuItem(context, "Add Category", const AddCategoryScreen()),
-            _buildMenuItem(context, "My Products", const MyProductsPage()),
             _buildMenuItem(context, "Wishlist", const WishlistScreen()),
             _buildMenuItem(context, "Order List", const OrderListScreen()),
-            _buildMenuItem(context, "Admin", const AdminDashboardScreen()),
+            if (user?.role?.toLowerCase() == 'admin')
+              _buildMenuItem(context, "Admin", const AdminDashboardScreen()),
+            if (user?.role?.toLowerCase() == 'seller')
+              _buildMenuItem(context, "Seller", const SellerDashboardScreen()),
           ],
         ),
       ),
@@ -77,7 +77,7 @@ class ProfileScreen extends ConsumerWidget {
                 ? (exception, stackTrace) {
                     debugPrint('Error loading profile image: $exception');
                   }
-                : null, // ← null when no image
+                : null,
             child: _getProfileImage(user) == null
                 ? _getInitials(user?.fullName ?? "Guest")
                 : null,
@@ -115,7 +115,6 @@ class ProfileScreen extends ConsumerWidget {
     if (user?.imageUrl != null && user!.imageUrl!.isNotEmpty) {
       final imageUrl = user.imageUrl!;
 
-      // Use the helper method that handles /uploads/ prefix correctly
       return NetworkImage(ApiEndpoints.userProfileImage(imageUrl));
     }
     return null;
