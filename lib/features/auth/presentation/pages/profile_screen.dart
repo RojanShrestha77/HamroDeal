@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hamro_deal/app/theme/theme_view_model.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/features/admin/pages/admin_dashboard_screen.dart';
 import 'package:hamro_deal/features/auth/presentation/pages/edit_profile_page.dart';
@@ -42,7 +43,10 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Menu Items
-            _buildMenuItem(context, "My orders", const OrderScreen()),
+            // _buildMenuItem(context, "My orders", const OrderScreen()),
+            // Add this with other menu items
+            _buildThemeToggle(context, ref),
+
             _buildMenuItem(context, "Home", HomeScreen()),
             _buildMenuItem(context, "Sign out", LoginPage()),
             _buildMenuItem(context, "Cart", const CartScreen()),
@@ -57,6 +61,32 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildThemeToggle(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeViewModelProvider);
+    final isDark = themeState.themeMode == ThemeMode.dark;
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Dark Mode'),
+              Switch(
+                value: isDark,
+                onChanged: (value) {
+                  ref.read(themeViewModelProvider.notifier).toggleTheme();
+                },
+              ),
+            ],
+          ),
+        ),
+        const Divider(thickness: 2, indent: 32, endIndent: 32),
+      ],
     );
   }
 
