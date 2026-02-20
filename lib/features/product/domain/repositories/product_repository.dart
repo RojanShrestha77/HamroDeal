@@ -16,4 +16,11 @@ abstract class IProductRepository {
   Future<Either<Failure, bool>> deleteProduct(String productId);
   Future<Either<Failure, String>> uploadPhoto(File photo);
   Future<Either<Failure, String>> uploadVideo(File video);
+  Future<Either<Failure, List<ProductEntity>>> getFilteredProducts({
+    String? categoryId,
+    String? search,
+    double? minPrice,
+    double? maxPrice,
+    String? sort,
+  });
 }

@@ -11,6 +11,12 @@ abstract interface class IProductLocalDataSource {
   Future<bool> createProduct(ProductHiveModel product);
   Future<bool> updateProduct(ProductHiveModel product);
   Future<bool> deleteProduct(String productId);
+  Future<List<ProductHiveModel>> getFilteredProducts({
+    String? categoryId,
+    double? minPrice,
+    double? maxPrice,
+    String? sort,
+  });
 }
 
 abstract interface class IProductRemoteDataSource {
@@ -23,4 +29,11 @@ abstract interface class IProductRemoteDataSource {
   Future<ProductApiModel> getProductById(String productId);
   Future<bool> updateProduct(ProductApiModel product);
   Future<bool> deleteProduct(String productId);
+  Future<List<ProductApiModel>> getFilteredProducts({
+    String? categoryId,
+    String? search,
+    double? minPrice,
+    double? maxPrice,
+    String? sort,
+  });
 }

@@ -141,8 +141,8 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
 
     try {
       // Check if product has a new local file path (new image uploaded)
-      if (product.images != null && 
-          product.images!.isNotEmpty && 
+      if (product.images != null &&
+          product.images!.isNotEmpty &&
           File(product.images!).existsSync()) {
         // Upload with FormData (includes new image file)
         final formData = FormData.fromMap({
@@ -190,5 +190,40 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
       }
       rethrow;
     }
+  }
+
+  @override
+  Future<List<ProductApiModel>> getFilteredProducts({
+    String? categoryId,
+    String? search,
+    double? minPrice,
+    double? maxPrice,
+    String? sort,
+  }) async {
+    final Map<String, dynamic> queryParams = {};
+
+    if (categoryId != null && categoryId.isNotEmpty) {
+      queryParams['categoryId'] = categoryId;
+    }
+    if (search != null && search.isNotEmpty) {
+      queryParams['search'] = search;
+    }
+    if (minPrice != null) {
+      queryParams['minPrice'] = minPrice.toString();
+    }
+    if (maxPrice != null) {
+      queryParams['maxPrice'] = maxPrice.toString();
+    }
+    if (sort != null && sort.isNotEmpty) {
+      queryParams['sort'] = sort;
+    }
+
+    final response = await _apiClient.get(
+      ApiEndpoints.products,
+      queryParameters: queryParams,
+    );
+
+    final data = response.data['data'] as List;
+    return data.map((json) => ProductApiModel.fromJson(json)).toList();
   }
 }

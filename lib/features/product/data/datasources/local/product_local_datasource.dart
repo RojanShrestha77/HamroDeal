@@ -86,4 +86,48 @@ class ProductLocalDatasource implements IProductLocalDataSource {
   Future<void> cacheAllProducts(List<ProductHiveModel> products) async {
     await _hiveService.cacheAllProducts(products);
   }
+
+  @override
+  Future<List<ProductHiveModel>> getFilteredProducts({
+    String? categoryId,
+    double? minPrice,
+    double? maxPrice,
+    String? sort,
+  }) async {
+    try {
+      var products = await _hiveService.getAllProducts();
+
+      // filter  by category
+      if (categoryId != null && categoryId.isNotEmpty) {
+        products = products.where((p) => p.categoryId == categoryId).toList();
+      }
+
+      // filter by price
+      if (minPrice != null) {
+        products = products.where((p) => p.price >= minPrice).toList();
+      }
+      if (maxPrice != null) {
+        products = products.where((p) => p.price <= maxPrice).toList();
+      }
+
+      // sort
+      if (sort != null) {
+        switch (sort) {
+          case 'price_asc':
+            products.sort((a, b) => a.price.compareTo(b.price));
+            break;
+          case 'price_desc':
+            products.sort((a, b) => b.price.compareTo(a.price));
+            break;
+          case 'newest':
+            // Skip - createdAt not available in cached data
+            // Newest sort only works online
+            break;
+        }
+      }
+      return products;
+    } catch (e) {
+      return [];
+    }
+  }
 }

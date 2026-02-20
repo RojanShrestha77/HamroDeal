@@ -229,4 +229,74 @@ class ProductRepository extends IProductRepository {
       }
     }
   }
+
+  @override
+  Future<Either<Failure, List<ProductEntity>>> getFilteredProducts({
+    String? categoryId,
+    String? search,
+    double? minPrice,
+    double? maxPrice,
+    String? sort,
+  }) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final models = await _remoteDataSource.getFilteredProducts(
+          categoryId: categoryId,
+          search: search,
+          minPrice: minPrice,
+          maxPrice: maxPrice,
+          sort: sort,
+        );
+
+        // caching
+        final hiveModels = ProductHiveModel.fromApiModelList(models);
+        await _localDataSource.cacheAllProducts(hiveModels);
+
+        final entites = ProductApiModel.toEntityList(models);
+        return Right(entites);
+      } catch (e) {
+        return _getFilteredCachedProducts(
+          categoryId: categoryId,
+          minPrice: minPrice,
+          maxPrice: maxPrice,
+          sort: sort,
+        );
+      }
+    } else {
+      // no offline for search
+      if (search != null && search.isNotEmpty) {
+        return const Left(
+          ApiFailure(message: 'Search requires internet connection'),
+        );
+      }
+
+      return _getFilteredCachedProducts(
+        categoryId: categoryId,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        sort: sort,
+      );
+    }
+  }
+
+  // helpermetyhod
+  Future<Either<Failure, List<ProductEntity>>> _getFilteredCachedProducts({
+    String? categoryId,
+    double? minPrice,
+    double? maxPrice,
+    String? sort,
+  }) async {
+    try {
+      final models = await _localDataSource.getFilteredProducts(
+        categoryId: categoryId,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        sort: sort,
+      );
+      final entities = ProductHiveModel.toEntityList(models);
+      return Right(entities);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
+  }
 }
