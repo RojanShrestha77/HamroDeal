@@ -46,6 +46,7 @@ class ProfileScreen extends ConsumerWidget {
             // _buildMenuItem(context, "My orders", const OrderScreen()),
             // Add this with other menu items
             _buildThemeToggle(context, ref),
+            _buildThemeModeSelector(context, ref),
 
             _buildMenuItem(context, "Home", HomeScreen()),
             _buildMenuItem(context, "Sign out", LoginPage()),
@@ -81,6 +82,95 @@ class ProfileScreen extends ConsumerWidget {
                 onChanged: (value) {
                   ref.read(themeViewModelProvider.notifier).toggleTheme();
                 },
+              ),
+            ],
+          ),
+        ),
+        const Divider(thickness: 2, indent: 32, endIndent: 32),
+      ],
+    );
+  }
+
+  Widget _buildThemeModeSelector(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeViewModelProvider);
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Theme Mode',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+
+              // Light Mode
+              RadioListTile<String>(
+                title: const Text('Light'),
+                value: 'light',
+                groupValue: themeState.isAutoMode
+                    ? 'auto'
+                    : (themeState.themeMode == ThemeMode.light
+                          ? 'light'
+                          : 'dark'),
+                onChanged: (value) {
+                  ref.read(themeViewModelProvider.notifier).setLightMode();
+                },
+                contentPadding: EdgeInsets.zero,
+              ),
+
+              // Dark Mode
+              RadioListTile<String>(
+                title: const Text('Dark'),
+                value: 'dark',
+                groupValue: themeState.isAutoMode
+                    ? 'auto'
+                    : (themeState.themeMode == ThemeMode.light
+                          ? 'light'
+                          : 'dark'),
+                onChanged: (value) {
+                  ref.read(themeViewModelProvider.notifier).setDarkMode();
+                },
+                contentPadding: EdgeInsets.zero,
+              ),
+
+              // Auto Mode
+              RadioListTile<String>(
+                title: const Text('Auto (Light Sensor)'),
+                subtitle: !themeState.hasLightSensor && themeState.isAutoMode
+                    ? const Text(
+                        'Light sensor not available on this device',
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      )
+                    : null,
+                value: 'auto',
+                groupValue: themeState.isAutoMode
+                    ? 'auto'
+                    : (themeState.themeMode == ThemeMode.light
+                          ? 'light'
+                          : 'dark'),
+                onChanged: (value) async {
+                  await ref
+                      .read(themeViewModelProvider.notifier)
+                      .enableAutoMode();
+
+                  // Show error if sensor not available
+                  if (!ref.read(themeViewModelProvider).hasLightSensor) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Auto mode not supported on this device',
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                },
+                contentPadding: EdgeInsets.zero,
               ),
             ],
           ),
