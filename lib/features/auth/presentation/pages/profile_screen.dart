@@ -11,6 +11,7 @@ import 'package:hamro_deal/features/cart/presentation/pages/cart_screen.dart';
 import 'package:hamro_deal/features/home/presentation/pages/home_screen.dart';
 import 'package:hamro_deal/features/order/presentation/pages/order_screen.dart';
 import 'package:hamro_deal/features/auth/presentation/pages/login_screen.dart';
+import 'package:hamro_deal/features/product/presentation/page/porduct_browse_screen.dart';
 import 'package:hamro_deal/features/seller/presentation/pages/seller_dashboard_screen.dart';
 import 'package:hamro_deal/features/wishlist/presentation/page/wishlist_screen.dart';
 
@@ -51,6 +52,7 @@ class ProfileScreen extends ConsumerWidget {
             _buildMenuItem(context, "Home", HomeScreen()),
             _buildMenuItem(context, "Sign out", LoginPage()),
             _buildMenuItem(context, "Cart", const CartScreen()),
+            _buildMenuItem(context, "Product", const PorductBrowseScreen()),
             _buildMenuItem(context, "Edit Profile", const EditProfilePage()),
             _buildMenuItem(context, "Add Category", const AddCategoryScreen()),
             _buildMenuItem(context, "Wishlist", const WishlistScreen()),
