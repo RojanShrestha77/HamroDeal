@@ -32,31 +32,29 @@ class _CategoryFilterChipsState extends ConsumerState<CategoryFilterChips> {
   Widget build(BuildContext context) {
     final categoryState = ref.watch(categoryViewModelProvider);
 
-    return Container(
+    return SizedBox(
       height: 50,
-      padding: const EdgeInsets.symmetric(vertical: 8),
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              label: const Text('All'),
-              selected: widget.selectedCategoryId == null,
-              onSelected: (_) => widget.onCategorySelected(null),
-              backgroundColor: Colors.grey.shade200,
-              selectedColor: Colors.blue,
-              labelStyle: TextStyle(
-                color: widget.selectedCategoryId == null
-                    ? Colors.white
-                    : Colors.black87,
-                fontWeight: widget.selectedCategoryId == null
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-              ),
+          // All chip
+          FilterChip(
+            label: const Text('All'),
+            selected: widget.selectedCategoryId == null,
+            onSelected: (_) => widget.onCategorySelected(null),
+            backgroundColor: Colors.grey.shade200,
+            selectedColor: Colors.blue,
+            labelStyle: TextStyle(
+              color: widget.selectedCategoryId == null
+                  ? Colors.white
+                  : Colors.black87,
+              fontWeight: widget.selectedCategoryId == null
+                  ? FontWeight.bold
+                  : FontWeight.normal,
             ),
           ),
+          const SizedBox(width: 8),
           // Category chips
           ...categoryState.categories.map((category) {
             final isSelected = widget.selectedCategoryId == category.categoryId;
