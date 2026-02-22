@@ -1,3 +1,5 @@
+import '../../domain/entities/top_product_entity.dart';
+
 class TopProductModel {
   final String id;
   final String productName;
@@ -20,6 +22,16 @@ class TopProductModel {
       productImage: json['productImage'],
       totalSold: json['totalSold'] ?? 0,
       totalRevenue: (json['totalRevenue'] ?? 0).toDouble(),
+    );
+  }
+
+  TopProductEntity toEntity() {
+    return TopProductEntity(
+      id: id,
+      productName: productName,
+      productImage: productImage,
+      totalSold: totalSold,
+      totalRevenue: totalRevenue,
     );
   }
 }

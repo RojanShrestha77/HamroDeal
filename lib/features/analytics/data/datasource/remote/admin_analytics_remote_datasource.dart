@@ -51,8 +51,10 @@ class AdminAnalyticsRemoteDataSource implements IAdminAnalyticsDataSource {
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
-    final List<dynamic> data = response.data['data'];
-    return data.map((json) => RevenueDataModel.fromJson(json)).toList();
+    final List<dynamic> data = response.data['data'] as List<dynamic>;
+    return data
+        .map((json) => RevenueDataModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   @override
@@ -65,7 +67,9 @@ class AdminAnalyticsRemoteDataSource implements IAdminAnalyticsDataSource {
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
-    final List<dynamic> data = response.data['data'];
-    return data.map((json) => TopProductModel.fromJson(json)).toList();
+    final List<dynamic> data = response.data['data'] as List<dynamic>;
+    return data
+        .map((json) => TopProductModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 }
