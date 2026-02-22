@@ -91,6 +91,15 @@ class ApiEndpoints {
   static const String adminAnalyticsLowStock = '/admin/analytics/low-stock';
   static const String adminAnalyticsTopSellers = '/admin/analytics/top-sellers';
 
+  // ========= Review Endpoints =========
+  static const String reviews = '/reviews';
+  static String productReviews(String productId) =>
+      '/reviews/product/$productId';
+  static String createReview(String productId) => '/reviews/product/$productId';
+  static const String myReviews = '/reviews/my-reviews';
+  static String updateReview(String reviewId) => '/reviews/$reviewId';
+  static String deleteReview(String reviewId) => '/reviews/$reviewId';
+
   // ==================== Media Helper Methods ==================
   static String productImage(String filename) {
     // Backend returns /uploads/filename, so just append to server URL
