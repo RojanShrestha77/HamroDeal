@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_client.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/core/services/storage/token_service.dart';
-import 'package:hamro_deal/features/analytics/data/datasource/admin_analytics_datasource.dart';
-import 'package:hamro_deal/features/analytics/data/model/analytics_overview_model.dart';
-import 'package:hamro_deal/features/analytics/data/model/revenue_data_model.dart';
-import 'package:hamro_deal/features/analytics/data/model/top_product_model.dart';
+import 'package:hamro_deal/features/admin/analytics/data/datasource/admin_analytics_datasource.dart';
+import 'package:hamro_deal/features/admin/analytics/data/model/analytics_overview_model.dart';
+import 'package:hamro_deal/features/admin/analytics/data/model/revenue_data_model.dart';
+import 'package:hamro_deal/features/admin/analytics/data/model/top_product_model.dart';
 
 final adminAnalyticsRemoteDatasourceProvider =
     Provider<IAdminAnalyticsDataSource>((ref) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hamro_deal/features/admin/analytics/presentation/pages/admin_analytics_screen.dart';
 import 'package:hamro_deal/features/admin/orders/presentation/pages/admin_orders_screen.dart';
 import 'package:hamro_deal/features/admin/users/presentation/pages/admin_users_screen.dart';
 
@@ -121,6 +122,19 @@ class AdminSidebar extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AdminOrdersScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.analytics_outlined,
+                  label: 'Analytics',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminAnalyticsScreen(),
                       ),
                     );
                   },

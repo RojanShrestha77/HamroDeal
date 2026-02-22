@@ -53,6 +53,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   test_cov_console: ^0.2.2
   light: ^4.1.0
+  fl_chart: ^1.1.1
 
 dev_dependencies:
   flutter_test:
