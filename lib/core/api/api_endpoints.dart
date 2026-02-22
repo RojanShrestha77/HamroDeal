@@ -81,6 +81,16 @@ class ApiEndpoints {
   static String adminApproveSeller(String id) =>
       '/admin/users/$id/approve-seller';
 
+  // ================ admin analytics endpoints =============
+  static const String adminAnalyticsOverview = '/admin/analytics/overview';
+  static const String adminAnalyticsRevenue = '/admin/analytics/revenue';
+  static const String adminAnalyticsTopProducts =
+      '/admin/analytics/top-products';
+  static const String adminAnalyticsRecentOrders =
+      '/admin/analytics/recent-orders';
+  static const String adminAnalyticsLowStock = '/admin/analytics/low-stock';
+  static const String adminAnalyticsTopSellers = '/admin/analytics/top-sellers';
+
   // ==================== Media Helper Methods ==================
   static String productImage(String filename) {
     // Backend returns /uploads/filename, so just append to server URL
