@@ -24,7 +24,9 @@ class ReviewModel {
       id: json['_id'],
       productId: json['productId'],
       user: ReviewUserModel.fromJson(json['userId']),
-      rating: json['rating'],
+      rating: json['rating'] is int
+          ? json['rating']
+          : int.parse(json['rating'].toString()),
       comment: json['comment'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),

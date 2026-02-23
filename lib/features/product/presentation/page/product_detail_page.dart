@@ -7,6 +7,7 @@ import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/presentation/view_model/product_view_model.dart';
+import 'package:hamro_deal/features/review/presentation/widgets/product_reviews_section.dart';
 import 'package:hamro_deal/features/wishlist/presentation/view_model/wishlist_view_model.dart';
 
 class ProductDetailPage extends ConsumerStatefulWidget {
@@ -284,6 +285,10 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                 ],
               ),
             ),
+
+            const Divider(height: 32),
+            ProductReviewsSection(productId: widget.product.productId!),
+            const SizedBox(height: 80), // Space for bottom nav bar
           ],
         ),
       ),

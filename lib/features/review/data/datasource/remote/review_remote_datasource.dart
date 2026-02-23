@@ -33,9 +33,20 @@ class ReviewRemoteDataSource implements IReviewDataSource {
     final response = await _apiClient.get(
       '${ApiEndpoints.productReviews(productId)}?page=$page&size=$size',
     );
-    // Use response.data['data'] not response['data']
-    final data = response.data['data']['reviews'] as List;
-    return data.map((json) => ReviewModel.fromJson(json)).toList();
+
+    // Check if reviews is nested or direct
+    final responseData = response.data['data'];
+    final List<dynamic> reviewsList;
+
+    if (responseData is Map && responseData.containsKey('reviews')) {
+      reviewsList = responseData['reviews'] as List;
+    } else if (responseData is List) {
+      reviewsList = responseData;
+    } else {
+      reviewsList = [];
+    }
+
+    return reviewsList.map((json) => ReviewModel.fromJson(json)).toList();
   }
 
   @override
