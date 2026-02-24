@@ -100,6 +100,14 @@ class ApiEndpoints {
   static String updateReview(String reviewId) => '/reviews/$reviewId';
   static String deleteReview(String reviewId) => '/reviews/$reviewId';
 
+  // ========= Notification Endpoints =========
+  static const String notifications = '/notifications';
+  static const String notificationsUnreadCount = '/notifications/unread-count';
+  static const String notificationsMarkAllRead = '/notifications/mark-all-read';
+  static String notificationById(String id) => '/notifications/$id';
+  static String markNotificationAsRead(String id) => '/notifications/$id/read';
+  static String deleteNotification(String id) => '/notifications/$id';
+
   // ==================== Media Helper Methods ==================
   static String productImage(String filename) {
     // Backend returns /uploads/filename, so just append to server URL
