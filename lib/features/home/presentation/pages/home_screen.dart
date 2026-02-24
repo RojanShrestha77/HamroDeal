@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hamro_deal/features/notification/presentation/widgets/notification_icon_button.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
 import 'package:hamro_deal/features/product/presentation/state/product_state.dart';
@@ -32,6 +33,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final products = productState.products;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Hamro Deal',
+          style: TextStyle(fontFamily: 'Just Bold'),
+        ),
+        actions: const [
+          NotificationIconButton(), // Shows notification icon with unread badge
+          SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
