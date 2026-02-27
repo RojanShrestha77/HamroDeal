@@ -108,6 +108,20 @@ class ApiEndpoints {
   static String markNotificationAsRead(String id) => '/notifications/$id/read';
   static String deleteNotification(String id) => '/notifications/$id';
 
+  // ========= Messaging Endpoints =========
+  static const String conversations = '/conversations';
+  static String conversationById(String id) => '/conversations/$id';
+  static String deleteConversation(String id) => '/conversations/$id';
+  static String resetUnreadCount(String id) => '/conversations/$id/read';
+  static const String createOrGetConversation = '/conversations';
+
+  static const String messages = '/messages';
+  static String messagesByConversation(String conversationId) =>
+      '/messages/conversation/$conversationId';
+  static String deleteMessage(String id) => '/messages/$id';
+  static String markMessagesAsRead(String conversationId) =>
+      '/messages/conversation/$conversationId/read';
+
   // ==================== Media Helper Methods ==================
   static String productImage(String filename) {
     // Backend returns /uploads/filename, so just append to server URL
