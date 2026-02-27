@@ -6,31 +6,31 @@ import 'package:hamro_deal/core/usecase/app_usecase.dart';
 import 'package:hamro_deal/features/conversation/data/repositories/messaging_repository.dart';
 import 'package:hamro_deal/features/conversation/domain/repositories/messaging_repository.dart';
 
-class DeleteConversationParams extends Equatable {
+class ResetUnreadCountParams extends Equatable {
   final String id;
 
-  const DeleteConversationParams({required this.id});
+  const ResetUnreadCountParams({required this.id});
 
   @override
   List<Object?> get props => [id];
 }
 
-final deleteConversationUsecaseProvider = Provider<DeleteConversationUsecase>((
+final resetUnreadCountUsecaseProvider = Provider<ResetUnreadCountUsecase>((
   ref,
 ) {
   final repository = ref.read(messagingRepositoryProvider);
-  return DeleteConversationUsecase(repository: repository);
+  return ResetUnreadCountUsecase(repository: repository);
 });
 
-class DeleteConversationUsecase
-    implements UsecaseWithParams<void, DeleteConversationParams> {
+class ResetUnreadCountUsecase
+    implements UsecaseWithParams<void, ResetUnreadCountParams> {
   final IMessagingRepository _repository;
 
-  DeleteConversationUsecase({required IMessagingRepository repository})
+  ResetUnreadCountUsecase({required IMessagingRepository repository})
     : _repository = repository;
 
   @override
-  Future<Either<Failure, void>> call(DeleteConversationParams params) {
-    return _repository.deleteConversation(params.id);
+  Future<Either<Failure, void>> call(ResetUnreadCountParams params) {
+    return _repository.resetUnreadCount(params.id);
   }
 }
