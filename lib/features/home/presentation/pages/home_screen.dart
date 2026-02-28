@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hamro_deal/core/api/api_client.dart';
+import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/features/notification/presentation/widgets/notification_icon_button.dart';
+import 'package:hamro_deal/features/product/data/models/product_api_model.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
 import 'package:hamro_deal/features/product/presentation/state/product_state.dart';
@@ -8,7 +11,6 @@ import 'package:hamro_deal/features/product/presentation/view_model/product_view
 import 'package:hamro_deal/features/search/presentation/pages/search_screen.dart';
 import 'package:hamro_deal/features/home/presentation/widgets/vertical_product_card.dart';
 import 'package:hamro_deal/features/home/presentation/widgets/horizontal_product_card.dart';
-import 'package:hamro_deal/models/product_model.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -18,13 +20,68 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  List<ProductEntity> _newestProducts = [];
+  List<ProductEntity> _trendingProducts = [];
+  bool _isLoadingSpecial = false;
+
   @override
   void initState() {
     super.initState();
     // load the products when screen opens
     Future.microtask(() {
       ref.read(productViewModelProvider.notifier).getAllProducts();
+      _loadSpecialProducts();
     });
+  }
+
+  Future<void> _loadSpecialProducts() async {
+    setState(() {
+      _isLoadingSpecial = true;
+    });
+
+    try {
+      final apiClient = ref.read(apiClientProvider);
+
+      // Fetch newest products
+      try {
+        final newestResponse = await apiClient.get(ApiEndpoints.newestProducts);
+
+        if (newestResponse.data['success'] == true) {
+          final newestData = newestResponse.data['data'] as List;
+          _newestProducts = newestData
+              .map((json) => ProductApiModel.fromJson(json).toEntity())
+              .toList();
+        }
+      } catch (e) {
+        print('Error loading newest products: $e');
+      }
+
+      // Fetch trending products
+      try {
+        final trendingResponse = await apiClient.get(
+          ApiEndpoints.trendingProducts,
+        );
+        print('Trending response: ${trendingResponse.data}'); // Debug
+
+        if (trendingResponse.data['success'] == true) {
+          final trendingData = trendingResponse.data['data'] as List;
+          _trendingProducts = trendingData
+              .map((json) => ProductApiModel.fromJson(json).toEntity())
+              .toList();
+        }
+      } catch (e) {
+        print('Error loading trending products: $e');
+      }
+
+      setState(() {
+        _isLoadingSpecial = false;
+      });
+    } catch (e) {
+      print('Error loading special products: $e');
+      setState(() {
+        _isLoadingSpecial = false;
+      });
+    }
   }
 
   @override
@@ -38,15 +95,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           'Hamro Deal',
           style: TextStyle(fontFamily: 'Just Bold'),
         ),
-        actions: const [
-          NotificationIconButton(), // Shows notification icon with unread badge
-          SizedBox(width: 8),
-        ],
+        actions: const [NotificationIconButton(), SizedBox(width: 8)],
       ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
             await ref.read(productViewModelProvider.notifier).getAllProducts();
+            await _loadSpecialProducts();
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -60,8 +115,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                   const SizedBox(height: 24),
 
-                  // propduct recommendation section
-                  _buildRecommendedSection(products),
+                  // Newest Products Section
+                  _buildProductSection(
+                    title: "Newest Products",
+                    products: _newestProducts,
+                    isLoading: _isLoadingSpecial,
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Trending Products Section
+                  _buildProductSection(
+                    title: "Trending Now",
+                    products: _trendingProducts,
+                    isLoading: _isLoadingSpecial,
+                  ),
 
                   const SizedBox(height: 30),
 
@@ -69,7 +137,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   _buildShopNowBanner(),
 
                   const SizedBox(height: 15),
-                  // Vertical GridView
+
+                  // All Products Grid
                   _buildProductsGrid(productState, products),
 
                   const SizedBox(height: 24),
@@ -82,51 +151,61 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildRecommendedSection(List<ProductEntity> products) {
-    final recommendedProducts = products.take(6).toList();
-
+  Widget _buildProductSection({
+    required String title,
+    required List<ProductEntity> products,
+    required bool isLoading,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            "Recommended For You",
-            style: TextStyle(fontSize: 20, fontFamily: 'Just Bold'),
+            title,
+            style: const TextStyle(fontSize: 20, fontFamily: 'Just Bold'),
           ),
         ),
         const SizedBox(height: 16),
 
-        recommendedProducts.isEmpty
-            ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Text('No products available'),
-                ),
-              )
-            : SizedBox(
-                height: 300,
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: recommendedProducts.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, index) {
-                    final product = recommendedProducts[index];
-                    return HorizontalProductCard(
-                      product: product,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ProductDetailPage(product: product),
-                          ),
-                        );
-                      },
+        if (isLoading)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32),
+              child: CircularProgressIndicator(),
+            ),
+          )
+        else if (products.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32),
+              child: Text('No products available'),
+            ),
+          )
+        else
+          SizedBox(
+            height: 300,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: products.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (_, index) {
+                final product = products[index];
+                return HorizontalProductCard(
+                  product: product,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductDetailPage(product: product),
+                      ),
                     );
                   },
-                ),
-              ),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
@@ -164,7 +243,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       );
     }
-    // Error State
+
     if (productState.status == ProductStatus.error) {
       return Center(
         child: Padding(
@@ -174,7 +253,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
               const SizedBox(height: 16),
               Text(
-                productState.errorMessage ?? "Failed to load Message",
+                productState.errorMessage ?? "Failed to load products",
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
@@ -190,6 +269,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       );
     }
+
     if (products.isEmpty) {
       return Center(
         child: Padding(
@@ -203,7 +283,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'No productsd available yet',
+                'No products available yet',
                 style: TextStyle(fontSize: 16),
               ),
             ],

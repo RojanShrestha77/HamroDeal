@@ -43,7 +43,8 @@ class ApiEndpoints {
   static const String searchProducts = '/products/search';
   static const String productsByCategory = '/products/category';
   static const String myProducts = '/products/my-products';
-  // static const String productUploadImage = '/products/upload-image';
+  static const String newestProducts = '/products/newest';
+  static const String trendingProducts = '/products/trending';
 
   // ========= Cart Endpoints =========
   static const String cart = '/cart';
