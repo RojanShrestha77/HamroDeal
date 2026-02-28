@@ -32,7 +32,7 @@ class MessagingRemoteDataSource implements IMessagingDataSource {
 
     final response = await _apiClient.post(
       ApiEndpoints.createOrGetConversation,
-      data: {'sellerId': sellerId},
+      data: {'otherUserId': sellerId}, // Backend expects 'otherUserId' not 'sellerId'
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
@@ -48,9 +48,17 @@ class MessagingRemoteDataSource implements IMessagingDataSource {
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
-    final List<dynamic> conversationsList = response.data['data'] as List;
+    // Backend returns: { data: { conversations: [...], total, page, size } }
+    final responseData = response.data['data'];
+    
+    // Check if conversations exists and is a List
+    if (responseData['conversations'] is! List) {
+      return [];
+    }
+    
+    final List<dynamic> conversationsList = responseData['conversations'];
     return conversationsList
-        .map((json) => ConversationModel.fromJson(json))
+        .map((json) => ConversationModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
 
@@ -99,8 +107,19 @@ class MessagingRemoteDataSource implements IMessagingDataSource {
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
-    final List<dynamic> messagesList = response.data['data'] as List;
-    return messagesList.map((json) => MessageModel.fromJson(json)).toList();
+    // Backend might return: { data: [...] } or { data: { messages: [...] } }
+    final data = response.data['data'];
+    
+    List<dynamic> messagesList;
+    if (data is List) {
+      messagesList = data;
+    } else if (data is Map && data['messages'] is List) {
+      messagesList = data['messages'];
+    } else {
+      return [];
+    }
+    
+    return messagesList.map((json) => MessageModel.fromJson(json as Map<String, dynamic>)).toList();
   }
 
   @override

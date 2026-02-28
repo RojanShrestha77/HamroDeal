@@ -29,11 +29,11 @@ class MessageModel {
       senderId: json['senderId'] is String
           ? json['senderId']
           : json['senderId']?['_id'] ?? '',
-      content: json['content'] ?? '',
+      content: json['content'] ?? json['text'] ?? '', // Backend might use 'text' instead of 'content'
       isRead: json['isRead'] ?? false,
       createdAt: DateTime.parse(json['createdAt']),
       senderInfo: json['senderId'] is Map
-          ? SenderInfoModel.fromJson(json['senderId'])
+          ? SenderInfoModel.fromJson(json['senderId'] as Map<String, dynamic>)
           : null,
     );
   }

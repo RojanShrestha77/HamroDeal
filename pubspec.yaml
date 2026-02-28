@@ -55,6 +55,7 @@ dependencies:
   light: ^4.1.0
   fl_chart: ^1.1.1
   intl: ^0.20.2
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:

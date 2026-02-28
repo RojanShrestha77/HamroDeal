@@ -5,6 +5,8 @@ import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
 import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
+import 'package:hamro_deal/features/conversation/presentation/pages/chat_page.dart';
+import 'package:hamro_deal/features/conversation/presentation/view_model/messaging_view_model.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/presentation/view_model/product_view_model.dart';
 import 'package:hamro_deal/features/review/presentation/widgets/product_reviews_section.dart';
@@ -306,71 +308,140 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
           ],
         ),
         child: SafeArea(
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Quantity Selector
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove),
-                      onPressed: _quantity > 1
-                          ? () => setState(() => _quantity--)
-                          : null,
-                    ),
-                    Text(
-                      '$_quantity',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: _quantity < widget.product.stock
-                          ? () => setState(() => _quantity++)
-                          : null,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Add to Cart Button
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: widget.product.stock > 0
-                      ? () async {
-                          final success = await cartViewModel.addToCart(
-                            widget.product.productId!,
-                            _quantity,
-                          );
+              // Message Seller Button
+              if (widget.product.sellerId != null)
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      // Debug: Check if sellerId exists
+                      print('Product sellerId: ${widget.product.sellerId}');
+                      
+                      if (widget.product.sellerId == null) {
+                        SnackbarUtils.showError(context, 'Seller information not available');
+                        return;
+                      }
+                      
+                      final conversationViewModel = ref.read(
+                        messagingViewModelProvider.notifier,
+                      );
+                      final success = await conversationViewModel.createOrGetConversation(
+                        widget.product.sellerId!,
+                      );
 
-                          if (success && mounted) {
-                            SnackbarUtils.showSuccess(
-                              context,
-                              'Added to cart successfully',
-                            );
-                          } else if (mounted) {
-                            SnackbarUtils.showError(
-                              context,
-                              'Failed to add to cart',
-                            );
-                          }
+                      print('Create conversation success: $success');
+                      
+                      if (success && mounted) {
+                        final state = ref.read(messagingViewModelProvider);
+                        final conversation = state.currentConversation;
+                        
+                        print('Current conversation: $conversation');
+                        
+                        if (conversation != null) {
+                          // Navigate to chat page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                conversationId: conversation.id,
+                                otherUserName: conversation.sellerInfo?.username ?? 
+                                               conversation.userInfo?.username ?? 
+                                               'Seller',
+                              ),
+                            ),
+                          );
+                        } else {
+                          SnackbarUtils.showError(context, 'Conversation data not available');
                         }
-                      : null,
-                  icon: const Icon(Icons.shopping_cart),
-                  label: const Text('Add to Cart'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      } else if (mounted) {
+                        final state = ref.read(messagingViewModelProvider);
+                        final errorMsg = state.error ?? 'Failed to open conversation';
+                        print('Error: $errorMsg');
+                        SnackbarUtils.showError(context, errorMsg);
+                      }
+                    },
+                    icon: const Icon(Icons.message_outlined),
+                    label: const Text('Message Seller'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
+              if (widget.product.sellerId != null) const SizedBox(height: 12),
+              // Quantity and Add to Cart Row
+              Row(
+                children: [
+                  // Quantity Selector
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[300]!),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: _quantity > 1
+                              ? () => setState(() => _quantity--)
+                              : null,
+                        ),
+                        Text(
+                          '$_quantity',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: _quantity < widget.product.stock
+                              ? () => setState(() => _quantity++)
+                              : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Add to Cart Button
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: widget.product.stock > 0
+                          ? () async {
+                              final success = await cartViewModel.addToCart(
+                                widget.product.productId!,
+                                _quantity,
+                              );
+
+                              if (success && mounted) {
+                                SnackbarUtils.showSuccess(
+                                  context,
+                                  'Added to cart successfully',
+                                );
+                              } else if (mounted) {
+                                SnackbarUtils.showError(
+                                  context,
+                                  'Failed to add to cart',
+                                );
+                              }
+                            }
+                          : null,
+                      icon: const Icon(Icons.shopping_cart),
+                      label: const Text('Add to Cart'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

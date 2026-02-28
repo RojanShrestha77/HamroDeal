@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hamro_deal/features/cart/presentation/pages/cart_screen.dart';
+import 'package:hamro_deal/features/product/presentation/page/porduct_browse_screen.dart';
 import 'package:hamro_deal/features/search/presentation/pages/search_screen.dart';
 import 'package:hamro_deal/features/home/presentation/pages/home_screen.dart';
-import 'package:hamro_deal/screens/category_screen.dart';
+import 'package:hamro_deal/features/conversation/presentation/pages/conversations_page.dart';
 import 'package:hamro_deal/features/auth/presentation/pages/profile_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
@@ -18,10 +19,10 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   // Only three screens now: Home, Cart, Profile
   final List<Widget> bottomScreens = [
     HomeScreen(), // index 0
-    const SearchScreen(),
+    const PorductBrowseScreen(),
     const CartScreen(), // index 1
-    const CategoryScreen(), // index 2
-    const ProfileScreen(), // index 2
+    const ConversationsPage(), // index 2 - Messages
+    const ProfileScreen(), // index 3
   ];
 
   @override
@@ -55,10 +56,9 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             label: "Cart",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category_outlined),
-            activeIcon: Icon(Icons.category),
-
-            label: "Category",
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: "Messages",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_2_outlined),

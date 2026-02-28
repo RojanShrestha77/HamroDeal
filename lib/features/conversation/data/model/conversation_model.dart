@@ -27,6 +27,31 @@ class ConversationModel {
   });
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
+    // Extract lastMessage text if it's an object
+    String? lastMessageText;
+    if (json['lastMessage'] != null) {
+      if (json['lastMessage'] is Map) {
+        lastMessageText = json['lastMessage']['text'];
+      } else if (json['lastMessage'] is String) {
+        lastMessageText = json['lastMessage'];
+      }
+    }
+
+    // Extract lastMessage timestamp
+    DateTime? lastMessageTime;
+    if (json['lastMessage'] is Map && json['lastMessage']['timestamp'] != null) {
+      lastMessageTime = DateTime.parse(json['lastMessage']['timestamp']);
+    }
+
+    // Handle otherUser field (backend uses this instead of userId/sellerId)
+    final otherUser = json['otherUser'];
+    
+    // Cast otherUser to Map<String, dynamic> if it's a Map
+    Map<String, dynamic>? otherUserMap;
+    if (otherUser is Map) {
+      otherUserMap = Map<String, dynamic>.from(otherUser);
+    }
+    
     return ConversationModel(
       id: json['_id'],
       userId: json['userId'] is String
@@ -36,18 +61,13 @@ class ConversationModel {
           ? json['sellerId']
           : json['sellerId']?['_id'] ?? '',
       unreadCount: json['unreadCount'] ?? 0,
-      lastMessage: json['lastMessage'],
-      lastMessageAt: json['lastMessageAt'] != null
-          ? DateTime.parse(json['lastMessageAt'])
-          : null,
+      lastMessage: lastMessageText,
+      lastMessageAt: lastMessageTime ?? 
+          (json['lastMessageAt'] != null ? DateTime.parse(json['lastMessageAt']) : null),
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
-      userInfo: json['userId'] is Map
-          ? UserInfoModel.fromJson(json['userId'])
-          : null,
-      sellerInfo: json['sellerId'] is Map
-          ? UserInfoModel.fromJson(json['sellerId'])
-          : null,
+      userInfo: otherUserMap != null ? UserInfoModel.fromJson(otherUserMap) : null,
+      sellerInfo: otherUserMap != null ? UserInfoModel.fromJson(otherUserMap) : null,
     );
   }
 
@@ -83,9 +103,9 @@ class UserInfoModel {
   factory UserInfoModel.fromJson(Map<String, dynamic> json) {
     return UserInfoModel(
       id: json['_id'],
-      username: json['username'],
+      username: json['username'] ?? json['firstName'], // Backend uses firstName/lastName
       email: json['email'],
-      profileImage: json['profileImage'],
+      profileImage: json['profileImage'] ?? json['imageUrl'], // Backend uses imageUrl
     );
   }
 
