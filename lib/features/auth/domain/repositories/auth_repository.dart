@@ -15,4 +15,6 @@ abstract class IAuthRepository {
     String? lastName,
     String? email,
   });
+  Future<Either<Failure, bool>> requestPasswordReset(String email);
+  Future<Either<Failure, bool>> resetPassword(String token, String newPassword);
 }

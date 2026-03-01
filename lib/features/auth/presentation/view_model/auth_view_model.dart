@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/login_usecase.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/register_usecase.dart';
+import 'package:hamro_deal/features/auth/domain/usecases/request_password_reset_usecase.dart';
+import 'package:hamro_deal/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/update_profile_usecase.dart';
 import 'package:hamro_deal/features/auth/domain/usecases/upload_profile_picture_usecase.dart';
 import 'package:hamro_deal/features/auth/presentation/state/auth_state.dart';
@@ -15,6 +17,8 @@ class AuthViewModel extends Notifier<AuthState> {
   late final LoginUsecase _loginUsecase;
   late final UploadProfilePictureUsecase _uploadProfilePictureUsecase;
   late final UpdateProfileUsecase _updateProfileUsecase;
+  late final RequestPasswordResetUsecase _requestPasswordResetUsecase;
+  late final ResetPasswordUsecase _resetPasswordUsecase;
 
   @override
   AuthState build() {
@@ -24,6 +28,10 @@ class AuthViewModel extends Notifier<AuthState> {
       uploadProfilePictureUsecaseProvider,
     );
     _updateProfileUsecase = ref.read(updateProfileUsecaseProvider);
+    _requestPasswordResetUsecase = ref.read(
+      requestPasswordResetUsecaseProvider,
+    );
+    _resetPasswordUsecase = ref.read(resetPasswordUsecaseProvider);
     return AuthState();
   }
 
@@ -145,6 +153,53 @@ class AuthViewModel extends Notifier<AuthState> {
           errorMessage: null,
         );
         return true;
+      },
+    );
+  }
+
+  Future<void> requestPasswordReset(String email) async {
+    state = state.copyWith(status: AuthStatus.loading);
+
+    final params = RequestPasswordResetUsecaseParams(email: email);
+    final result = await _requestPasswordResetUsecase(params);
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: failure.message,
+        );
+      },
+      (success) {
+        state = state.copyWith(
+          status: AuthStatus.passwordResetRequested,
+          errorMessage: null,
+        );
+      },
+    );
+  }
+
+  Future<void> resetPassword(String token, String newPassword) async {
+    state = state.copyWith(status: AuthStatus.loading);
+
+    final params = ResetPasswordUsecaseParams(
+      token: token,
+      newPassword: newPassword,
+    );
+    final result = await _resetPasswordUsecase(params);
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: failure.message,
+        );
+      },
+      (success) {
+        state = state.copyWith(
+          status: AuthStatus.passwordReset,
+          errorMessage: null,
+        );
       },
     );
   }

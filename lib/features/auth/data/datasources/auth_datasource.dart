@@ -21,4 +21,6 @@ abstract interface class IAuthRemoteDatasource {
     String? lastName,
     String? email,
   });
+  Future<bool> requestPasswordReset(String email);
+  Future<bool> resetPassword(String token, String newPassword);
 }

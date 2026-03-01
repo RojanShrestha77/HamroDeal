@@ -3,9 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
 import 'package:hamro_deal/app/shell/bottom_navigation_screen.dart';
-import 'package:hamro_deal/features/home/presentation/pages/home_screen.dart';
+import 'package:hamro_deal/features/auth/presentation/pages/request_reset_password_page.dart';
 import '../../../../app/routes/app_routes.dart';
-import '../../../../app/theme/app_colors.dart';
 import '../../presentation/state/auth_state.dart';
 import '../../presentation/view_model/auth_view_model.dart';
 import 'signup_page.dart';
@@ -47,7 +46,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _handleForgotPassword() {
-    SnackbarUtils.showInfo(context, 'Forgot password feature coming soon');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RequestResetPasswordPage()),
+    );
   }
 
   void _handleGoogleSignIn() {

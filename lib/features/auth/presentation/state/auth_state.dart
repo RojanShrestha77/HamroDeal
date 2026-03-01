@@ -8,6 +8,8 @@ enum AuthStatus {
   unauthenticated,
   registered,
   error,
+  passwordResetRequested,
+  passwordReset,
   loaded,
 }
 
