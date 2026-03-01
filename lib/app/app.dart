@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/app/theme/app_theme.dart';
 import 'package:hamro_deal/app/theme/theme_view_model.dart';
+import 'package:hamro_deal/main.dart';
 import 'package:hamro_deal/screens/splash_screen.dart';
 import 'package:hamro_deal/theme/theme_data.dart';
 
@@ -13,6 +14,7 @@ class MyApp extends ConsumerWidget {
     final themeState = ref.watch(themeViewModelProvider);
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Hamro Deal',
       // theme: getApplicationTheme(),

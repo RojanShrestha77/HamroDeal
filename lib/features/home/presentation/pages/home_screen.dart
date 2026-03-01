@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'dart:async';
 import 'package:hamro_deal/core/api/api_client.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
+import 'package:hamro_deal/core/utils/snakbar_utils.dart';
 import 'package:hamro_deal/features/auth/presentation/view_model/auth_view_model.dart';
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/notification/presentation/widgets/notification_icon_button.dart';
@@ -29,15 +33,85 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedCategoryIndex = -1;
   bool _isLoadingSpecial = false;
 
+  // Shake detector using sensors_plus
+  StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
+  bool _isRefreshing = false;
+  DateTime? _lastShakeTime;
+
   @override
   void initState() {
     super.initState();
-    // load the products when screen opens
     Future.microtask(() {
       ref.read(productViewModelProvider.notifier).getAllProducts();
       ref.read(categoryViewModelProvider.notifier).getAllCategories();
       _loadSpecialProducts();
     });
+    _initializeShakeDetector();
+  }
+
+  void _initializeShakeDetector() {
+    _accelerometerSubscription = accelerometerEvents.listen((
+      AccelerometerEvent event,
+    ) {
+      final now = DateTime.now();
+
+      // Check if enough time has passed since last shake
+      if (_lastShakeTime != null &&
+          now.difference(_lastShakeTime!).inSeconds < 3) {
+        return;
+      }
+
+      // Calculate shake intensity
+      final gForce = event.x.abs() + event.y.abs() + event.z.abs();
+
+      // If shake is strong enough (threshold: 25)
+      if (gForce > 25) {
+        _lastShakeTime = now;
+        _handleShakeRefresh();
+      }
+    });
+  }
+
+  void _handleShakeRefresh() {
+    if (_isRefreshing) return;
+
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    HapticFeedback.mediumImpact();
+
+    if (mounted) {
+      SnackbarUtils.showInfo(context, '🔄 Refreshing products...');
+    }
+
+    Future.wait([
+          ref.read(productViewModelProvider.notifier).getAllProducts(),
+          _loadSpecialProducts(),
+        ])
+        .then((_) {
+          if (mounted) {
+            setState(() {
+              _isRefreshing = false;
+            });
+            HapticFeedback.lightImpact();
+            SnackbarUtils.showSuccess(context, '✅ Products refreshed!');
+          }
+        })
+        .catchError((error) {
+          if (mounted) {
+            setState(() {
+              _isRefreshing = false;
+            });
+            SnackbarUtils.showError(context, 'Failed to refresh products');
+          }
+        });
+  }
+
+  @override
+  void dispose() {
+    _accelerometerSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadSpecialProducts() async {
@@ -67,7 +141,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final trendingResponse = await apiClient.get(
           ApiEndpoints.trendingProducts,
         );
-        print('Trending response: ${trendingResponse.data}'); // Debug
+        print('Trending response: ${trendingResponse.data}');
 
         if (trendingResponse.data['success'] == true) {
           final trendingData = trendingResponse.data['data'] as List;
@@ -97,8 +171,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Remove back button
-        toolbarHeight: 80, // Make AppBar taller
+        automaticallyImplyLeading: false,
+        toolbarHeight: 80,
         title: _buildUserProfileHeader(),
       ),
       body: SafeArea(
@@ -114,6 +188,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (_isRefreshing)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.black,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Refreshing...',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                   // Search Bar
                   _buildSearchBar(context),
 
@@ -309,7 +415,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // Updated to use Outlined version of icons to match the image aesthetics
   IconData _getCategoryIcon(String categoryName) {
     final name = categoryName.toLowerCase();
     if (name.contains('electronic') || name.contains('tech')) {
@@ -325,8 +430,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } else if (name.contains('toy')) {
       return Icons.toys_outlined;
     } else if (name.contains('footwear') || name.contains('shoe')) {
-      return Icons
-          .shopping_bag_outlined; // Alternatively Icons.roller_skating_outlined
+      return Icons.shopping_bag_outlined;
     } else if (name.contains('jewel') || name.contains('jewelry')) {
       return Icons.diamond_outlined;
     } else if (name.contains('sport') || name.contains('fitness')) {
@@ -403,7 +507,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // shop now banner
   Widget _buildShopNowBanner() {
     return Container(
       width: double.infinity,
@@ -423,7 +526,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  //products grid
   Widget _buildProductsGrid(
     ProductState productState,
     List<ProductEntity> products,
@@ -485,7 +587,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
 
-    // products grid
     return GridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       physics: const NeverScrollableScrollPhysics(),

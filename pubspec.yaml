@@ -58,6 +58,8 @@ dependencies:
   timeago: ^3.7.1
   font_awesome_flutter: ^10.12.0
   shake: ^3.0.0
+  sensors_plus: ^6.1.2
+  app_links: ^7.0.0
 
 dev_dependencies:
   flutter_test:
