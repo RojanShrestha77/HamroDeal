@@ -7,19 +7,33 @@ import 'package:hamro_deal/features/product/presentation/widgets/filter_bottom_s
 import 'package:hamro_deal/features/product/presentation/widgets/product_browse_grid.dart';
 import 'package:hamro_deal/features/product/presentation/widgets/product_search_bar.dart';
 
-class PorductBrowseScreen extends ConsumerWidget {
+class PorductBrowseScreen extends ConsumerStatefulWidget {
   const PorductBrowseScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PorductBrowseScreen> createState() => _PorductBrowseScreenState();
+}
+
+class _PorductBrowseScreenState extends ConsumerState<PorductBrowseScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch products when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(productBrowseViewModelProvider.notifier).refresh();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(productBrowseViewModelProvider);
     final viewModel = ref.watch(productBrowseViewModelProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Browse Products'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
         actions: [
           Stack(
             children: [

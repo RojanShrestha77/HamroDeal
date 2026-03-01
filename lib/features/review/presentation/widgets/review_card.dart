@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/features/review/domain/entities/review_entity.dart';
 import 'package:intl/intl.dart';
 
@@ -30,10 +31,15 @@ class ReviewCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   backgroundColor: Colors.blue,
-                  child: Text(
-                    review.user.firstName[0].toUpperCase(),
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                  backgroundImage: review.user.profileImage != null
+                      ? NetworkImage(ApiEndpoints.userProfileImage(review.user.profileImage!))
+                      : null,
+                  child: review.user.profileImage == null
+                      ? Text(
+                          review.user.firstName[0].toUpperCase(),
+                          style: const TextStyle(color: Colors.white),
+                        )
+                      : null,
                 ),
                 const SizedBox(width: 12),
                 Expanded(

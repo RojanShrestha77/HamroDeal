@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hamro_deal/app/theme/theme_extensions.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
 import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
@@ -14,13 +13,8 @@ import 'package:hamro_deal/features/wishlist/presentation/view_model/wishlist_vi
 
 class ProductDetailPage extends ConsumerStatefulWidget {
   final ProductEntity product;
-  // final String categoryName;
 
-  const ProductDetailPage({
-    super.key,
-    required this.product,
-    // required this.categoryName,
-  });
+  const ProductDetailPage({super.key, required this.product});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -33,7 +27,6 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   @override
   void initState() {
     super.initState();
-    // Load wishlist to check if product is in wishlist
     Future.microtask(
       () => ref.read(wishlistViewModelProvider.notifier).getWishlist(),
     );
@@ -48,15 +41,15 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
     return category.isNotEmpty ? category.first.name : 'Other';
   }
 
-  // show delete confirmation dialog
   void _showDeleteDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         title: const Text(
           'Delete Product',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
         ),
         content: Text(
           'Are you sure you want to delete "${widget.product.title}"?',
@@ -64,19 +57,15 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'cancel',
-              style: TextStyle(color: context.textSecondary),
-            ),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
           ),
-          TextButton(
-            onPressed: () {
+          GestureDetector(
+            onTap: () {
               Navigator.pop(dialogContext);
               if (widget.product.productId != null) {
                 ref
                     .read(productViewModelProvider.notifier)
                     .deleteProduct(widget.product.productId!);
-
                 Navigator.pop(context);
                 SnackbarUtils.showSuccess(
                   context,
@@ -84,11 +73,22 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                 );
               }
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1C1C1C),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: const Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
+          const SizedBox(width: 4),
         ],
       ),
     );
@@ -98,22 +98,34 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   Widget build(BuildContext context) {
     final categoryName = _getCategoryName(widget.product.categoryId);
     final cartViewModel = ref.read(cartViewModelProvider.notifier);
+
+    // Watch state for reactivity
+    ref.watch(wishlistViewModelProvider);
     final wishlistViewModel = ref.read(wishlistViewModelProvider.notifier);
     final isInWishlist = wishlistViewModel.isInWishlist(
       widget.product.productId ?? '',
     );
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.product.title),
-        actions: [
-          // Wishlist Icon Button in AppBar
-          IconButton(
-            icon: Icon(
-              isInWishlist ? Icons.favorite : Icons.favorite_border,
-              color: isInWishlist ? Colors.red : null,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            margin: const EdgeInsets.all(10),
+            decoration: const BoxDecoration(
+              color: Color(0xFFEEEEEE),
+              shape: BoxShape.circle,
             ),
-            onPressed: () async {
+            child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
+          ),
+        ),
+        actions: [
+          // Wishlist heart
+          GestureDetector(
+            onTap: () async {
               if (isInWishlist) {
                 final success = await wishlistViewModel.removeFromWishlist(
                   widget.product.productId!,
@@ -130,277 +142,344 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                 }
               }
             },
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              width: 38,
+              height: 38,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEEEEEE),
+                shape: BoxShape.circle,
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  isInWishlist ? Icons.favorite : Icons.favorite_border,
+                  key: ValueKey(isInWishlist),
+                  color: isInWishlist ? Colors.red : Colors.black,
+                  size: 20,
+                ),
+              ),
+            ),
           ),
+          const SizedBox(width: 4),
         ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, color: Color(0xFFEEEEEE)),
+        ),
       ),
+
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // product image
-            if (widget.product.images != null)
-              AspectRatio(
-                aspectRatio: 1.0,
-                child: Image.network(
-                  ApiEndpoints.productImage(widget.product.images!),
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: context.borderColor,
-                      child: Center(
+            // ── Product Image ──
+            AspectRatio(
+              aspectRatio: 1.0,
+              child: Container(
+                color: const Color(0xFFF5F5F5),
+                child: widget.product.images != null
+                    ? Image.network(
+                        ApiEndpoints.productImage(widget.product.images!),
+                        width: double.infinity,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.black,
+                              strokeWidth: 1.5,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                            child: Icon(
+                              Icons.image_not_supported_outlined,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      )
+                    : const Center(
                         child: Icon(
-                          Icons.image_not_supported_outlined,
+                          Icons.inventory_2_outlined,
                           size: 64,
-                          color: context.textTertiary,
+                          color: Colors.grey,
                         ),
                       ),
-                    );
-                  },
-                ),
-              )
-            else
-              AspectRatio(
-                aspectRatio: 1.0,
-                child: Container(
-                  color: context.borderColor,
-                  child: Center(
-                    child: Icon(
-                      Icons.inventory_2_outlined,
-                      size: 48,
-                      color: context.textTertiary,
-                    ),
-                  ),
-                ),
               ),
-            // adding product info
+            ),
+
+            // ── Product Info ──
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Title + category badge
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Text(
                           widget.product.title,
-                          style: TextStyle(
-                            fontSize: 18,
+                          style: const TextStyle(
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: context.textPrimary,
+                            color: Colors.black,
+                            height: 1.3,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 12),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                          horizontal: 10,
+                          vertical: 5,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          color: const Color(0xFFEEEEEE),
+                          borderRadius: BorderRadius.circular(2),
                         ),
                         child: Text(
                           categoryName,
                           style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.blue,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
+                            letterSpacing: 0.3,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  // product description
-                  const SizedBox(height: 8),
+
+                  const SizedBox(height: 12),
+
+                  // Description
                   Text(
                     widget.product.description,
                     style: TextStyle(
                       fontSize: 14,
-                      color: context.textSecondary,
+                      color: Colors.grey[600],
+                      height: 1.6,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
-                  // price/stock row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Price',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: context.textTertiary,
+
+                  const SizedBox(height: 20),
+
+                  // ── Price + Stock row ──
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Price',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Rs.${widget.product.price.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: context.textPrimary,
+                            const SizedBox(height: 4),
+                            Text(
+                              'Rs. ${widget.product.price.toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Stock',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: context.textTertiary,
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Availability',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '${widget.product.stock} units',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: widget.product.stock > 0
-                                  ? Colors.green
-                                  : Colors.red,
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: widget.product.stock > 0
+                                    ? Colors.black
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(2),
+                                border: Border.all(color: Colors.black),
+                              ),
+                              child: Text(
+                                widget.product.stock > 0
+                                    ? '${widget.product.stock} in stock'
+                                    : 'Out of stock',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: widget.product.stock > 0
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
 
-            const Divider(height: 32),
+            const Divider(color: Color(0xFFEEEEEE)),
+
+            // ── Reviews ──
             ProductReviewsSection(productId: widget.product.productId!),
-            const SizedBox(height: 80), // Space for bottom nav bar
+
+            const SizedBox(height: 100),
           ],
         ),
       ),
+
+      // ── Bottom Action Bar ──
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+        decoration: const BoxDecoration(
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, -3),
-            ),
-          ],
+          border: Border(top: BorderSide(color: Color(0xFFEEEEEE))),
         ),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Message Seller Button
-              if (widget.product.sellerId != null)
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      // Debug: Check if sellerId exists
-                      print('Product sellerId: ${widget.product.sellerId}');
-                      
-                      if (widget.product.sellerId == null) {
-                        SnackbarUtils.showError(context, 'Seller information not available');
-                        return;
-                      }
-                      
-                      final conversationViewModel = ref.read(
-                        messagingViewModelProvider.notifier,
+              // Message Seller button
+              if (widget.product.sellerId != null) ...[
+                GestureDetector(
+                  onTap: () async {
+                    if (widget.product.sellerId == null) {
+                      SnackbarUtils.showError(
+                        context,
+                        'Seller information not available',
                       );
-                      final success = await conversationViewModel.createOrGetConversation(
-                        widget.product.sellerId!,
-                      );
+                      return;
+                    }
+                    final conversationViewModel = ref.read(
+                      messagingViewModelProvider.notifier,
+                    );
+                    final success = await conversationViewModel
+                        .createOrGetConversation(widget.product.sellerId!);
 
-                      print('Create conversation success: $success');
-                      
-                      if (success && mounted) {
-                        final state = ref.read(messagingViewModelProvider);
-                        final conversation = state.currentConversation;
-                        
-                        print('Current conversation: $conversation');
-                        
-                        if (conversation != null) {
-                          // Navigate to chat page
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatPage(
-                                conversationId: conversation.id,
-                                otherUserName: conversation.sellerInfo?.username ?? 
-                                               conversation.userInfo?.username ?? 
-                                               'Seller',
-                              ),
+                    if (success && mounted) {
+                      final state = ref.read(messagingViewModelProvider);
+                      final conversation = state.currentConversation;
+                      if (conversation != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(
+                              conversationId: conversation.id,
+                              otherUserName:
+                                  conversation.sellerInfo?.username ??
+                                  conversation.userInfo?.username ??
+                                  'Seller',
                             ),
-                          );
-                        } else {
-                          SnackbarUtils.showError(context, 'Conversation data not available');
-                        }
-                      } else if (mounted) {
-                        final state = ref.read(messagingViewModelProvider);
-                        final errorMsg = state.error ?? 'Failed to open conversation';
-                        print('Error: $errorMsg');
-                        SnackbarUtils.showError(context, errorMsg);
+                          ),
+                        );
+                      } else {
+                        SnackbarUtils.showError(
+                          context,
+                          'Conversation data not available',
+                        );
                       }
-                    },
-                    icon: const Icon(Icons.message_outlined),
-                    label: const Text('Message Seller'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                    } else if (mounted) {
+                      final state = ref.read(messagingViewModelProvider);
+                      SnackbarUtils.showError(
+                        context,
+                        state.error ?? 'Failed to open conversation',
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.black, width: 1.5),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.message_outlined,
+                          color: Colors.black,
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Message Seller',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              if (widget.product.sellerId != null) const SizedBox(height: 12),
-              // Quantity and Add to Cart Row
+                const SizedBox(height: 10),
+              ],
+
+              // Quantity + Add to Cart
               Row(
                 children: [
-                  // Quantity Selector
+                  // Quantity selector
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFEEEEEE)),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                     child: Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove),
-                          onPressed: _quantity > 1
+                        _buildQtyButton(
+                          icon: Icons.remove,
+                          onTap: _quantity > 1
                               ? () => setState(() => _quantity--)
                               : null,
                         ),
-                        Text(
-                          '$_quantity',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        SizedBox(
+                          width: 36,
+                          child: Text(
+                            '$_quantity',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: _quantity < widget.product.stock
+                        _buildQtyButton(
+                          icon: Icons.add,
+                          onTap: _quantity < widget.product.stock
                               ? () => setState(() => _quantity++)
                               : null,
                         ),
@@ -408,16 +487,15 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Add to Cart Button
+                  // Add to Cart button
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: widget.product.stock > 0
+                    child: GestureDetector(
+                      onTap: widget.product.stock > 0
                           ? () async {
                               final success = await cartViewModel.addToCart(
                                 widget.product.productId!,
                                 _quantity,
                               );
-
                               if (success && mounted) {
                                 SnackbarUtils.showSuccess(
                                   context,
@@ -431,20 +509,66 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                               }
                             }
                           : null,
-                      icon: const Icon(Icons.shopping_cart),
-                      label: const Text('Add to Cart'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: widget.product.stock > 0
+                              ? Color(0xFF1C1C1C)
+                              : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.shopping_cart_outlined,
+                              color: widget.product.stock > 0
+                                  ? Colors.white
+                                  : Colors.grey[600],
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              widget.product.stock > 0
+                                  ? 'Add to Cart'
+                                  : 'Out of Stock',
+                              style: TextStyle(
+                                color: widget.product.stock > 0
+                                    ? Colors.white
+                                    : Colors.grey[600],
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQtyButton({required IconData icon, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 38,
+        height: 46,
+        decoration: BoxDecoration(
+          color: onTap != null ? Colors.black : const Color(0xFFEEEEEE),
+          borderRadius: BorderRadius.circular(2),
+        ),
+        child: Icon(
+          icon,
+          size: 16,
+          color: onTap != null ? Colors.white : Colors.grey,
         ),
       ),
     );

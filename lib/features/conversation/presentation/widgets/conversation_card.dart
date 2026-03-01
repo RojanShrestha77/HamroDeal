@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/features/conversation/domain/entity/conversation_entity.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -59,10 +60,15 @@ class ConversationCard extends StatelessWidget {
         child: ListTile(
           leading: CircleAvatar(
             backgroundColor: Theme.of(context).primaryColor,
-            child: Text(
-              userName[0].toUpperCase(),
-              style: const TextStyle(color: Colors.white),
-            ),
+            backgroundImage: otherUser?.profileImage != null
+                ? NetworkImage(ApiEndpoints.userProfileImage(otherUser!.profileImage!))
+                : null,
+            child: otherUser?.profileImage == null
+                ? Text(
+                    userName[0].toUpperCase(),
+                    style: const TextStyle(color: Colors.white),
+                  )
+                : null,
           ),
           title: Row(
             children: [

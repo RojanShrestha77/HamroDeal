@@ -50,11 +50,13 @@ class ReviewUserModel {
   final String id;
   final String firstName;
   final String lastName;
+  final String? profileImage;
 
   ReviewUserModel({
     required this.id,
     required this.firstName,
     required this.lastName,
+    this.profileImage,
   });
 
   factory ReviewUserModel.fromJson(Map<String, dynamic> json) {
@@ -62,10 +64,16 @@ class ReviewUserModel {
       id: json['_id'],
       firstName: json['firstName'],
       lastName: json['lastName'],
+      profileImage: json['imageUrl'], // Backend uses 'imageUrl' field
     );
   }
 
   ReviewUserEntity toEntity() {
-    return ReviewUserEntity(id: id, firstName: firstName, lastName: lastName);
+    return ReviewUserEntity(
+      id: id,
+      firstName: firstName,
+      lastName: lastName,
+      profileImage: profileImage,
+    );
   }
 }

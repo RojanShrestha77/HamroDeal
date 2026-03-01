@@ -133,7 +133,7 @@ class MessagingRemoteDataSource implements IMessagingDataSource {
       ApiEndpoints.messages,
       data: {
         'conversationId': conversationId,
-        'content': content,
+        'text': content, // Backend expects 'text' not 'content'
       },
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );

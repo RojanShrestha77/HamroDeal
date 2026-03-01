@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_client.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
+import 'package:hamro_deal/features/auth/presentation/view_model/auth_view_model.dart';
+import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/notification/presentation/widgets/notification_icon_button.dart';
 import 'package:hamro_deal/features/product/data/models/product_api_model.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
+import 'package:hamro_deal/features/product/presentation/page/porduct_browse_screen.dart';
 import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
 import 'package:hamro_deal/features/product/presentation/state/product_state.dart';
+import 'package:hamro_deal/features/product/presentation/view_model/product_browse_view_model.dart';
 import 'package:hamro_deal/features/product/presentation/view_model/product_view_model.dart';
 import 'package:hamro_deal/features/search/presentation/pages/search_screen.dart';
 import 'package:hamro_deal/features/home/presentation/widgets/vertical_product_card.dart';
@@ -22,6 +26,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<ProductEntity> _newestProducts = [];
   List<ProductEntity> _trendingProducts = [];
+  int _selectedCategoryIndex = -1;
   bool _isLoadingSpecial = false;
 
   @override
@@ -30,6 +35,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // load the products when screen opens
     Future.microtask(() {
       ref.read(productViewModelProvider.notifier).getAllProducts();
+      ref.read(categoryViewModelProvider.notifier).getAllCategories();
       _loadSpecialProducts();
     });
   }
@@ -91,11 +97,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Hamro Deal',
-          style: TextStyle(fontFamily: 'Just Bold'),
-        ),
-        actions: const [NotificationIconButton(), SizedBox(width: 8)],
+        automaticallyImplyLeading: false, // Remove back button
+        toolbarHeight: 80, // Make AppBar taller
+        title: _buildUserProfileHeader(),
       ),
       body: SafeArea(
         child: RefreshIndicator(
@@ -115,6 +119,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                   const SizedBox(height: 24),
 
+                  _buildCategoriesSection(),
+
+                  const SizedBox(height: 24),
+
                   // Newest Products Section
                   _buildProductSection(
                     title: "Newest Products",
@@ -122,7 +130,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     isLoading: _isLoadingSpecial,
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 50),
 
                   // Trending Products Section
                   _buildProductSection(
@@ -131,7 +139,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     isLoading: _isLoadingSpecial,
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
 
                   // shop now banner
                   _buildShopNowBanner(),
@@ -151,6 +159,187 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  Widget _buildUserProfileHeader() {
+    final authState = ref.watch(authViewModelProvider);
+    final user = authState.authEntity;
+
+    return Row(
+      children: [
+        // User Profile Image
+        if (user?.imageUrl != null)
+          CircleAvatar(
+            radius: 25,
+            backgroundImage: NetworkImage(
+              ApiEndpoints.userProfileImage(user!.imageUrl!),
+            ),
+            backgroundColor: Colors.grey[300],
+          )
+        else
+          CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.grey[300],
+            child: Icon(Icons.person, color: Colors.grey[600], size: 28),
+          ),
+
+        const SizedBox(width: 12),
+
+        // Greeting Text
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Hello ${user?.firstName ?? 'User'} ${user?.lastName ?? ''}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.normal,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const Text(
+                'Welcome Back!',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Just Bold',
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+
+        // Notification Icon
+        const NotificationIconButton(),
+      ],
+    );
+  }
+
+  Widget _buildCategoriesSection() {
+    final categoryState = ref.watch(categoryViewModelProvider);
+    final categories = categoryState.categories;
+    if (categories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 115,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            scrollDirection: Axis.horizontal,
+            itemCount: categories.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 20),
+            itemBuilder: (_, index) {
+              final category = categories[index];
+              return _buildCategoryCard(category, index);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryCard(dynamic category, int index) {
+    final isSelected = _selectedCategoryIndex == index;
+
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _selectedCategoryIndex = index),
+      onTapCancel: () => setState(() => _selectedCategoryIndex = -1),
+      onTap: () {
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted) {
+            setState(() => _selectedCategoryIndex = -1);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PorductBrowseScreen()),
+            );
+            ref
+                .read(productBrowseViewModelProvider.notifier)
+                .selectCategory(category.categoryId);
+          }
+        });
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.black : Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isSelected ? 0.25 : 0.08),
+                  blurRadius: isSelected ? 20 : 15,
+                  spreadRadius: isSelected ? 3 : 2,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(
+              _getCategoryIcon(category.name),
+              color: isSelected ? Colors.white : const Color(0xFF333333),
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: 75,
+            child: Text(
+              category.name,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.black : Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Updated to use Outlined version of icons to match the image aesthetics
+  IconData _getCategoryIcon(String categoryName) {
+    final name = categoryName.toLowerCase();
+    if (name.contains('electronic') || name.contains('tech')) {
+      return Icons.devices_outlined;
+    } else if (name.contains('fashion') || name.contains('cloth')) {
+      return Icons.checkroom_outlined;
+    } else if (name.contains('furniture')) {
+      return Icons.chair_outlined;
+    } else if (name.contains('home') || name.contains('living')) {
+      return Icons.other_houses_outlined;
+    } else if (name.contains('beauty') || name.contains('cosmetic')) {
+      return Icons.face_outlined;
+    } else if (name.contains('toy')) {
+      return Icons.toys_outlined;
+    } else if (name.contains('footwear') || name.contains('shoe')) {
+      return Icons
+          .shopping_bag_outlined; // Alternatively Icons.roller_skating_outlined
+    } else if (name.contains('jewel') || name.contains('jewelry')) {
+      return Icons.diamond_outlined;
+    } else if (name.contains('sport') || name.contains('fitness')) {
+      return Icons.sports_soccer_outlined;
+    } else if (name.contains('book')) {
+      return Icons.menu_book_outlined;
+    } else if (name.contains('food') || name.contains('grocery')) {
+      return Icons.restaurant_outlined;
+    } else {
+      return Icons.category_outlined;
+    }
+  }
+
   Widget _buildProductSection({
     required String title,
     required List<ProductEntity> products,
@@ -163,7 +352,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             title,
-            style: const TextStyle(fontSize: 20, fontFamily: 'Just Bold'),
+            style: const TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Just Bold',
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -184,7 +377,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           )
         else
           SizedBox(
-            height: 300,
+            height: 340,
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
@@ -302,7 +495,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 0.7,
+        childAspectRatio: 0.55,
       ),
       itemBuilder: (context, index) {
         final product = products[index];
@@ -332,17 +525,25 @@ Widget _buildSearchBar(BuildContext context) {
     },
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      height: 50,
+      height: 52,
       decoration: BoxDecoration(
-        color: const Color(0xFFE0E0E0),
-        borderRadius: BorderRadius.circular(32),
+        color: const Color(0xFFEEEEEE),
+        borderRadius: BorderRadius.circular(100),
       ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Icon(Icons.search, color: Colors.black),
-          SizedBox(width: 8),
-          Text("Search", style: TextStyle(color: Colors.black, fontSize: 18)),
+          Icon(Icons.search, color: Colors.grey[600], size: 22),
+          const SizedBox(width: 10),
+          Text(
+            "What do you need?",
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
         ],
       ),
     ),

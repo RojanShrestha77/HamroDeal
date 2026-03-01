@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
+import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
 import 'package:hamro_deal/features/wishlist/presentation/state/wishlist_state.dart';
 import 'package:hamro_deal/features/wishlist/presentation/view_model/wishlist_view_model.dart';
 
@@ -117,9 +118,21 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
 
         return Card(
           clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: InkWell(
+            onTap: product != null
+                ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProductDetailPage(product: product),
+                      ),
+                    );
+                  }
+                : null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // Product Image
               Expanded(
                 child: Stack(
@@ -224,6 +237,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                 ),
               ),
             ],
+          ),
           ),
         );
       },

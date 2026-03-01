@@ -29,42 +29,64 @@ class _ConversationsPageState extends ConsumerState<ConversationsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Conversation'),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        title: const Text(
+          'Delete Conversation',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        ),
         content: const Text(
           'Are you sure you want to delete this conversation? This will delete all messages.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
           ),
-          TextButton(
-            onPressed: () async {
+          GestureDetector(
+            onTap: () async {
               Navigator.pop(context);
               final success = await ref
                   .read(messagingViewModelProvider.notifier)
                   .deleteConversation(conversationId);
-
               if (success && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Conversation deleted')),
+                  const SnackBar(
+                    content: Text('Conversation deleted'),
+                    backgroundColor: Colors.black,
+                  ),
                 );
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: const Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
           ),
+          const SizedBox(width: 4),
         ],
       ),
     );
   }
 
-  void _navigateToChat(String conversationId, String otherUserName) {
+  void _navigateToChat(String conversationId, String otherUserName, String? profileImage) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ChatPage(
           conversationId: conversationId,
           otherUserName: otherUserName,
+          otherUserProfileImage: profileImage,
         ),
       ),
     );
@@ -75,14 +97,33 @@ class _ConversationsPageState extends ConsumerState<ConversationsPage> {
     final messagingState = ref.watch(messagingViewModelProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Messages')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'Messages',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, color: Color(0xFFEEEEEE)),
+        ),
+      ),
       body: _buildBody(messagingState),
     );
   }
 
   Widget _buildBody(MessagingState state) {
     if (state.status == MessagingStatus.loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.black),
+      );
     }
 
     if (state.status == MessagingStatus.error) {
@@ -90,16 +131,44 @@ class _ConversationsPageState extends ConsumerState<ConversationsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEEEEEE),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.error_outline,
+                size: 40,
+                color: Colors.black,
+              ),
+            ),
             const SizedBox(height: 16),
             Text(
               state.error ?? 'Failed to load conversations',
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _handleRefresh,
-              child: const Text('Retry'),
+            GestureDetector(
+              onTap: _handleRefresh,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: const Text(
+                  'Retry',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -111,11 +180,27 @@ class _ConversationsPageState extends ConsumerState<ConversationsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
+            Container(
+              width: 90,
+              height: 90,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEEEEEE),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.chat_bubble_outline,
+                size: 40,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
               'No conversations yet',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -128,22 +213,24 @@ class _ConversationsPageState extends ConsumerState<ConversationsPage> {
     }
 
     return RefreshIndicator(
+      color: Colors.black,
       onRefresh: _handleRefresh,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         itemCount: state.conversations.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           final conversation = state.conversations[index];
+          final otherUser = conversation.sellerInfo ?? conversation.userInfo;
           return ConversationCard(
             conversation: conversation,
             onTap: () {
-              // Determine other user name
               final otherUserName =
                   conversation.sellerInfo?.username ??
                   conversation.userInfo?.username ??
                   'User';
-
-              _navigateToChat(conversation.id, otherUserName);
+              final profileImage = otherUser?.profileImage;
+              _navigateToChat(conversation.id, otherUserName, profileImage);
             },
             onDelete: () => _showDeleteConfirmation(conversation.id),
           );

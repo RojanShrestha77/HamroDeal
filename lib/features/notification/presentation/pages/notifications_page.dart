@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/features/notification/presentation/state/notification_state.dart';
 import 'package:hamro_deal/features/notification/presentation/view_model/notification_view_model.dart';
 import 'package:hamro_deal/features/notification/presentation/widgets/notification_card.dart';
+import 'package:hamro_deal/features/order/presentation/pages/order_detail_screen.dart';
+import 'package:hamro_deal/features/order/presentation/view_model/order_view_model.dart';
+import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
+import 'package:hamro_deal/features/product/presentation/view_model/product_view_model.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -79,6 +83,61 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         ],
       ),
     );
+  }
+
+  void _navigateToRelatedPage(String actionUrl) async {
+    // Parse the actionUrl and navigate accordingly
+    // Example URLs: /orders/123, /products/456, /seller/orders/789
+
+    if (actionUrl.startsWith('/orders/')) {
+      // Navigate to order detail page
+      final orderId = actionUrl.replaceFirst('/orders/', '');
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderDetailScreen(orderId: orderId),
+          ),
+        );
+      }
+    } else if (actionUrl.startsWith('/products/')) {
+      // Navigate to product detail page
+      final productId = actionUrl.replaceFirst('/products/', '');
+
+      // Fetch the product
+      await ref
+          .read(productViewModelProvider.notifier)
+          .getProductsById(productId);
+
+      // Get the product from state
+      final product = ref.read(productViewModelProvider).selectedProduct;
+
+      if (product != null && mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailPage(product: product),
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Product not found')));
+      }
+    } else if (actionUrl.startsWith('/seller/orders/')) {
+      // Navigate to seller order detail page (same as regular order)
+      final orderId = actionUrl.replaceFirst('/seller/orders/', '');
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderDetailScreen(orderId: orderId),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -178,7 +237,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                     .read(notificationViewModelProvider.notifier)
                     .markAsRead(notification.id);
               }
-              // TODO: Navigate to related page if actionUrl exists
+
+              // Navigate to related page based on actionUrl
+              if (notification.actionUrl != null &&
+                  notification.actionUrl!.isNotEmpty) {
+                _navigateToRelatedPage(notification.actionUrl!);
+              }
             },
             onDelete: () => _showDeleteConfirmation(notification.id),
           );

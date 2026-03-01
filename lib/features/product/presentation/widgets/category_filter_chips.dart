@@ -44,7 +44,7 @@ class _CategoryFilterChipsState extends ConsumerState<CategoryFilterChips> {
             selected: widget.selectedCategoryId == null,
             onSelected: (_) => widget.onCategorySelected(null),
             backgroundColor: Colors.grey.shade200,
-            selectedColor: Colors.blue,
+            selectedColor: Colors.blueGrey,
             labelStyle: TextStyle(
               color: widget.selectedCategoryId == null
                   ? Colors.white
@@ -66,7 +66,7 @@ class _CategoryFilterChipsState extends ConsumerState<CategoryFilterChips> {
                 onSelected: (_) =>
                     widget.onCategorySelected(category.categoryId),
                 backgroundColor: Colors.grey.shade200,
-                selectedColor: Colors.blue,
+                selectedColor: Colors.blueGrey,
                 labelStyle: TextStyle(
                   color: isSelected ? Colors.white : Colors.black87,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

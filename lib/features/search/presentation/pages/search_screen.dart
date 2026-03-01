@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/features/product/presentation/page/porduct_browse_screen.dart';
 import 'package:hamro_deal/features/product/presentation/view_model/product_browse_view_model.dart';
 
+const _kBlack = Color(0xFF1C1C1C);
+const _kGrey = Color(0xFFEEEEEE);
+const _kBgGrey = Color(0xFFF5F5F5);
+
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
@@ -12,20 +16,39 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+
+  final List<String> _popularSearches = [
+    'Electronics',
+    'Clothing',
+    'Books',
+    'Home & Garden',
+    'Sports',
+    'Toys',
+    'Footwear',
+    'Jewelry',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto focus on open
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+    });
+  }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
   void _performSearch() {
     final query = _controller.text.trim();
     if (query.isNotEmpty) {
-      // Update the product browse view model with search query
       ref.read(productBrowseViewModelProvider.notifier).updateSearch(query);
-
-      // Navigate to browse screen
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const PorductBrowseScreen()),
@@ -36,93 +59,132 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Search Products'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            margin: const EdgeInsets.all(10),
+            decoration: const BoxDecoration(
+              color: _kGrey,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.arrow_back, color: _kBlack, size: 20),
+          ),
+        ),
+        title: const Text(
+          'Search',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: _kBlack,
+          ),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, color: _kGrey),
+        ),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Search TextField
-              TextField(
-                controller: _controller,
-                onSubmitted: (_) => _performSearch(),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFFE0E0E0),
-                  hintText: "Search for products...",
-                  hintStyle: const TextStyle(
-                    fontFamily: 'Jost Regular',
-                    color: Color(0xFF9E9E9E),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(32),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(Icons.search, color: Colors.black),
-                  suffixIcon: _controller.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _controller.clear();
-                            setState(() {});
-                          },
-                        )
-                      : null,
+              // ── Search field ──
+              Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(color: Colors.grey, width: 1),
                 ),
-                onChanged: (_) => setState(() {}),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Search Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _performSearch,
-                  icon: const Icon(Icons.search),
-                  label: const Text('Search'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Search suggestions or recent searches
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
                   children: [
-                    const Text(
-                      'Popular Searches',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    const Icon(Icons.search, color: Colors.grey, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        focusNode: _focusNode,
+                        onSubmitted: (_) => _performSearch(),
+                        onChanged: (_) => setState(() {}),
+                        style: const TextStyle(fontSize: 15, color: _kBlack),
+                        decoration: InputDecoration(
+                          hintText: 'What do you need?',
+                          hintStyle: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[400],
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _buildSearchChip('Electronics'),
-                        _buildSearchChip('Clothing'),
-                        _buildSearchChip('Books'),
-                        _buildSearchChip('Home & Garden'),
-                        _buildSearchChip('Sports'),
-                        _buildSearchChip('Toys'),
-                      ],
-                    ),
+                    if (_controller.text.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
+                          _controller.clear();
+                          setState(() {});
+                        },
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.grey,
+                          size: 18,
+                        ),
+                      ),
                   ],
                 ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // ── Search button ──
+              if (_controller.text.isNotEmpty)
+                GestureDetector(
+                  onTap: _performSearch,
+                  child: Container(
+                    width: double.infinity,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Search "${_controller.text}"',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 28),
+
+              // ── Popular searches ──
+              Text(
+                'Popular Searches',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[500],
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _popularSearches
+                    .map((label) => _buildChip(label))
+                    .toList(),
               ),
             ],
           ),
@@ -131,15 +193,35 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  Widget _buildSearchChip(String label) {
-    return ActionChip(
-      label: Text(label),
-      onPressed: () {
+  Widget _buildChip(String label) {
+    return GestureDetector(
+      onTap: () {
         _controller.text = label;
         setState(() {});
         _performSearch();
       },
-      avatar: const Icon(Icons.search, size: 18),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: _kBgGrey,
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.search, size: 14, color: Colors.grey[500]),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                color: _kBlack,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

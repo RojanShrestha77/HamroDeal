@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
 import 'package:hamro_deal/features/auth/presentation/view_model/auth_view_model.dart';
@@ -39,7 +38,6 @@ class _ProductReviewsSectionState extends ConsumerState<ProductReviewsSection> {
                 rating: rating,
                 comment: comment,
               );
-
           if (success && mounted) {
             SnackbarUtils.showSuccess(context, 'Review added successfully');
           } else if (mounted) {
@@ -66,7 +64,6 @@ class _ProductReviewsSectionState extends ConsumerState<ProductReviewsSection> {
                 rating: newRating,
                 comment: newComment,
               );
-
           if (success && mounted) {
             SnackbarUtils.showSuccess(context, 'Review updated successfully');
           } else if (mounted) {
@@ -85,15 +82,20 @@ class _ProductReviewsSectionState extends ConsumerState<ProductReviewsSection> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Review'),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        title: const Text(
+          'Delete Review',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        ),
         content: const Text('Are you sure you want to delete this review?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
           ),
-          TextButton(
-            onPressed: () async {
+          GestureDetector(
+            onTap: () async {
               Navigator.pop(context);
               final success = await ref
                   .read(reviewViewModelProvider.notifier)
@@ -114,8 +116,22 @@ class _ProductReviewsSectionState extends ConsumerState<ProductReviewsSection> {
                 );
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1C1C1C),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: const Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
           ),
+          const SizedBox(width: 4),
         ],
       ),
     );
@@ -130,24 +146,59 @@ class _ProductReviewsSectionState extends ConsumerState<ProductReviewsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ── Section header ──
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Customer Reviews',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Customer Reviews',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  if (reviewState.reviews.isNotEmpty)
+                    Text(
+                      '${reviewState.reviews.length} review${reviewState.reviews.length == 1 ? '' : 's'}',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    ),
+                ],
               ),
               if (currentUserId != null)
-                ElevatedButton.icon(
-                  onPressed: _showAddReviewDialog,
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Add Review'),
-                  style: ElevatedButton.styleFrom(
+                GestureDetector(
+                  onTap: _showAddReviewDialog,
+                  child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
+                      horizontal: 14,
+                      vertical: 9,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1C1C1C),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.edit_outlined,
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'Write a Review',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -155,11 +206,76 @@ class _ProductReviewsSectionState extends ConsumerState<ProductReviewsSection> {
           ),
         ),
 
+        // ── Average rating bar (if reviews exist) ──
+        if (reviewState.reviews.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: [
+                  // Big average number
+                  Text(
+                    _getAverageRating(
+                      reviewState.reviews.map((r) => r.rating).toList(),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      height: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: List.generate(5, (i) {
+                          final avg =
+                              double.tryParse(
+                                _getAverageRating(
+                                  reviewState.reviews
+                                      .map((r) => r.rating)
+                                      .toList(),
+                                ),
+                              ) ??
+                              0;
+                          return Icon(
+                            i < avg.floor()
+                                ? Icons.star
+                                : i < avg
+                                ? Icons.star_half
+                                : Icons.star_border,
+                            color: Colors.black,
+                            size: 18,
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${reviewState.reviews.length} review${reviewState.reviews.length == 1 ? '' : 's'}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // ── States ──
         if (reviewState.status == ReviewStatus.loading)
           const Center(
             child: Padding(
               padding: EdgeInsets.all(32),
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Colors.black),
             ),
           )
         else if (reviewState.status == ReviewStatus.error)
@@ -168,23 +284,55 @@ class _ProductReviewsSectionState extends ConsumerState<ProductReviewsSection> {
               padding: const EdgeInsets.all(32),
               child: Text(
                 reviewState.error ?? 'Failed to load reviews',
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: Colors.grey[600]),
               ),
             ),
           )
         else if (reviewState.reviews.isEmpty)
-          const Center(
+          Center(
             child: Padding(
-              padding: EdgeInsets.all(32),
-              child: Text('No reviews yet. Be the first to review!'),
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEEEEEE),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.star_border,
+                      size: 32,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No reviews yet',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Be the first to review this product',
+                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
             ),
           )
         else
-          ListView.builder(
+          ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: reviewState.reviews.length,
+            separatorBuilder: (_, __) =>
+                const Divider(color: Color(0xFFEEEEEE), height: 1),
             itemBuilder: (context, index) {
               final review = reviewState.reviews[index];
               final isOwnReview = review.user.id == currentUserId;
@@ -203,5 +351,11 @@ class _ProductReviewsSectionState extends ConsumerState<ProductReviewsSection> {
           ),
       ],
     );
+  }
+
+  String _getAverageRating(List<int> ratings) {
+    if (ratings.isEmpty) return '0.0';
+    final avg = ratings.reduce((a, b) => a + b) / ratings.length;
+    return avg.toStringAsFixed(1);
   }
 }

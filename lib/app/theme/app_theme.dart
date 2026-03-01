@@ -450,7 +450,14 @@ class AppTheme {
     return ThemeData(
       useMaterial3: false, // Keep Material 2 for consistency with your original
       fontFamily: 'Jost Regular',
-      scaffoldBackgroundColor: Colors.grey[200],
+      primaryColor: const Color(0xFF1C1C1C), // Custom black color
+      scaffoldBackgroundColor: Colors.white,
+
+      // Color Scheme
+      colorScheme: const ColorScheme.light(
+        primary: Color(0xFF1C1C1C),
+        secondary: Color(0xFF1C1C1C),
+      ),
 
       // Text Theme
       textTheme: const TextTheme(
@@ -502,10 +509,33 @@ class AppTheme {
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF1C1C1C), // Custom black
+          foregroundColor: Colors.white,
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
+      ),
+
+      // Text Button Theme
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: const Color(0xFF1C1C1C), // Custom black
+        ),
+      ),
+
+      // Outlined Button Theme
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF1C1C1C), // Custom black
+          side: const BorderSide(color: Color(0xFF1C1C1C)),
+        ),
+      ),
+
+      // Floating Action Button Theme
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Color(0xFF1C1C1C), // Custom black
+        foregroundColor: Colors.white,
       ),
     );
   }

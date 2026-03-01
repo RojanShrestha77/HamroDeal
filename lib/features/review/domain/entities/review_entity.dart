@@ -35,15 +35,17 @@ class ReviewUserEntity extends Equatable {
   final String id;
   final String firstName;
   final String lastName;
+  final String? profileImage;
 
   const ReviewUserEntity({
     required this.id,
     required this.firstName,
     required this.lastName,
+    this.profileImage,
   });
 
   String get fullName => '$firstName $lastName';
 
   @override
-  List<Object?> get props => [id, firstName, lastName];
+  List<Object?> get props => [id, firstName, lastName, profileImage];
 }
