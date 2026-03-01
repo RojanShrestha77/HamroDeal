@@ -5,6 +5,7 @@ import 'package:hamro_deal/features/order/domain/entities/order_entity.dart';
 import 'package:hamro_deal/features/order/presentation/state/order_state.dart';
 import 'package:hamro_deal/features/order/presentation/view_model/order_view_model.dart';
 import 'package:hamro_deal/features/order/presentation/widgets/order_detail_widgets.dart';
+import 'package:hamro_deal/features/order/presentation/widgets/order_tracking_widgets.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
   final String orderId;
@@ -24,6 +25,21 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           .read(orderViewModelProvider.notifier)
           .getOrderById(widget.orderId),
     );
+  }
+
+  String _mapOrderStatusToString(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return 'pending';
+      case OrderStatus.processing:
+        return 'processing';
+      case OrderStatus.shipped:
+        return 'shipped';
+      case OrderStatus.delivered:
+        return 'delivered';
+      case OrderStatus.cancelled:
+        return 'cancelled';
+    }
   }
 
   @override
@@ -52,7 +68,26 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Order Details')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          'Order Details',
+          style: TextStyle(color: Colors.black),
+        ),
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            margin: const EdgeInsets.all(10),
+            decoration: const BoxDecoration(
+              color: Color(0xFFEEEEEE),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
+          ),
+        ),
+      ),
       body: orderState.status == OrderViewStatus.loading
           ? const Center(child: CircularProgressIndicator())
           : order == null
@@ -66,19 +101,44 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   _buildOrderHeader(order),
                   const SizedBox(height: 24),
 
+                  // Order Tracking Widget
+                  if (order.status != OrderStatus.cancelled)
+                    OrderTrackingWidget(
+                      orderStatus: _mapOrderStatusToString(order.status),
+                      orderPlacedDate: order.createdAt,
+                      orderPackedDate:
+                          order.status == OrderStatus.processing ||
+                              order.status == OrderStatus.shipped ||
+                              order.status == OrderStatus.delivered
+                          ? order.updatedAt
+                          : null,
+                      assignedToLogisticsDate:
+                          order.status == OrderStatus.shipped ||
+                              order.status == OrderStatus.delivered
+                          ? order.updatedAt
+                          : null,
+                      outForDeliveryDate: order.status == OrderStatus.delivered
+                          ? order.updatedAt
+                          : null,
+                      deliveredDate: order.status == OrderStatus.delivered
+                          ? order.updatedAt
+                          : null,
+                    ),
+                  const SizedBox(height: 24),
+
                   // Order items
                   OrderDetailWidgets.buildSectionTitle('Order Items'),
                   ...order.items.map((item) => _buildOrderItem(item)),
                   const SizedBox(height: 24),
 
-                  // Shipping address - USING SHARED WIDGET
+                  // Shipping address
                   OrderDetailWidgets.buildSectionTitle('Shipping Address'),
                   OrderDetailWidgets.buildShippingAddress(
                     order.shippingAddress,
                   ),
                   const SizedBox(height: 24),
 
-                  // Order summary - USING SHARED WIDGET
+                  // Order summary
                   OrderDetailWidgets.buildPriceSummary(order),
                   const SizedBox(height: 24),
 
@@ -118,12 +178,10 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Placed on ${OrderDetailWidgets.formatDate(order.createdAt)}', // USING SHARED METHOD
+                  'Placed on ${OrderDetailWidgets.formatDate(order.createdAt)}',
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
-                OrderDetailWidgets.buildStatusChip(
-                  order.status,
-                ), // USING SHARED WIDGET
+                OrderDetailWidgets.buildStatusChip(order.status),
               ],
             ),
             if (order.notes != null && order.notes!.isNotEmpty) ...[
