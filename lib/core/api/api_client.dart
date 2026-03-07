@@ -6,17 +6,22 @@ import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
+// Holds the resolved base URL (set once at startup in main.dart)
+final resolvedBaseUrlProvider = Provider<String>((ref) {
+  throw UnimplementedError('resolvedBaseUrlProvider must be overridden at startup');
+});
+
 final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient();
+  return ApiClient(ref.read(resolvedBaseUrlProvider));
 });
 
 class ApiClient {
   late final Dio _dio;
 
-  ApiClient() {
+  ApiClient(String resolvedBaseUrl) {
     _dio = Dio(
       BaseOptions(
-        baseUrl: ApiEndpoints.baseUrl,
+        baseUrl: resolvedBaseUrl,
         connectTimeout: ApiEndpoints.connectionTimeout,
         receiveTimeout: ApiEndpoints.receiveTimeout,
         headers: {

@@ -258,14 +258,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Total',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: _kBlack,
+              const Expanded(
+                child: Text(
+                  'Total',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: _kBlack,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 'Rs. ${total.toStringAsFixed(0)}',
                 style: const TextStyle(
@@ -285,7 +289,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 8),
         Text(
           value,
           style: const TextStyle(
@@ -519,53 +530,55 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final taxAmount = subtotal * taxRate;
     final total = subtotal + shippingFee + taxAmount;
 
-    final orderItems = cart.items.map<OrderItemEntity>((item) {
-      final sellerId = item.product?.sellerId;
-      if (sellerId == null || sellerId.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Product ${item.product?.title ?? item.productId} has no seller information.',
-            ),
-            duration: const Duration(seconds: 5),
-          ),
+    try {
+      final orderItems = cart.items.map<OrderItemEntity>((item) {
+        final sellerId = item.product?.sellerId;
+        if (sellerId == null || sellerId.isEmpty) {
+          throw Exception('Product ${item.product?.title ?? item.productId} has no seller information.');
+        }
+
+        return OrderItemEntity(
+          productId: item.productId,
+          productName: item.product?.title ?? 'Product',
+          productImage: item.product?.firstImage,
+          quantity: item.quantity,
+          price: item.price,
+          sellerId: sellerId,
         );
-        throw Exception('Product has no seller ID');
-      }
+      }).toList();
 
-      return OrderItemEntity(
-        productId: item.productId,
-        productName: item.product?.title ?? 'Product',
-        productImage: item.product?.images,
-        quantity: item.quantity,
-        price: item.price,
-        sellerId: sellerId,
+      final shippingAddress = ShippingAddressEntity(
+        fullName: _fullNameController.text,
+        phone: _phoneController.text,
+        address: _addressController.text,
+        city: _cityController.text,
+        state: _stateController.text.isEmpty ? '' : _stateController.text,
+        zipCode: _zipCodeController.text,
+        country: _countryController.text,
       );
-    }).toList();
 
-    final shippingAddress = ShippingAddressEntity(
-      fullName: _fullNameController.text,
-      phone: _phoneController.text,
-      address: _addressController.text,
-      city: _cityController.text,
-      state: _stateController.text.isEmpty ? '' : _stateController.text,
-      zipCode: _zipCodeController.text,
-      country: _countryController.text,
-    );
+      final order = OrderEntity(
+        orderNumber: '',
+        items: orderItems,
+        shippingAddress: shippingAddress,
+        paymentMethod: _selectedPaymentMethod,
+        subtotal: subtotal,
+        shippingCost: shippingFee,
+        tax: taxAmount,
+        total: total,
+        status: OrderStatus.pending,
+        notes: _notesController.text.isEmpty ? '' : _notesController.text,
+      );
 
-    final order = OrderEntity(
-      orderNumber: '',
-      items: orderItems,
-      shippingAddress: shippingAddress,
-      paymentMethod: _selectedPaymentMethod,
-      subtotal: subtotal,
-      shippingCost: shippingFee,
-      tax: taxAmount,
-      total: total,
-      status: OrderStatus.pending,
-      notes: _notesController.text.isEmpty ? '' : _notesController.text,
-    );
-
-    ref.read(orderViewModelProvider.notifier).createOrder(order);
+      ref.read(orderViewModelProvider.notifier).createOrder(order);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    }
   }
 }

@@ -97,7 +97,7 @@ class ProductViewModel extends Notifier<ProductState> {
     required double price,
     required int stock,
     required String categoryId,
-    String? images,
+    List<String>? images,
   }) async {
     state = state.copyWith(status: ProductStatus.loading);
 
@@ -134,7 +134,7 @@ class ProductViewModel extends Notifier<ProductState> {
     required double price,
     required int stock,
     required String categoryId,
-    String? images,
+    List<String>? images,
   }) async {
     state = state.copyWith(status: ProductStatus.loading);
 

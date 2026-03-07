@@ -94,14 +94,28 @@ class _PorductBrowseScreenState extends ConsumerState<PorductBrowseScreen> {
                   children: [
                     if (state.searchQuery != null)
                       Chip(
-                        label: Text('Search: ${state.searchQuery}'),
+                        label: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.6,
+                          ),
+                          child: Text(
+                            'Search: ${state.searchQuery}',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                         onDeleted: () => viewModel.updateSearch(''),
                         deleteIcon: const Icon(Icons.close, size: 18),
                       ),
                     if (state.minPrice != null || state.maxPrice != null)
                       Chip(
-                        label: Text(
-                          'Price: Rs${state.minPrice ?? 0} - Rs ${state.maxPrice ?? '∞'}',
+                        label: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.6,
+                          ),
+                          child: Text(
+                            'Price: Rs${state.minPrice ?? 0} - Rs ${state.maxPrice ?? '∞'}',
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         onDeleted: () => viewModel.updatePriceRange(
                           minPrice: null,

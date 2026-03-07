@@ -43,43 +43,48 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
     final token = _tokenService.getToken();
 
     try {
-      // Check if product has a local file path
-      if (product.images != null && File(product.images!).existsSync()) {
-        // Upload with FormData (includes image file)
-        final formData = FormData.fromMap({
-          'title': product.title,
-          'description': product.description,
-          'price': product.price.toString(),
-          'stock': product.stock.toString(),
-          'categoryId': product.categoryId,
-          'images': await MultipartFile.fromFile(
-            product.images!,
-            filename: product.images!.split('/').last,
-          ),
-        });
+      // Check if product has local file paths
+      if (product.images != null && product.images!.isNotEmpty) {
+        final firstImagePath = product.images!.first;
+        
+        // Check if it's a local file path
+        if (File(firstImagePath).existsSync()) {
+          // Upload with FormData (includes image file)
+          final formData = FormData.fromMap({
+            'title': product.title,
+            'description': product.description,
+            'price': product.price.toString(),
+            'stock': product.stock.toString(),
+            'categoryId': product.categoryId,
+            'images': await MultipartFile.fromFile(
+              firstImagePath,
+              filename: firstImagePath.split('/').last,
+            ),
+          });
 
-        print('🔵 Sending product data:');
-        print('Title: ${product.title}');
-        print('Description: ${product.description}');
-        print('Price: ${product.price}');
-        print('Stock: ${product.stock}');
-        print('CategoryId: ${product.categoryId}');
-        print('Image path: ${product.images}');
+          print('🔵 Sending product data:');
+          print('Title: ${product.title}');
+          print('Description: ${product.description}');
+          print('Price: ${product.price}');
+          print('Stock: ${product.stock}');
+          print('CategoryId: ${product.categoryId}');
+          print('Image path: $firstImagePath');
 
-        final response = await _apiClient.post(
-          ApiEndpoints.products,
-          data: formData,
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'multipart/form-data',
-            },
-          ),
-        );
-        return ProductApiModel.fromJson(response.data['data']);
-      } else {
-        throw Exception('Product image is required');
+          final response = await _apiClient.post(
+            ApiEndpoints.products,
+            data: formData,
+            options: Options(
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'multipart/form-data',
+              },
+            ),
+          );
+          return ProductApiModel.fromJson(response.data['data']);
+        }
       }
+      
+      throw Exception('Product image is required');
     } catch (e) {
       if (e is DioException) {
         print('🔴 DioException details:');
@@ -142,45 +147,50 @@ class ProductRemoteDatasource implements IProductRemoteDataSource {
     try {
       // Check if product has a new local file path (new image uploaded)
       if (product.images != null &&
-          product.images!.isNotEmpty &&
-          File(product.images!).existsSync()) {
-        // Upload with FormData (includes new image file)
-        final formData = FormData.fromMap({
-          'title': product.title,
-          'description': product.description,
-          'price': product.price.toString(),
-          'stock': product.stock.toString(),
-          'categoryId': product.categoryId,
-          'images': await MultipartFile.fromFile(
-            product.images!,
-            filename: product.images!.split('/').last,
-          ),
-        });
+          product.images!.isNotEmpty) {
+        final firstImagePath = product.images!.first;
+        
+        // Check if it's a local file (new upload)
+        if (File(firstImagePath).existsSync()) {
+          // Upload with FormData (includes new image file)
+          final formData = FormData.fromMap({
+            'title': product.title,
+            'description': product.description,
+            'price': product.price.toString(),
+            'stock': product.stock.toString(),
+            'categoryId': product.categoryId,
+            'images': await MultipartFile.fromFile(
+              firstImagePath,
+              filename: firstImagePath.split('/').last,
+            ),
+          });
 
-        print('🟡 Updating product with new image:');
-        print('Product ID: ${product.id}');
-        print('Title: ${product.title}');
-        print('Image path: ${product.images}');
+          print('🟡 Updating product with new image:');
+          print('Product ID: ${product.id}');
+          print('Title: ${product.title}');
+          print('Image path: $firstImagePath');
 
-        await _apiClient.put(
-          ApiEndpoints.productById(product.id!),
-          data: formData,
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'multipart/form-data',
-            },
-          ),
-        );
-      } else {
-        // No new image - send JSON data only
-        print('🟡 Updating product without new image');
-        await _apiClient.put(
-          ApiEndpoints.productById(product.id!),
-          data: product.toJson(),
-          options: Options(headers: {'Authorization': 'Bearer $token'}),
-        );
+          await _apiClient.put(
+            ApiEndpoints.productById(product.id!),
+            data: formData,
+            options: Options(
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'multipart/form-data',
+              },
+            ),
+          );
+          return true;
+        }
       }
+      
+      // No new image - send JSON data only
+      print('🟡 Updating product without new image');
+      await _apiClient.put(
+        ApiEndpoints.productById(product.id!),
+        data: product.toJson(),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
       return true;
     } catch (e) {
       if (e is DioException) {

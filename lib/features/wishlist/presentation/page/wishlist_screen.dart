@@ -137,9 +137,9 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
               Expanded(
                 child: Stack(
                   children: [
-                    product?.images != null
+                    product?.images != null && product!.images!.isNotEmpty
                         ? Image.network(
-                            ApiEndpoints.productImage(product!.images!),
+                            ApiEndpoints.productImage(product.images!.first),
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {

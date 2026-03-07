@@ -7,7 +7,7 @@ class ProductEntity extends Equatable {
   final double price;
   final int stock;
   final String? categoryId;
-  final String? images;
+  final List<String>? images;
   final String? sellerId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -24,6 +24,9 @@ class ProductEntity extends Equatable {
     this.createdAt,
     this.updatedAt,
   });
+
+  String? get firstImage =>
+      images != null && images!.isNotEmpty ? images!.first : null;
 
   @override
   List<Object?> get props => [

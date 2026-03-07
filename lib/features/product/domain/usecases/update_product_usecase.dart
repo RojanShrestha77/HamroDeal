@@ -14,7 +14,7 @@ class UpdateProductParams extends Equatable {
   final double price;
   final int stock;
   final String categoryId;
-  final String? images;
+  final List<String>? images;
 
   const UpdateProductParams({
     this.productId,

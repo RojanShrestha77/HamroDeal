@@ -255,7 +255,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   // All Products Grid
                   _buildProductsGrid(productState, products),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 100), // Extra space to clear the floating bottom nav
                 ],
               ),
             ),
@@ -481,7 +481,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           )
         else
           SizedBox(
-            height: 340,
+            height: 360, // Increased from 350 to provide more vertical space for tags/buttons
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
@@ -596,7 +596,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 0.55,
+        childAspectRatio: 0.48, // Balanced for typical phone screens to prevent overflows
       ),
       itemBuilder: (context, index) {
         final product = products[index];

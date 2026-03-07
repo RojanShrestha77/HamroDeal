@@ -250,13 +250,13 @@ class _ProductCard extends StatelessWidget {
         child: Column(
           children: [
             // Product Image
-            if (product.images != null)
+            if (product.images != null && product.images!.isNotEmpty)
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(20),
                 ),
                 child: Image.network(
-                  ApiEndpoints.productImage(product.images!),
+                  ApiEndpoints.productImage(product.images!.first),
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -267,7 +267,7 @@ class _ProductCard extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     print('🔴 Image error: $error');
                     print(
-                      '🔴 Tried URl: ${ApiEndpoints.productImage(product.images!)}',
+                      '🔴 Tried URl: ${ApiEndpoints.productImage(product.images!.first)}',
                     );
                     return Container(
                       height: 180,

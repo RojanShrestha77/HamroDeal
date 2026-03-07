@@ -9,17 +9,20 @@ enum OrderViewStatus {
   error,
   orderCreated,
   orderCancelled,
+  orderUpdated,
 }
 
 class OrderState extends Equatable {
   final OrderViewStatus status; // Changed type
   final List<OrderEntity> orders;
+  final List<OrderEntity> sellerOrders;
   final OrderEntity? currentOrder;
   final String? errorMessage;
 
   const OrderState({
     this.status = OrderViewStatus.initial, // Changed default
     this.orders = const [],
+    this.sellerOrders = const [],
     this.currentOrder,
     this.errorMessage,
   });
@@ -27,6 +30,7 @@ class OrderState extends Equatable {
   OrderState copyWith({
     OrderViewStatus? status, // Changed type
     List<OrderEntity>? orders,
+    List<OrderEntity>? sellerOrders,
     OrderEntity? currentOrder,
     String? errorMessage,
     bool resetErrorMessage = false,
@@ -35,6 +39,7 @@ class OrderState extends Equatable {
     return OrderState(
       status: status ?? this.status,
       orders: orders ?? this.orders,
+      sellerOrders: sellerOrders ?? this.sellerOrders,
       currentOrder: resetCurrentOrder
           ? null
           : (currentOrder ?? this.currentOrder),
@@ -45,5 +50,5 @@ class OrderState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, orders, currentOrder, errorMessage];
+  List<Object?> get props => [status, orders, sellerOrders, currentOrder, errorMessage];
 }

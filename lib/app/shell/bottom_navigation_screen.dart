@@ -33,57 +33,69 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: bottomScreens[_selectedIndex],
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Container(
-          height: 75,
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(40),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildNavItem(
-                  icon: Icons.home_outlined,
-                  selectedIcon: Icons.home,
-                  isSelected: _selectedIndex == 0,
-                  onTap: () => _onTabSelected(0),
-                ),
-                _buildNavItem(
-                  icon: Icons.shopping_cart_outlined,
-                  selectedIcon: Icons.shopping_cart,
-                  isSelected: _selectedIndex == 1,
-                  onTap: () => _onTabSelected(1),
-                ),
-                _buildNavItem(
-                  icon: Icons.explore_outlined,
-                  selectedIcon: Icons.explore,
-                  isSelected: _selectedIndex == 2,
-                  onTap: () => _onTabSelected(2),
-                ),
-                _buildNavItem(
-                  icon: Icons.chat_bubble_outline,
-                  selectedIcon: Icons.chat_bubble,
-                  isSelected: _selectedIndex == 3,
-                  onTap: () => _onTabSelected(3),
-                ),
-                _buildNavItem(
-                  icon: Icons.person_outlined,
-                  selectedIcon: Icons.person,
-                  isSelected: _selectedIndex == 4,
-                  onTap: () => _onTabSelected(4),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Container(
+            height: 70, // Reduced slightly from 75
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
                 ),
               ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: _buildNavItem(
+                      icon: Icons.home_outlined,
+                      selectedIcon: Icons.home,
+                      isSelected: _selectedIndex == 0,
+                      onTap: () => _onTabSelected(0),
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildNavItem(
+                      icon: Icons.shopping_cart_outlined,
+                      selectedIcon: Icons.shopping_cart,
+                      isSelected: _selectedIndex == 1,
+                      onTap: () => _onTabSelected(1),
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildNavItem(
+                      icon: Icons.explore_outlined,
+                      selectedIcon: Icons.explore,
+                      isSelected: _selectedIndex == 2,
+                      onTap: () => _onTabSelected(2),
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildNavItem(
+                      icon: Icons.chat_bubble_outline,
+                      selectedIcon: Icons.chat_bubble,
+                      isSelected: _selectedIndex == 3,
+                      onTap: () => _onTabSelected(3),
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildNavItem(
+                      icon: Icons.person_outlined,
+                      selectedIcon: Icons.person,
+                      isSelected: _selectedIndex == 4,
+                      onTap: () => _onTabSelected(4),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

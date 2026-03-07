@@ -60,6 +60,7 @@ dependencies:
   shake: ^3.0.0
   sensors_plus: ^6.1.2
   app_links: ^7.0.0
+  device_info_plus: ^11.2.0
 
 dev_dependencies:
   flutter_test:

@@ -111,7 +111,8 @@ class OrderConfirmationScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 16)),
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 16))),
+          const SizedBox(width: 8),
           Text(
             value,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

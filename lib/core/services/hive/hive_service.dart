@@ -17,6 +17,17 @@ class HiveService {
 
     Hive.init(path);
 
+    // Clear product box if it exists (to handle schema migration)
+    try {
+      if (await Hive.boxExists(HiveTableConstants.productTable)) {
+        print('🟡 Product box exists, checking for schema migration...');
+        await Hive.deleteBoxFromDisk(HiveTableConstants.productTable);
+        print('🟢 Old product box cleared for schema migration');
+      }
+    } catch (e) {
+      print('🔴 Error during product box migration: $e');
+    }
+
     _registerAdapters();
     await _openBoxes();
   }

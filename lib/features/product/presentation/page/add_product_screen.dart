@@ -239,7 +239,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           price: double.parse(_priceController.text.trim()),
           stock: int.parse(_stockController.text.trim()),
           categoryId: _selectedCategoryId!,
-          images: imagePath, // Local file path
+          images: [imagePath], // Wrap in array
         );
   }
 

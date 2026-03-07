@@ -1,25 +1,40 @@
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiEndpoints {
   ApiEndpoints._();
 
-  // Configuration
-  static const bool isPhysicalDevice = false;
-  static const String _ipAddress = '192.168.1.1';
+  // Your PC's local network IP address.
+  // Run `ipconfig` (Windows) or `ifconfig` (Mac/Linux) to find it.
+  static const String _physicalDeviceIp = '192.168.1.65';
   static const int _port = 5050;
 
-  // Base URLs
-  static String get _host {
-    if (isPhysicalDevice) return _ipAddress;
-    if (kIsWeb || Platform.isIOS) return 'localhost';
-    if (Platform.isAndroid) return '10.0.2.2';
-    return 'localhost';
+  /// Called ONCE at app startup in main.dart.
+  /// Returns the correct base URL for the current device.
+  static Future<String> resolveBaseUrl() async {
+    final host = await _resolveHost();
+    return 'http://$host:$_port/api';
   }
 
-  static String get serverUrl => 'http://$_host:$_port';
-  static String get baseUrl => '$serverUrl/api';
-  static String get mediaServerUrl => serverUrl;
+  static Future<String> resolveServerUrl() async {
+    final host = await _resolveHost();
+    return 'http://$host:$_port';
+  }
+
+  // Set once at startup by main.dart — used by image helper methods below.
+  static String serverUrl = 'http://localhost:$_port';
+
+  // Detects at runtime: physical device gets your PC's IP,
+  // emulator gets the Android emulator loopback (10.0.2.2).
+  static Future<String> _resolveHost() async {
+    if (kIsWeb || Platform.isIOS) return 'localhost';
+    if (Platform.isAndroid) {
+      final info = await DeviceInfoPlugin().androidInfo;
+      return info.isPhysicalDevice ? _physicalDeviceIp : '10.0.2.2';
+    }
+    return 'localhost';
+  }
 
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);
@@ -62,6 +77,11 @@ class ApiEndpoints {
   static String orderById(String id) => '/orders/$id';
   static String cancelOrder(String id) => '/orders/$id/cancel';
   static const String myOrders = '/orders/my-orders';
+  
+  // ========= Seller Order Endpoints =========
+  static const String sellerOrders = '/seller/orders';
+  static String sellerOrderById(String id) => '/seller/orders/$id';
+  static String updateSellerOrderStatus(String id) => '/seller/orders/$id/status';
 
   // ========= Blog Endpoints =========
   static const String blogs = '/blogs';
@@ -125,21 +145,15 @@ class ApiEndpoints {
 
   // ==================== Media Helper Methods ==================
   static String productImage(String filename) {
-    // Backend returns /uploads/filename, so just append to server URL
-    if (filename.startsWith('/')) {
-      return '$mediaServerUrl$filename';
-    }
-    // Fallback for just filename
-    return '$mediaServerUrl/uploads/$filename';
+    if (filename.startsWith('/')) return '$serverUrl$filename';
+    return '$serverUrl/uploads/$filename';
   }
 
   static String categoryImage(String filename) =>
-      '$mediaServerUrl/uploads/$filename';
+      '$serverUrl/uploads/$filename';
 
   static String userProfileImage(String filename) {
-    if (filename.startsWith('/')) {
-      return '$mediaServerUrl$filename';
-    }
-    return '$mediaServerUrl/uploads/$filename';
+    if (filename.startsWith('/')) return '$serverUrl$filename';
+    return '$serverUrl/uploads/$filename';
   }
 }

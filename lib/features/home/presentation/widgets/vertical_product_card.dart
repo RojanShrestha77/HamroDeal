@@ -33,9 +33,9 @@ class VerticalProductCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Image (flex 4 — bigger than before) ──
+            // ── Image (flex 3 — balanced for smaller screens) ──
             Expanded(
-              flex: 4,
+              flex: 3,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -43,9 +43,9 @@ class VerticalProductCard extends ConsumerWidget {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(4),
                     ),
-                    child: product.images != null
+                    child: product.images != null && product.images!.isNotEmpty
                         ? Image.network(
-                            ApiEndpoints.productImage(product.images!),
+                            ApiEndpoints.productImage(product.images!.first),
                             width: double.infinity,
                             height: double.infinity,
                             fit: BoxFit.contain,
@@ -117,17 +117,17 @@ class VerticalProductCard extends ConsumerWidget {
             Expanded(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8), // Reduced top padding from 12 to 8
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       product.title,
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 14, // Reduced further from 15 to 14
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
-                        height: 1.3,
+                        height: 1.2,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

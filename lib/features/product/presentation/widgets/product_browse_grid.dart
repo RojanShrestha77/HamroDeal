@@ -57,7 +57,7 @@ class ProductBrowseGrid extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.55,
+        childAspectRatio: 0.48, // Reduced from 0.55 for more vertical room
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
@@ -99,9 +99,9 @@ class _ProductCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Image flex 4 ──
+            // ── Image flex 3 ──
             Expanded(
-              flex: 4,
+              flex: 3,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -109,9 +109,9 @@ class _ProductCard extends ConsumerWidget {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(4),
                     ),
-                    child: product.images != null
+                    child: product.images != null && product.images!.isNotEmpty
                         ? Image.network(
-                            ApiEndpoints.productImage(product.images!),
+                            ApiEndpoints.productImage(product.images!.first),
                             width: double.infinity,
                             height: double.infinity,
                             fit: BoxFit.contain,
@@ -221,10 +221,10 @@ class _ProductCard extends ConsumerWidget {
                     Text(
                       product.title,
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 14, // Reduced from 18
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
-                        height: 1.3,
+                        height: 1.2,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

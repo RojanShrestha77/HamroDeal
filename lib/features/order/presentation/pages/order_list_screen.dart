@@ -100,13 +100,17 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Order #${order.orderNumber}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Text(
+                      'Order #${order.orderNumber}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   _buildStatusChip(order.status),
                 ],
               ),
@@ -130,11 +134,18 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Total',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  const Expanded(
+                    child: Text(
+                      'Total',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  Text('Rs. ${order.total.toStringAsFixed(2)}'),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Rs. ${order.total.toStringAsFixed(2)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ],

@@ -4,6 +4,9 @@ import 'package:hamro_deal/features/order/domain/usecases/cancel_order_usecase.d
 import 'package:hamro_deal/features/order/domain/usecases/create_order_usecase.dart';
 import 'package:hamro_deal/features/order/domain/usecases/get_order_by_id_usecase.dart';
 import 'package:hamro_deal/features/order/domain/usecases/get_user_orders_usecase.dart';
+import 'package:hamro_deal/features/order/domain/usecases/get_seller_orders_usecase.dart';
+import 'package:hamro_deal/features/order/domain/usecases/get_seller_order_by_id_usecase.dart';
+import 'package:hamro_deal/features/order/domain/usecases/update_seller_order_status_usecase.dart';
 import 'package:hamro_deal/features/order/presentation/state/order_state.dart';
 
 final orderViewModelProvider = NotifierProvider<OrderViewModel, OrderState>(
@@ -15,6 +18,9 @@ class OrderViewModel extends Notifier<OrderState> {
   late final GetUserOrdersUsecase _getUserOrdersUsecase;
   late final GetOrderByIdUsecase _getOrderByIdUsecase;
   late final CancelOrderUsecase _cancelOrderUsecase;
+  late final GetSellerOrdersUsecase _getSellerOrdersUsecase;
+  late final GetSellerOrderByIdUsecase _getSellerOrderByIdUsecase;
+  late final UpdateSellerOrderStatusUsecase _updateSellerOrderStatusUsecase;
 
   @override
   OrderState build() {
@@ -22,6 +28,9 @@ class OrderViewModel extends Notifier<OrderState> {
     _getUserOrdersUsecase = ref.watch(getUserOrdersUsecaseProvider);
     _getOrderByIdUsecase = ref.watch(getOrderByIdUsecaseProvider);
     _cancelOrderUsecase = ref.watch(cancelOrderUsecaseProvider);
+    _getSellerOrdersUsecase = ref.watch(getSellerOrdersUsecaseProvider);
+    _getSellerOrderByIdUsecase = ref.watch(getSellerOrderByIdUsecaseProvider);
+    _updateSellerOrderStatusUsecase = ref.watch(updateSellerOrderStatusUsecaseProvider);
     return const OrderState();
   }
 
@@ -139,5 +148,93 @@ class OrderViewModel extends Notifier<OrderState> {
 
   void resetError() {
     state = state.copyWith(resetErrorMessage: true);
+  }
+  
+  // ========= Seller Order Methods =========
+  
+  // get seller orders
+  Future<void> getSellerOrders() async {
+    state = state.copyWith(
+      status: OrderViewStatus.loading,
+      resetErrorMessage: true,
+    );
+
+    final result = await _getSellerOrdersUsecase();
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: OrderViewStatus.error,
+          errorMessage: failure.message,
+        );
+      },
+      (orders) {
+        state = state.copyWith(
+          status: OrderViewStatus.loaded,
+          sellerOrders: orders,
+          resetErrorMessage: true,
+        );
+      },
+    );
+  }
+  
+  // get seller order by id
+  Future<void> getSellerOrderById(String orderId) async {
+    state = state.copyWith(
+      status: OrderViewStatus.loading,
+      resetErrorMessage: true,
+    );
+
+    final params = GetSellerOrderByIdParams(orderId: orderId);
+    final result = await _getSellerOrderByIdUsecase(params);
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: OrderViewStatus.error,
+          errorMessage: failure.message,
+        );
+      },
+      (order) {
+        state = state.copyWith(
+          status: OrderViewStatus.loaded,
+          currentOrder: order,
+          resetErrorMessage: true,
+        );
+      },
+    );
+  }
+  
+  // update seller order status
+  Future<bool> updateSellerOrderStatus(String orderId, String status) async {
+    state = state.copyWith(
+      status: OrderViewStatus.loading,
+      resetErrorMessage: true,
+    );
+
+    final params = UpdateSellerOrderStatusParams(
+      orderId: orderId,
+      status: status,
+    );
+    final result = await _updateSellerOrderStatusUsecase(params);
+
+    return result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: OrderViewStatus.error,
+          errorMessage: failure.message,
+        );
+        return false;
+      },
+      (updatedOrder) {
+        state = state.copyWith(
+          status: OrderViewStatus.orderUpdated,
+          currentOrder: updatedOrder,
+          resetErrorMessage: true,
+        );
+        getSellerOrders(); // Refresh the list
+        return true;
+      },
+    );
   }
 }

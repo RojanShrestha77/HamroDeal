@@ -23,13 +23,22 @@ class ProductDetailPage extends ConsumerStatefulWidget {
 
 class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   int _quantity = 1;
+  int _currentImageIndex = 0;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController();
     Future.microtask(
       () => ref.read(wishlistViewModelProvider.notifier).getWishlist(),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   String _getCategoryName(String? categoryId) {
@@ -173,34 +182,153 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Product Image ──
+            // ── Product Image Carousel ──
             AspectRatio(
               aspectRatio: 1.0,
               child: Container(
                 color: const Color(0xFFF5F5F5),
-                child: widget.product.images != null
-                    ? Image.network(
-                        ApiEndpoints.productImage(widget.product.images!),
-                        width: double.infinity,
-                        fit: BoxFit.contain,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.black,
-                              strokeWidth: 1.5,
+                child: widget.product.images != null && widget.product.images!.isNotEmpty
+                    ? Stack(
+                        children: [
+                          // Image PageView
+                          PageView.builder(
+                            controller: _pageController,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _currentImageIndex = index;
+                              });
+                            },
+                            itemCount: widget.product.images!.length,
+                            itemBuilder: (context, index) {
+                              return Image.network(
+                                ApiEndpoints.productImage(widget.product.images![index]),
+                                width: double.infinity,
+                                fit: BoxFit.contain,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.black,
+                                      strokeWidth: 1.5,
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(
+                                      Icons.image_not_supported_outlined,
+                                      size: 64,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          
+                          // Navigation arrows (only show if multiple images)
+                          if (widget.product.images!.length > 1) ...[
+                            // Left arrow
+                            if (_currentImageIndex > 0)
+                              Positioned(
+                                left: 16,
+                                top: 0,
+                                bottom: 0,
+                                child: Center(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _pageController.previousPage(
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.1),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.chevron_left,
+                                        color: Colors.black,
+                                        size: 24,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            
+                            // Right arrow
+                            if (_currentImageIndex < widget.product.images!.length - 1)
+                              Positioned(
+                                right: 16,
+                                top: 0,
+                                bottom: 0,
+                                child: Center(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _pageController.nextPage(
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.1),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.chevron_right,
+                                        color: Colors.black,
+                                        size: 24,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            
+                            // Dot indicators
+                            Positioned(
+                              bottom: 16,
+                              left: 0,
+                              right: 0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                  widget.product.images!.length,
+                                  (index) => Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                                    width: _currentImageIndex == index ? 24 : 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: _currentImageIndex == index
+                                          ? Colors.black
+                                          : Colors.grey[400],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Center(
-                            child: Icon(
-                              Icons.image_not_supported_outlined,
-                              size: 64,
-                              color: Colors.grey,
-                            ),
-                          );
-                        },
+                          ],
+                        ],
                       )
                     : const Center(
                         child: Icon(
@@ -226,7 +354,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                         child: Text(
                           widget.product.title,
                           style: const TextStyle(
-                            fontSize: 20,
+                            fontSize: 18, // Reduced from 20
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                             height: 1.3,

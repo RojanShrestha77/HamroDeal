@@ -7,7 +7,7 @@ class ProductApiModel {
   final double price;
   final int stock;
   final String? categoryId;
-  final String? images;
+  final List<String>? images;
   final String? sellerId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -43,6 +43,15 @@ class ProductApiModel {
       return value as String?;
     }
 
+    List<String>? imagesList;
+    if (json['images'] != null) {
+      if (json['images'] is List) {
+        imagesList = List<String>.from(json['images']);
+      } else if (json['images'] is String) {
+        imagesList = [json['images']];
+      }
+    }
+
     return ProductApiModel(
       id: json['_id'] as String?,
       title: json['title'] as String,
@@ -51,7 +60,7 @@ class ProductApiModel {
       stock: (json['stock'] as num).toInt(),
       categoryId: extractId(json['categoryId']),
       sellerId: extractId(json['sellerId']),
-      images: json['images'] as String?,
+      images: imagesList,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,

@@ -1,9 +1,13 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/features/cart/presentation/state/cart_state.dart';
 import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:hamro_deal/features/order/presentation/pages/checkout_screen.dart';
+import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
@@ -13,10 +17,59 @@ class CartScreen extends ConsumerStatefulWidget {
 }
 
 class _CartScreenState extends ConsumerState<CartScreen> {
+  late StreamSubscription<AccelerometerEvent> _accelerometerSubscription;
+  double _lastX = 0, _lastY = 0, _lastZ = 0;
+  int _shakeCount = 0;
+  DateTime _lastShakeTime = DateTime.now();
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(cartViewModelProvider.notifier).getCart());
+    _initializeShakeDetector();
+  }
+
+  void _initializeShakeDetector() {
+    _accelerometerSubscription = accelerometerEvents.listen((event) {
+      double x = event.x;
+      double y = event.y;
+      double z = event.z;
+
+      double acceleration = sqrt((x - _lastX) * (x - _lastX) +
+              (y - _lastY) * (y - _lastY) +
+              (z - _lastZ) * (z - _lastZ));
+
+      if (acceleration > 25) {
+        DateTime now = DateTime.now();
+        if (now.difference(_lastShakeTime).inMilliseconds < 500) {
+          _shakeCount++;
+          if (_shakeCount >= 2) {
+            _onShakeDetected();
+            _shakeCount = 0;
+          }
+        } else {
+          _shakeCount = 1;
+        }
+        _lastShakeTime = now;
+      }
+
+      _lastX = x;
+      _lastY = y;
+      _lastZ = z;
+    });
+  }
+
+  void _onShakeDetected() {
+    final cartState = ref.read(cartViewModelProvider);
+    if (cartState.cart != null && !cartState.cart!.isEmpty) {
+      _showClearCartDialog(context, ref.read(cartViewModelProvider.notifier));
+    }
+  }
+
+  @override
+  void dispose() {
+    _accelerometerSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -153,137 +206,150 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         final item = cartState.cart!.items[index];
         final product = item.product;
 
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: const Color(0xFFEEEEEE), width: 1),
-          ),
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              // Product Image
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(4),
+        return GestureDetector(
+          onTap: () {
+            // Navigate to product detail page
+            if (product != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductDetailPage(product: product),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: product?.images != null
-                      ? Image.network(
-                          ApiEndpoints.productImage(product!.images!),
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                                Icons.image_not_supported_outlined,
-                                color: Colors.grey,
-                              ),
-                        )
-                      : const Icon(
-                          Icons.inventory_2_outlined,
-                          color: Colors.grey,
-                        ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              // Product Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product?.title ?? 'Product',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                        height: 1.3,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Rs. ${item.price.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Quantity Controls
-                    Row(
-                      children: [
-                        _buildQtyButton(
-                          icon: Icons.remove,
-                          onTap: item.quantity > 1
-                              ? () => cartViewModel.updateCartItem(
-                                  item.productId,
-                                  item.quantity - 1,
-                                )
-                              : null,
-                        ),
-                        Container(
-                          width: 36,
-                          height: 32,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            border: Border.symmetric(
-                              horizontal: BorderSide(color: Color(0xFFEEEEEE)),
-                            ),
-                          ),
-                          child: Text(
-                            '${item.quantity}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        _buildQtyButton(
-                          icon: Icons.add,
-                          onTap: () => cartViewModel.updateCartItem(
-                            item.productId,
-                            item.quantity + 1,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Remove Button
-              GestureDetector(
-                onTap: () => _showRemoveDialog(
-                  context,
-                  cartViewModel,
-                  item.productId,
-                  product?.title ?? 'this item',
-                ),
-                child: Container(
-                  width: 34,
-                  height: 34,
+              );
+            }
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: const Color(0xFFEEEEEE), width: 1),
+            ),
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // Product Image
+                Container(
+                  width: 90,
+                  height: 90,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEEEEEE),
-                    borderRadius: BorderRadius.circular(2),
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                  child: const Icon(
-                    Icons.delete_outline,
-                    size: 18,
-                    color: Colors.black,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: product?.images != null && product!.images!.isNotEmpty
+                        ? Image.network(
+                            ApiEndpoints.productImage(product.images!.first),
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                                  Icons.image_not_supported_outlined,
+                                  color: Colors.grey,
+                                ),
+                          )
+                        : const Icon(
+                            Icons.inventory_2_outlined,
+                            color: Colors.grey,
+                          ),
                   ),
                 ),
-              ),
-            ],
+
+                const SizedBox(width: 12),
+
+                // Product Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product?.title ?? 'Product',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          height: 1.3,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Rs. ${item.price.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Quantity Controls
+                      Row(
+                        children: [
+                          _buildQtyButton(
+                            icon: Icons.remove,
+                            onTap: item.quantity > 1
+                                ? () => cartViewModel.updateCartItem(
+                                    item.productId,
+                                    item.quantity - 1,
+                                  )
+                                : null,
+                          ),
+                          Container(
+                            width: 36,
+                            height: 32,
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(
+                              border: Border.symmetric(
+                                horizontal: BorderSide(color: Color(0xFFEEEEEE)),
+                              ),
+                            ),
+                            child: Text(
+                              '${item.quantity}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          _buildQtyButton(
+                            icon: Icons.add,
+                            onTap: () => cartViewModel.updateCartItem(
+                              item.productId,
+                              item.quantity + 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Remove Button
+                GestureDetector(
+                  onTap: () => _showRemoveDialog(
+                    context,
+                    cartViewModel,
+                    item.productId,
+                    product?.title ?? 'this item',
+                  ),
+                  child: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEEEEE),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: const Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

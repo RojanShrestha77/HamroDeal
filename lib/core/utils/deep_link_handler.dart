@@ -10,7 +10,7 @@ class DeepLinkHandler {
   DeepLinkHandler(this.navigatorKey);
 
   Future<void> initialize() async {
-    // Handle initial link if app was opened from a deep link
+    // Handlse initial link if app was opened from a deep link
     final initialUri = await _appLinks.getInitialLink();
     if (initialUri != null) {
       _handleDeepLink(initialUri);

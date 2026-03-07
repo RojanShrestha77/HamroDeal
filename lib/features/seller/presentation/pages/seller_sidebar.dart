@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hamro_deal/features/product/presentation/page/my_products_page.dart';
 import 'package:hamro_deal/features/product/presentation/page/add_product_screen.dart';
+import 'package:hamro_deal/features/seller/presentation/pages/seller_orders_screen.dart';
 
 class SellerSidebar extends StatelessWidget {
   final bool isExpanded;
@@ -118,7 +119,12 @@ class SellerSidebar extends StatelessWidget {
                   icon: Icons.shopping_bag,
                   label: 'Orders',
                   onTap: () {
-                    // TODO: Navigate to seller orders
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SellerOrdersScreen(),
+                      ),
+                    );
                   },
                 ),
               ],

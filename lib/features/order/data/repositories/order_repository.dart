@@ -110,4 +110,67 @@ class OrderRepository implements IOrderRepository {
       return Left(ApiFailure(message: 'No internet connection'));
     }
   }
+  
+  @override
+  Future<Either<Failure, List<OrderEntity>>> getSellerOrders() async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final orders = await _remoteDataSource.getSellerOrders();
+        return Right(orders.map((order) => order.toEntity()).toList());
+      } on DioException catch (e) {
+        return Left(
+          ApiFailure(
+            message: e.response?.data['message'] ?? 'Failed to get seller orders',
+            statusCode: e.response?.statusCode,
+          ),
+        );
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      return Left(ApiFailure(message: 'No internet connection'));
+    }
+  }
+  
+  @override
+  Future<Either<Failure, OrderEntity>> getSellerOrderById(String orderId) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final order = await _remoteDataSource.getSellerOrderById(orderId);
+        return Right(order.toEntity());
+      } on DioException catch (e) {
+        return Left(
+          ApiFailure(
+            message: e.response?.data['message'] ?? 'Failed to get seller order',
+            statusCode: e.response?.statusCode,
+          ),
+        );
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      return Left(ApiFailure(message: 'No internet connection'));
+    }
+  }
+  
+  @override
+  Future<Either<Failure, OrderEntity>> updateSellerOrderStatus(String orderId, String status) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final order = await _remoteDataSource.updateSellerOrderStatus(orderId, status);
+        return Right(order.toEntity());
+      } on DioException catch (e) {
+        return Left(
+          ApiFailure(
+            message: e.response?.data['message'] ?? 'Failed to update order status',
+            statusCode: e.response?.statusCode,
+          ),
+        );
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    } else {
+      return Left(ApiFailure(message: 'No internet connection'));
+    }
+  }
 }

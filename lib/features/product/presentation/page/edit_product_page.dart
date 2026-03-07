@@ -37,11 +37,17 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
 
   // track if user upload new media
   bool _hasNewMedia = false;
-  String? _existingMediaUrl;
+  List<String>? _existingMediaUrl;
+  
+  // For image carousel
+  int _currentImageIndex = 0;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    
+    _pageController = PageController();
 
     // pre-fill controllers with existing data
     _titleController.text = widget.product.title;
@@ -60,6 +66,7 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
     _descController.dispose();
     _priceController.dispose();
     _stockController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -97,11 +104,11 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
       return;
     }
 
-    String? finalMediaUrl;
+    List<String>? finalMediaUrl;
 
     if (_hasNewMedia && _selectedMedia.isNotEmpty) {
       // Use the local file path for new image (backend will handle upload)
-      finalMediaUrl = _selectedMedia.first.path;
+      finalMediaUrl = [_selectedMedia.first.path];
       print('🟢 Using new image path: $finalMediaUrl');
     } else {
       // Keep existing image URL from backend
@@ -149,6 +156,170 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Existing Images Carousel (if not uploading new image)
+                if (!_hasNewMedia && _existingMediaUrl != null && _existingMediaUrl!.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const ProductFormSectionHeader(title: 'Current Images'),
+                      const SizedBox(height: 12),
+                      Container(
+                        height: 250,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Stack(
+                          children: [
+                            // Image PageView
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: PageView.builder(
+                                controller: _pageController,
+                                onPageChanged: (index) {
+                                  setState(() {
+                                    _currentImageIndex = index;
+                                  });
+                                },
+                                itemCount: _existingMediaUrl!.length,
+                                itemBuilder: (context, index) {
+                                  return Image.network(
+                                    ApiEndpoints.productImage(_existingMediaUrl![index]),
+                                    width: double.infinity,
+                                    fit: BoxFit.contain,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: context.borderColor,
+                                        child: Icon(
+                                          Icons.image_not_supported_outlined,
+                                          color: context.textTertiary,
+                                          size: 48,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                            
+                            // Navigation arrows (only show if multiple images)
+                            if (_existingMediaUrl!.length > 1) ...[
+                              // Left arrow
+                              if (_currentImageIndex > 0)
+                                Positioned(
+                                  left: 16,
+                                  top: 0,
+                                  bottom: 0,
+                                  child: Center(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _pageController.previousPage(
+                                          duration: const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.1),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.chevron_left,
+                                          color: Colors.black,
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              
+                              // Right arrow
+                              if (_currentImageIndex < _existingMediaUrl!.length - 1)
+                                Positioned(
+                                  right: 16,
+                                  top: 0,
+                                  bottom: 0,
+                                  child: Center(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _pageController.nextPage(
+                                          duration: const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.1),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.chevron_right,
+                                          color: Colors.black,
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              
+                              // Dot indicators
+                              Positioned(
+                                bottom: 16,
+                                left: 0,
+                                right: 0,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: List.generate(
+                                    _existingMediaUrl!.length,
+                                    (index) => Container(
+                                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                                      width: _currentImageIndex == index ? 24 : 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: _currentImageIndex == index
+                                            ? Colors.black
+                                            : Colors.grey[400],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                
+                // Upload New Image Section
+                const ProductFormSectionHeader(title: 'Change Image'),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     GestureDetector(
@@ -171,24 +342,18 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: _existingMediaUrl != null
-                                    ? Colors.orange
-                                    : Colors.blue,
+                                color: _hasNewMedia ? Colors.green : Colors.orange,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Icon(
-                                (_existingMediaUrl != null || _hasNewMedia)
-                                    ? Icons.edit
-                                    : Icons.add_a_photo_rounded,
+                                _hasNewMedia ? Icons.check : Icons.edit,
                                 color: Colors.white,
                                 size: 20,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              (_existingMediaUrl != null || _hasNewMedia)
-                                  ? 'Change Media'
-                                  : 'Add Photo',
+                              _hasNewMedia ? 'New Image' : 'Upload New',
                               style: TextStyle(
                                 fontSize: 11,
                                 color: context.textSecondary,
@@ -207,43 +372,6 @@ class _EditProductPageState extends ConsumerState<EditProductPage> {
                           width: 120,
                           height: 120,
                           fit: BoxFit.cover,
-                        ),
-                      )
-                    else if (_existingMediaUrl != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.network(
-                          ApiEndpoints.productImage(_existingMediaUrl!),
-                          width: 120,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return SizedBox(
-                              width: 120,
-                              height: 120,
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  value:
-                                      loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: 120,
-                              height: 120,
-                              color: context.borderColor,
-                              child: Icon(
-                                Icons.image_not_supported_outlined,
-                                color: context.textTertiary,
-                              ),
-                            );
-                          },
                         ),
                       ),
                   ],

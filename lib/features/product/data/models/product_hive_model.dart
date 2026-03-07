@@ -27,7 +27,7 @@ class ProductHiveModel extends HiveObject {
   final int stock;
 
   @HiveField(6)
-  final String? images;
+  final List<String>? images;
 
   @HiveField(7)
   final String? categoryId;

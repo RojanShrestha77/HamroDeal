@@ -7,4 +7,9 @@ abstract interface class IOrderRepository {
   Future<Either<Failure, List<OrderEntity>>> getUserOrders();
   Future<Either<Failure, OrderEntity>> getOrderById(String orderId);
   Future<Either<Failure, OrderEntity>> cancelOrder(String orderId);
+  
+  // Seller orders
+  Future<Either<Failure, List<OrderEntity>>> getSellerOrders();
+  Future<Either<Failure, OrderEntity>> getSellerOrderById(String orderId);
+  Future<Either<Failure, OrderEntity>> updateSellerOrderStatus(String orderId, String status);
 }

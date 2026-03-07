@@ -5,4 +5,9 @@ abstract interface class IOrderRemoteDataSource {
   Future<List<OrderApiModel>> getUserOrders();
   Future<OrderApiModel> getOrderById(String orderId);
   Future<OrderApiModel> cancelOrder(String orderId);
+  
+  // Seller orders
+  Future<List<OrderApiModel>> getSellerOrders();
+  Future<OrderApiModel> getSellerOrderById(String orderId);
+  Future<OrderApiModel> updateSellerOrderStatus(String orderId, String status);
 }

@@ -68,4 +68,39 @@ class OrderRemoteDatasource implements IOrderRemoteDataSource {
     final data = response.data['data'] as List;
     return data.map((json) => OrderApiModel.fromJson(json)).toList();
   }
+  
+  @override
+  Future<List<OrderApiModel>> getSellerOrders() async {
+    final token = _tokenService.getToken();
+
+    final response = await _apiClient.get(
+      ApiEndpoints.sellerOrders,
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    final data = response.data['data'] as List;
+    return data.map((json) => OrderApiModel.fromJson(json)).toList();
+  }
+  
+  @override
+  Future<OrderApiModel> getSellerOrderById(String orderId) async {
+    final token = _tokenService.getToken();
+
+    final response = await _apiClient.get(
+      ApiEndpoints.sellerOrderById(orderId),
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    return OrderApiModel.fromJson(response.data['data']);
+  }
+  
+  @override
+  Future<OrderApiModel> updateSellerOrderStatus(String orderId, String status) async {
+    final token = _tokenService.getToken();
+
+    final response = await _apiClient.patch(
+      ApiEndpoints.updateSellerOrderStatus(orderId),
+      data: {'status': status},
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    return OrderApiModel.fromJson(response.data['data']);
+  }
 }

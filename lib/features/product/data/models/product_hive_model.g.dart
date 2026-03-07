@@ -23,7 +23,7 @@ class ProductHiveModelAdapter extends TypeAdapter<ProductHiveModel> {
       description: fields[3] as String,
       price: fields[4] as double,
       stock: fields[5] as int,
-      images: fields[6] as String?,
+      images: (fields[6] as List?)?.cast<String>(),
       categoryId: fields[7] as String?,
       sellerId: fields[8] as String?,
     );
