@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:hamro_deal/core/api/api_client.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
+import 'package:hamro_deal/core/utils/responsive_utils.dart';
 import 'package:hamro_deal/features/auth/presentation/view_model/auth_view_model.dart';
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/notification/presentation/widgets/notification_icon_button.dart';
@@ -592,11 +593,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: products.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.48, // Balanced for typical phone screens to prevent overflows
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: ResponsiveUtils.getGridColumns(context),
+        mainAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context),
+        crossAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context),
+        childAspectRatio: ResponsiveUtils.getGridChildAspectRatio(context),
       ),
       itemBuilder: (context, index) {
         final product = products[index];

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
+import 'package:hamro_deal/core/utils/responsive_utils.dart';
 import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
 import 'package:hamro_deal/features/wishlist/presentation/state/wishlist_state.dart';
@@ -105,11 +106,11 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
   ) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.7,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: ResponsiveUtils.getGridColumns(context),
+        childAspectRatio: ResponsiveUtils.getGridChildAspectRatio(context),
+        crossAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context),
+        mainAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context),
       ),
       itemCount: wishlistState.wishlist!.items.length,
       itemBuilder: (context, index) {
@@ -159,12 +160,12 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                       right: 8,
                       child: CircleAvatar(
                         backgroundColor: Colors.white,
-                        radius: 18,
+                        radius: ResponsiveUtils.getIconSize(context, mobileSize: 18) / 2,
                         child: IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.favorite,
                             color: Colors.red,
-                            size: 18,
+                            size: ResponsiveUtils.getIconSize(context, mobileSize: 18),
                           ),
                           onPressed: () {
                             wishlistViewModel.removeFromWishlist(
@@ -223,7 +224,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                                 }
                               }
                             : null,
-                        icon: const Icon(Icons.shopping_cart, size: 16),
+                        icon: Icon(Icons.shopping_cart, size: ResponsiveUtils.getIconSize(context, mobileSize: 16)),
                         label: const Text(
                           'Add to Cart',
                           style: TextStyle(fontSize: 12),

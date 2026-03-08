@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
+import 'package:hamro_deal/core/utils/responsive_utils.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:hamro_deal/features/wishlist/presentation/view_model/wishlist_view_model.dart';
@@ -104,7 +105,7 @@ class VerticalProductCard extends ConsumerWidget {
                           isInWishlist ? Icons.favorite : Icons.favorite_border,
                           key: ValueKey(isInWishlist),
                           color: isInWishlist ? Colors.red : Colors.black,
-                          size: 22,
+                          size: ResponsiveUtils.getIconSize(context, mobileSize: 22),
                         ),
                       ),
                     ),
