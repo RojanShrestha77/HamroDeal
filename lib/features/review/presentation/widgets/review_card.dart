@@ -36,7 +36,9 @@ class ReviewCard extends StatelessWidget {
                       : null,
                   child: review.user.profileImage == null
                       ? Text(
-                          review.user.firstName[0].toUpperCase(),
+                          review.user.firstName != null && review.user.firstName!.isNotEmpty
+                              ? review.user.firstName![0].toUpperCase()
+                              : 'U',
                           style: const TextStyle(color: Colors.white),
                         )
                       : null,
@@ -47,7 +49,7 @@ class ReviewCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        review.user.fullName,
+                        review.user.fullName ?? 'Anonymous',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -85,7 +87,7 @@ class ReviewCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             // Comment
-            Text(review.comment, style: const TextStyle(fontSize: 14)),
+            Text(review.comment ?? '', style: const TextStyle(fontSize: 14)),
           ],
         ),
       ),

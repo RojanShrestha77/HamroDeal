@@ -4,6 +4,7 @@ import 'package:hamro_deal/app/theme/theme_extensions.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/core/services/storage/user_session_service.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
+import 'package:hamro_deal/core/utils/responsive_utils.dart';
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/presentation/page/edit_product_page.dart';
@@ -147,20 +148,29 @@ class _MyProductsPageState extends ConsumerState<MyProductsPage> {
       print('Images Url: ${product.images}');
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        final product = products[index];
-        final categoryName = _getCategoryName(product.categoryId);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: _ProductCard(
+    if (isTablet) {
+      // Tablet: Use GridView
+      final columns = ResponsiveUtils.getGridColumns(context);
+      return GridView.builder(
+        padding: EdgeInsets.zero,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: columns,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 0.65,
+        ),
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          final product = products[index];
+          final categoryName = _getCategoryName(product.categoryId);
+
+          return _ProductCard(
             product: product,
             categoryName: categoryName,
             onTap: () {
-              // Navigate to the product details
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -169,7 +179,6 @@ class _MyProductsPageState extends ConsumerState<MyProductsPage> {
               );
             },
             onEdit: () {
-              // Navigate to the edit product
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -178,10 +187,46 @@ class _MyProductsPageState extends ConsumerState<MyProductsPage> {
               );
             },
             onDelete: () => _showDeleteDialog(context, product),
-          ),
-        );
-      },
-    );
+            isTablet: true,
+          );
+        },
+      );
+    } else {
+      // Mobile: Use ListView
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          final product = products[index];
+          final categoryName = _getCategoryName(product.categoryId);
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _ProductCard(
+              product: product,
+              categoryName: categoryName,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProductDetailPage(product: product),
+                  ),
+                );
+              },
+              onEdit: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditProductPage(product: product),
+                  ),
+                );
+              },
+              onDelete: () => _showDeleteDialog(context, product),
+            ),
+          );
+        },
+      );
+    }
   }
 
   void _showDeleteDialog(BuildContext context, ProductEntity product) {
@@ -228,6 +273,7 @@ class _ProductCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final bool isTablet;
 
   const _ProductCard({
     required this.product,
@@ -235,11 +281,14 @@ class _ProductCard extends StatelessWidget {
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
+    this.isTablet = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final imageHeight = isTablet ? 140.0 : 180.0;
+
+    final card = GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
@@ -257,7 +306,7 @@ class _ProductCard extends StatelessWidget {
                 ),
                 child: Image.network(
                   ApiEndpoints.productImage(product.images!.first),
-                  height: 180,
+                  height: imageHeight,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
@@ -270,7 +319,7 @@ class _ProductCard extends StatelessWidget {
                       '🔴 Tried URl: ${ApiEndpoints.productImage(product.images!.first)}',
                     );
                     return Container(
-                      height: 180,
+                      height: imageHeight,
                       color: context.borderColor,
                       child: Icon(
                         Icons.image_not_supported_outlined,
@@ -283,7 +332,7 @@ class _ProductCard extends StatelessWidget {
               )
             else
               Container(
-                height: 180,
+                height: imageHeight,
                 decoration: BoxDecoration(
                   color: context.borderColor,
                   borderRadius: const BorderRadius.vertical(
@@ -301,7 +350,7 @@ class _ProductCard extends StatelessWidget {
 
             // Product Info
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(isTablet ? 12 : 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -311,7 +360,7 @@ class _ProductCard extends StatelessWidget {
                         child: Text(
                           product.title,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: isTablet ? 14 : 18,
                             fontWeight: FontWeight.bold,
                             color: context.textPrimary,
                           ),
@@ -320,9 +369,9 @@ class _ProductCard extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 8 : 12,
+                          vertical: isTablet ? 4 : 6,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.blue.withOpacity(0.1),
@@ -330,8 +379,8 @@ class _ProductCard extends StatelessWidget {
                         ),
                         child: Text(
                           categoryName,
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: TextStyle(
+                            fontSize: isTablet ? 10 : 12,
                             fontWeight: FontWeight.w600,
                             color: Colors.blue,
                           ),
@@ -339,17 +388,17 @@ class _ProductCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     product.description,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: isTablet ? 12 : 14,
                       color: context.textSecondary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: isTablet ? 8 : 12),
 
                   // Price/Stock Row
                   Row(
@@ -361,14 +410,14 @@ class _ProductCard extends StatelessWidget {
                           Text(
                             'Price',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: isTablet ? 10 : 12,
                               color: context.textTertiary,
                             ),
                           ),
                           Text(
                             'Rs. ${product.price.toStringAsFixed(2)}',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: isTablet ? 14 : 20,
                               fontWeight: FontWeight.bold,
                               color: context.textPrimary,
                             ),
@@ -381,14 +430,14 @@ class _ProductCard extends StatelessWidget {
                           Text(
                             'Stock',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: isTablet ? 10 : 12,
                               color: context.textTertiary,
                             ),
                           ),
                           Text(
                             '${product.stock} units',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: isTablet ? 12 : 16,
                               fontWeight: FontWeight.w600,
                               color: product.stock > 0
                                   ? Colors.green
@@ -399,42 +448,81 @@ class _ProductCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onEdit,
-                          icon: const Icon(Icons.edit_outlined, size: 18),
-                          label: const Text('Edit'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.blue,
-                            side: const BorderSide(color: Colors.blue),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                  SizedBox(height: isTablet ? 10 : 16),
+                  if (!isTablet)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: onEdit,
+                            icon: const Icon(Icons.edit_outlined, size: 18),
+                            label: const Text('Edit'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.blue,
+                              side: const BorderSide(color: Colors.blue),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onDelete,
-                          icon: const Icon(Icons.delete_outline, size: 18),
-                          label: const Text('Delete'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red,
-                            side: const BorderSide(color: Colors.red),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: onDelete,
+                            icon: const Icon(Icons.delete_outline, size: 18),
+                            label: const Text('Delete'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              side: const BorderSide(color: Colors.red),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    )
+                  else
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: onEdit,
+                            icon: const Icon(Icons.edit_outlined, size: 16),
+                            label: const Text('Edit', style: TextStyle(fontSize: 12)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.blue,
+                              side: const BorderSide(color: Colors.blue),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: onDelete,
+                            icon: const Icon(Icons.delete_outline, size: 16),
+                            label: const Text('Delete', style: TextStyle(fontSize: 12)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              side: const BorderSide(color: Colors.red),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -442,5 +530,11 @@ class _ProductCard extends StatelessWidget {
         ),
       ),
     );
+
+    // Add padding only for tablet grid view
+    if (isTablet) {
+      return card;
+    }
+    return card;
   }
 }

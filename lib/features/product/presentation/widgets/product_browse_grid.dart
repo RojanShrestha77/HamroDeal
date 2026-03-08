@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
+import 'package:hamro_deal/core/utils/responsive_utils.dart';
 import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 import 'package:hamro_deal/features/product/presentation/page/product_detail_page.dart';
 import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
@@ -55,11 +56,11 @@ class ProductBrowseGrid extends StatelessWidget {
 
     return GridView.builder(
       padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.48, // Reduced from 0.55 for more vertical room
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: ResponsiveUtils.getGridColumns(context),
+        childAspectRatio: ResponsiveUtils.getGridChildAspectRatio(context),
+        crossAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context),
+        mainAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context),
       ),
       itemCount: products.length,
       itemBuilder: (context, index) {
@@ -201,7 +202,10 @@ class _ProductCard extends ConsumerWidget {
                           isInWishlist ? Icons.favorite : Icons.favorite_border,
                           key: ValueKey(isInWishlist),
                           color: isInWishlist ? Colors.red : Colors.black,
-                          size: 22,
+                          size: ResponsiveUtils.getIconSize(
+                            context,
+                            mobileSize: 22,
+                          ),
                         ),
                       ),
                     ),

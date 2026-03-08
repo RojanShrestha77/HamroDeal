@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hamro_deal/core/api/api_endpoints.dart';
 import 'package:hamro_deal/core/utils/snakbar_utils.dart';
+import 'package:hamro_deal/core/utils/responsive_utils.dart';
 import 'package:hamro_deal/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:hamro_deal/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:hamro_deal/features/conversation/presentation/pages/chat_page.dart';
@@ -165,7 +166,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                   isInWishlist ? Icons.favorite : Icons.favorite_border,
                   key: ValueKey(isInWishlist),
                   color: isInWishlist ? Colors.red : Colors.black,
-                  size: 20,
+                  size: ResponsiveUtils.getIconSize(context, mobileSize: 20),
                 ),
               ),
             ),
@@ -183,11 +184,15 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Product Image Carousel ──
-            AspectRatio(
-              aspectRatio: 1.0,
-              child: Container(
-                color: const Color(0xFFF5F5F5),
-                child: widget.product.images != null && widget.product.images!.isNotEmpty
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: ResponsiveUtils.getProductImageMaxHeight(context),
+              ),
+              child: AspectRatio(
+                aspectRatio: ResponsiveUtils.getProductImageAspectRatio(context),
+                child: Container(
+                  color: const Color(0xFFF5F5F5),
+                  child: widget.product.images != null && widget.product.images!.isNotEmpty
                     ? Stack(
                         children: [
                           // Image PageView
@@ -243,8 +248,8 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                                       );
                                     },
                                     child: Container(
-                                      width: 40,
-                                      height: 40,
+                                      width: ResponsiveUtils.getIconSize(context, mobileSize: 40),
+                                      height: ResponsiveUtils.getIconSize(context, mobileSize: 40),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
@@ -256,10 +261,10 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                                           ),
                                         ],
                                       ),
-                                      child: const Icon(
+                                      child: Icon(
                                         Icons.chevron_left,
                                         color: Colors.black,
-                                        size: 24,
+                                        size: ResponsiveUtils.getIconSize(context, mobileSize: 24),
                                       ),
                                     ),
                                   ),
@@ -281,8 +286,8 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                                       );
                                     },
                                     child: Container(
-                                      width: 40,
-                                      height: 40,
+                                      width: ResponsiveUtils.getIconSize(context, mobileSize: 40),
+                                      height: ResponsiveUtils.getIconSize(context, mobileSize: 40),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
@@ -294,10 +299,10 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                                           ),
                                         ],
                                       ),
-                                      child: const Icon(
+                                      child: Icon(
                                         Icons.chevron_right,
                                         color: Colors.black,
-                                        size: 24,
+                                        size: ResponsiveUtils.getIconSize(context, mobileSize: 24),
                                       ),
                                     ),
                                   ),
@@ -338,6 +343,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                         ),
                       ),
               ),
+            ),
             ),
 
             // ── Product Info ──
@@ -552,16 +558,16 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                       borderRadius: BorderRadius.circular(2),
                       border: Border.all(color: Colors.black, width: 1.5),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.message_outlined,
                           color: Colors.black,
-                          size: 18,
+                          size: ResponsiveUtils.getIconSize(context, mobileSize: 18),
                         ),
-                        SizedBox(width: 8),
-                        Text(
+                        const SizedBox(width: 8),
+                        const Text(
                           'Message Seller',
                           style: TextStyle(
                             color: Colors.black,
@@ -653,7 +659,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                               color: widget.product.stock > 0
                                   ? Colors.white
                                   : Colors.grey[600],
-                              size: 18,
+                              size: ResponsiveUtils.getIconSize(context, mobileSize: 18),
                             ),
                             const SizedBox(width: 8),
                             Text(

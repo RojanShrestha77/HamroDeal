@@ -59,6 +59,33 @@ class ResponsiveUtils {
     }
   }
 
+  /// Get responsive image aspect ratio for product detail
+  static double getProductImageAspectRatio(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    if (screenWidth < 600) {
+      return 1.0; // Mobile - square (full width)
+    } else if (screenWidth < 900) {
+      return 1.2; // Small tablet - slightly wider (constrained)
+    } else {
+      return 1.3; // Larger screens - more landscape (constrained)
+    }
+  }
+
+  /// Get responsive max height for product image
+  static double getProductImageMaxHeight(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    if (screenWidth < 600) {
+      return screenWidth; // Mobile - full width
+    } else if (screenWidth < 900) {
+      return 400; // Small tablet - max 400px
+    } else {
+      return 500; // Larger screens - max 500px
+    }
+  }
+
   /// Get responsive spacing
   static double getResponsiveSpacing(BuildContext context, {double mobileSpacing = 12}) {
     final screenWidth = MediaQuery.of(context).size.width;

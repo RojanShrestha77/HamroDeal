@@ -13,16 +13,17 @@ class OrderConfirmationScreen extends StatelessWidget {
         title: const Text('Order Confirmed'),
         automaticallyImplyLeading: false,
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 20),
               // Success Icon
               Container(
-                width: 100,
-                height: 100,
+                width: 80,
+                height: 80,
                 decoration: BoxDecoration(
                   color: Colors.green.withOpacity(0.1),
                   shape: BoxShape.circle,
@@ -30,74 +31,74 @@ class OrderConfirmationScreen extends StatelessWidget {
                 child: const Icon(
                   Icons.check_circle,
                   color: Colors.green,
-                  size: 60,
+                  size: 50,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Success Message
               const Text(
                 'Order Placed Successfully!',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
 
               // Order Number
               Text(
                 'Order #${order.orderNumber}',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
 
               // Order Details Card
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     children: [
                       _buildDetailRow('Items', '${order.itemCount}'),
-                      const Divider(),
+                      const Divider(height: 12),
                       _buildDetailRow(
                         'Total',
                         'Rs. ${order.total.toStringAsFixed(2)}',
                       ),
-                      const Divider(),
+                      const Divider(height: 12),
                       _buildDetailRow(
                         'Payment',
                         _getPaymentMethodText(order.paymentMethod),
                       ),
-                      const Divider(),
+                      const Divider(height: 12),
                       _buildDetailRow('Status', _getStatusText(order.status)),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
 
               // Buttons
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 44,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to order details or orders list
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
-                  child: const Text('View Order Details'),
+                  child: const Text('View Order Details', style: TextStyle(fontSize: 14)),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 44,
                 child: OutlinedButton(
                   onPressed: () {
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
-                  child: const Text('Continue Shopping'),
+                  child: const Text('Continue Shopping', style: TextStyle(fontSize: 14)),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -107,15 +108,15 @@ class OrderConfirmationScreen extends StatelessWidget {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 16))),
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 14))),
           const SizedBox(width: 8),
           Text(
             value,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
         ],
       ),

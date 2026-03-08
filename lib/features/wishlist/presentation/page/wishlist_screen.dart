@@ -74,7 +74,12 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
           ? const Center(child: CircularProgressIndicator())
           : wishlistState.wishlist == null || wishlistState.wishlist!.isEmpty
           ? _buildEmptyWishlist()
-          : _buildWishlistGrid(wishlistState, wishlistViewModel, cartViewModel),
+          : _buildWishlistGrid(
+              context,
+              wishlistState,
+              wishlistViewModel,
+              cartViewModel,
+            ),
     );
   }
 
@@ -100,6 +105,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
   }
 
   Widget _buildWishlistGrid(
+    BuildContext context,
     WishlistState wishlistState,
     WishlistViewModel wishlistViewModel,
     CartViewModel cartViewModel,
@@ -134,111 +140,125 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              // Product Image
-              Expanded(
-                child: Stack(
-                  children: [
-                    product?.images != null && product!.images!.isNotEmpty
-                        ? Image.network(
-                            ApiEndpoints.productImage(product.images!.first),
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.image_not_supported),
+                // Product Image
+                Expanded(
+                  child: Stack(
+                    children: [
+                      product?.images != null && product!.images!.isNotEmpty
+                          ? Image.network(
+                              ApiEndpoints.productImage(product.images!.first),
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.image_not_supported),
+                                );
+                              },
+                            )
+                          : Container(
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.image),
+                            ),
+                      // Remove button
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          radius:
+                              ResponsiveUtils.getIconSize(
+                                context,
+                                mobileSize: 18,
+                              ) /
+                              2,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.favorite,
+                              color: Colors.red,
+                              size: ResponsiveUtils.getIconSize(
+                                context,
+                                mobileSize: 18,
+                              ),
+                            ),
+                            onPressed: () {
+                              wishlistViewModel.removeFromWishlist(
+                                item.productId,
                               );
                             },
-                          )
-                        : Container(
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.image),
+                            padding: EdgeInsets.zero,
                           ),
-                    // Remove button
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: ResponsiveUtils.getIconSize(context, mobileSize: 18) / 2,
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                            size: ResponsiveUtils.getIconSize(context, mobileSize: 18),
-                          ),
-                          onPressed: () {
-                            wishlistViewModel.removeFromWishlist(
-                              item.productId,
-                            );
-                          },
-                          padding: EdgeInsets.zero,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              // Product Info
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product?.title ?? 'Product',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                // Product Info
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product?.title ?? 'Product',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Rs. ${product?.price.toStringAsFixed(2) ?? '0.00'}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.w600,
+                      const SizedBox(height: 4),
+                      Text(
+                        'Rs. ${product?.price.toStringAsFixed(2) ?? '0.00'}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Add to Cart Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: product != null && product.stock > 0
-                            ? () async {
-                                final success = await cartViewModel.addToCart(
-                                  product.productId!,
-                                  1,
-                                );
-                                if (success && mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Added to cart'),
-                                      duration: Duration(seconds: 1),
-                                    ),
+                      const SizedBox(height: 8),
+                      // Add to Cart Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: product != null && product.stock > 0
+                              ? () async {
+                                  final success = await cartViewModel.addToCart(
+                                    product.productId!,
+                                    1,
                                   );
+                                  if (success && mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Added to cart'),
+                                        duration: Duration(seconds: 1),
+                                      ),
+                                    );
+                                  }
                                 }
-                              }
-                            : null,
-                        icon: Icon(Icons.shopping_cart, size: ResponsiveUtils.getIconSize(context, mobileSize: 16)),
-                        label: const Text(
-                          'Add to Cart',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                              : null,
+                          icon: Icon(
+                            Icons.shopping_cart,
+                            size: ResponsiveUtils.getIconSize(
+                              context,
+                              mobileSize: 16,
+                            ),
+                          ),
+                          label: const Text(
+                            'Add to Cart',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
         );
       },
