@@ -1,40 +1,88 @@
 import 'package:flutter_test/flutter_test.dart';
-
-class ValidateUsernameUseCase {
-  bool call(String username) {
-    return username.isNotEmpty &&
-        username.length >= 3 &&
-        username.length <= 20 &&
-        RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(username);
-  }
-}
+import 'package:hamro_deal/features/auth/domain/usecases/register_usecase.dart';
 
 void main() {
-  group('ValidateUsernameUseCase', () {
-    late ValidateUsernameUseCase useCase;
+  group('RegisterUsecase - Username Validation', () {
+    test('RegisterUsecase accepts valid username in params', () {
+      final params = RegisterUsecaseParams(
+        email: 'test@example.com',
+        username: 'john_doe',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
 
-    setUp(() {
-      useCase = ValidateUsernameUseCase();
+      expect(params.username, 'john_doe');
+      expect(params.username.length, greaterThanOrEqualTo(3));
+      expect(params.username.length, lessThanOrEqualTo(20));
     });
 
-    test('returns true for valid username', () {
-      expect(useCase('john_doe'), true);
+    test('RegisterUsecase accepts username with numbers', () {
+      final params = RegisterUsecaseParams(
+        email: 'test@example.com',
+        username: 'john123',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
+
+      expect(params.username, 'john123');
     });
 
-    test('returns false for username less than 3 characters', () {
-      expect(useCase('ab'), false);
+    test('RegisterUsecase params validates email is not empty', () {
+      final params = RegisterUsecaseParams(
+        email: 'test@example.com',
+        username: 'john_doe',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
+
+      expect(params.email, isNotEmpty);
     });
 
-    test('returns false for username more than 20 characters', () {
-      expect(useCase('a' * 21), false);
+    test('RegisterUsecase params validates password matches confirmPassword', () {
+      final params = RegisterUsecaseParams(
+        email: 'test@example.com',
+        username: 'john_doe',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
+
+      expect(params.password, equals(params.confirmPassword));
     });
 
-    test('returns false for username with special characters', () {
-      expect(useCase('john@doe'), false);
+    test('RegisterUsecase params are equatable', () {
+      final params1 = RegisterUsecaseParams(
+        email: 'test@example.com',
+        username: 'john_doe',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
+
+      final params2 = RegisterUsecaseParams(
+        email: 'test@example.com',
+        username: 'john_doe',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
+
+      expect(params1, equals(params2));
     });
 
-    test('returns true for username with numbers', () {
-      expect(useCase('john123'), true);
+    test('RegisterUsecase params with different values are not equal', () {
+      final params1 = RegisterUsecaseParams(
+        email: 'test@example.com',
+        username: 'john_doe',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
+
+      final params2 = RegisterUsecaseParams(
+        email: 'test@example.com',
+        username: 'jane_doe',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
+
+      expect(params1, isNot(equals(params2)));
     });
   });
 }

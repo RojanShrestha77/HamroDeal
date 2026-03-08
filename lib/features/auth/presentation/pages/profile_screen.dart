@@ -54,7 +54,6 @@ class ProfileScreen extends ConsumerWidget {
             _buildMenuItem(context, "Cart", const CartScreen()),
             _buildMenuItem(context, "Product", const PorductBrowseScreen()),
             _buildMenuItem(context, "Edit Profile", const EditProfilePage()),
-            _buildMenuItem(context, "Add Category", const AddCategoryScreen()),
             _buildMenuItem(context, "Wishlist", const WishlistScreen()),
             _buildMenuItem(context, "Order List", const OrderListScreen()),
             if (user?.role?.toLowerCase() == 'admin')

@@ -1,116 +1,130 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hamro_deal/features/order/presentation/widgets/order_tracking_widgets.dart';
 
 void main() {
   group('Order Status Widget Tests', () {
-    testWidgets('Order status displays pending status', (WidgetTester tester) async {
+    testWidgets('Order tracking widget displays pending status', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Container(
-              color: Colors.orange,
-              child: Text('Pending'),
+            body: OrderTrackingWidget(
+              orderStatus: 'pending',
+              orderPlacedDate: DateTime.now(),
             ),
           ),
         ),
       );
 
-      expect(find.text('Pending'), findsOneWidget);
+      expect(find.text('Track Your Order'), findsOneWidget);
+      expect(find.text('Order Placed'), findsOneWidget);
     });
 
-    testWidgets('Order status displays processing status', (WidgetTester tester) async {
+    testWidgets('Order tracking widget displays processing status', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Container(
-              color: Colors.blue,
-              child: Text('Processing'),
+            body: OrderTrackingWidget(
+              orderStatus: 'processing',
+              orderPlacedDate: DateTime.now(),
+              orderPackedDate: DateTime.now(),
             ),
           ),
         ),
       );
 
-      expect(find.text('Processing'), findsOneWidget);
+      expect(find.text('Order Packed'), findsOneWidget);
     });
 
-    testWidgets('Order status displays shipped status', (WidgetTester tester) async {
+    testWidgets('Order tracking widget displays shipped status', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Container(
-              color: Colors.purple,
-              child: Text('Shipped'),
+            body: OrderTrackingWidget(
+              orderStatus: 'shipped',
+              orderPlacedDate: DateTime.now(),
+              orderPackedDate: DateTime.now(),
+              assignedToLogisticsDate: DateTime.now(),
             ),
           ),
         ),
       );
 
-      expect(find.text('Shipped'), findsOneWidget);
+      expect(find.text('Assigned to logistics'), findsOneWidget);
     });
 
-    testWidgets('Order status displays delivered status', (WidgetTester tester) async {
+    testWidgets('Order tracking widget displays delivered status', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Container(
-              color: Colors.green,
-              child: Text('Delivered'),
+            body: OrderTrackingWidget(
+              orderStatus: 'delivered',
+              orderPlacedDate: DateTime.now(),
+              orderPackedDate: DateTime.now(),
+              assignedToLogisticsDate: DateTime.now(),
+              outForDeliveryDate: DateTime.now(),
+              deliveredDate: DateTime.now(),
             ),
           ),
         ),
       );
 
-      expect(find.text('Delivered'), findsOneWidget);
+      expect(find.text('Order Delivered'), findsOneWidget);
     });
 
-    testWidgets('Order status displays cancelled status', (WidgetTester tester) async {
+    testWidgets('Order tracking widget has timeline', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Container(
-              color: Colors.red,
-              child: Text('Cancelled'),
+            body: OrderTrackingWidget(
+              orderStatus: 'delivered',
+              orderPlacedDate: DateTime.now(),
+              orderPackedDate: DateTime.now(),
+              assignedToLogisticsDate: DateTime.now(),
+              outForDeliveryDate: DateTime.now(),
+              deliveredDate: DateTime.now(),
             ),
           ),
         ),
       );
 
-      expect(find.text('Cancelled'), findsOneWidget);
+      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.inventory_2_outlined), findsOneWidget);
     });
 
-    testWidgets('Order status has timeline', (WidgetTester tester) async {
+    testWidgets('Order tracking widget displays all tracking steps', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Column(
-              children: [
-                Row(children: [Icon(Icons.check_circle), Text('Order Placed')]),
-                Row(children: [Icon(Icons.check_circle), Text('Processing')]),
-                Row(children: [Icon(Icons.check_circle), Text('Shipped')]),
-              ],
+            body: OrderTrackingWidget(
+              orderStatus: 'delivered',
+              orderPlacedDate: DateTime.now(),
+              orderPackedDate: DateTime.now(),
+              assignedToLogisticsDate: DateTime.now(),
+              outForDeliveryDate: DateTime.now(),
+              deliveredDate: DateTime.now(),
             ),
           ),
         ),
       );
 
-      expect(find.byIcon(Icons.check_circle), findsWidgets);
+      expect(find.text('Out for Delivery'), findsOneWidget);
     });
 
-    testWidgets('Order status displays tracking number', (WidgetTester tester) async {
+    testWidgets('Order tracking widget displays dates', (WidgetTester tester) async {
+      final now = DateTime.now();
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Column(
-              children: [
-                Text('Tracking Number:'),
-                Text('TRK123456789'),
-              ],
+            body: OrderTrackingWidget(
+              orderStatus: 'pending',
+              orderPlacedDate: now,
             ),
           ),
         ),
       );
 
-      expect(find.text('TRK123456789'), findsOneWidget);
+      expect(find.byType(OrderTrackingWidget), findsOneWidget);
     });
   });
 }

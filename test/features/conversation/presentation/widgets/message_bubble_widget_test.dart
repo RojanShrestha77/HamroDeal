@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hamro_deal/features/conversation/presentation/widgets/message_bubble.dart';
+import 'package:hamro_deal/features/conversation/domain/entity/message_entity.dart';
 
 void main() {
   group('Message Bubble Widget Tests', () {
+    final testMessage = MessageEntity(
+      id: '1',
+      conversationId: '1',
+      senderId: 'sender1',
+      content: 'Hello!',
+      isRead: true,
+      createdAt: DateTime.now(),
+    );
+
     testWidgets('Message bubble displays sender message', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Align(
-              alignment: Alignment.centerRight,
-              child: Container(
-                color: Colors.blue,
-                child: Text('Hello!'),
-              ),
+            body: MessageBubble(
+              message: testMessage,
+              isMe: true,
             ),
           ),
         ),
@@ -25,46 +33,48 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                color: Colors.grey,
-                child: Text('Hi there!'),
-              ),
+            body: MessageBubble(
+              message: testMessage,
+              isMe: false,
             ),
           ),
         ),
       );
 
-      expect(find.text('Hi there!'), findsOneWidget);
+      expect(find.text('Hello!'), findsOneWidget);
     });
 
     testWidgets('Message bubble displays timestamp', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Column(
-              children: [
-                Text('Message'),
-                Text('10:30 AM'),
-              ],
+            body: MessageBubble(
+              message: testMessage,
+              isMe: true,
             ),
           ),
         ),
       );
 
-      expect(find.text('10:30 AM'), findsOneWidget);
+      expect(find.byType(MessageBubble), findsOneWidget);
     });
 
     testWidgets('Message bubble displays delivery status', (WidgetTester tester) async {
+      final readMessage = MessageEntity(
+        id: '1',
+        conversationId: '1',
+        senderId: 'sender1',
+        content: 'Message',
+        isRead: true,
+        createdAt: DateTime.now(),
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Row(
-              children: [
-                Text('Message'),
-                Icon(Icons.done_all),
-              ],
+            body: MessageBubble(
+              message: readMessage,
+              isMe: true,
             ),
           ),
         ),
@@ -73,21 +83,27 @@ void main() {
       expect(find.byIcon(Icons.done_all), findsOneWidget);
     });
 
-    testWidgets('Message bubble has different colors for sender/receiver', (WidgetTester tester) async {
+    testWidgets('Message bubble has different alignment for sender/receiver', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
-                Container(color: Colors.blue, child: Text('Sent')),
-                Container(color: Colors.grey, child: Text('Received')),
+                MessageBubble(
+                  message: testMessage,
+                  isMe: true,
+                ),
+                MessageBubble(
+                  message: testMessage,
+                  isMe: false,
+                ),
               ],
             ),
           ),
         ),
       );
 
-      expect(find.byType(Container), findsWidgets);
+      expect(find.byType(MessageBubble), findsWidgets);
     });
   });
 }

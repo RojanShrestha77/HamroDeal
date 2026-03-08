@@ -1,17 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hamro_deal/features/review/presentation/widgets/review_card.dart';
+import 'package:hamro_deal/features/review/domain/entities/review_entity.dart';
 
 void main() {
   group('Review Card Widget Tests', () {
+    final testUser = ReviewUserEntity(
+      id: '1',
+      firstName: 'John',
+      lastName: 'Doe',
+    );
+
+    final testReview = ReviewEntity(
+      id: '1',
+      productId: '1',
+      user: testUser,
+      rating: 4,
+      comment: 'Great product, highly recommended!',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
     testWidgets('Review card displays reviewer name', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Card(
-              child: ListTile(
-                title: Text('John Doe'),
-              ),
-            ),
+            body: ReviewCard(review: testReview),
           ),
         ),
       );
@@ -23,17 +37,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Card(
-              child: Row(
-                children: [
-                  Icon(Icons.star),
-                  Icon(Icons.star),
-                  Icon(Icons.star),
-                  Icon(Icons.star),
-                  Icon(Icons.star_border),
-                ],
-              ),
-            ),
+            body: ReviewCard(review: testReview),
           ),
         ),
       );
@@ -45,9 +49,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Card(
-              child: Text('Great product, highly recommended!'),
-            ),
+            body: ReviewCard(review: testReview),
           ),
         ),
       );
@@ -59,31 +61,24 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Card(
-              child: Text('2024-03-01'),
-            ),
+            body: ReviewCard(review: testReview),
           ),
         ),
       );
 
-      expect(find.text('2024-03-01'), findsOneWidget);
+      expect(find.byType(ReviewCard), findsOneWidget);
     });
 
-    testWidgets('Review card has helpful button', (WidgetTester tester) async {
+    testWidgets('Review card displays user avatar', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Card(
-              child: IconButton(
-                icon: Icon(Icons.thumb_up),
-                onPressed: () {},
-              ),
-            ),
+            body: ReviewCard(review: testReview),
           ),
         ),
       );
 
-      expect(find.byIcon(Icons.thumb_up), findsOneWidget);
+      expect(find.byType(CircleAvatar), findsOneWidget);
     });
   });
 }

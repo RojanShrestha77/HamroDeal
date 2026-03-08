@@ -8,7 +8,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Card(
-              child: Text('Electronics'),
+              child: const Text('Electronics'),
             ),
           ),
         ),
@@ -22,7 +22,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Card(
-              child: Icon(Icons.devices),
+              child: const Icon(Icons.devices),
             ),
           ),
         ),
@@ -36,7 +36,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Card(
-              child: Text('245 products'),
+              child: const Text('245 products'),
             ),
           ),
         ),
@@ -51,7 +51,7 @@ void main() {
           home: Scaffold(
             body: GestureDetector(
               onTap: () {},
-              child: Card(
+              child: const Card(
                 child: Text('Category'),
               ),
             ),
@@ -69,13 +69,13 @@ void main() {
             body: Card(
               child: Stack(
                 children: [
-                  Text('Category'),
+                  const Text('Category'),
                   Positioned(
                     top: 0,
                     right: 0,
                     child: Container(
                       color: Colors.red,
-                      child: Text('20% OFF'),
+                      child: const Text('20% OFF'),
                     ),
                   ),
                 ],

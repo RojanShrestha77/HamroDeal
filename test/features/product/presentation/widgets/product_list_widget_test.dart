@@ -1,39 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hamro_deal/features/product/presentation/widgets/product_search_bar.dart';
 
 void main() {
   group('Product List Widget Tests', () {
-    testWidgets('Product list displays multiple products', (WidgetTester tester) async {
+    testWidgets('Product search bar displays search icon', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ListView(
-              children: [
-                ListTile(title: Text('Product 1')),
-                ListTile(title: Text('Product 2')),
-                ListTile(title: Text('Product 3')),
-              ],
-            ),
-          ),
-        ),
-      );
-
-      expect(find.byType(ListTile), findsWidgets);
-    });
-
-    testWidgets('Product list has search bar', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Column(
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search products',
-                    prefixIcon: Icon(Icons.search),
-                  ),
-                ),
-              ],
+            body: ProductSearchBar(
+              onSearch: (_) {},
             ),
           ),
         ),
@@ -42,76 +18,104 @@ void main() {
       expect(find.byIcon(Icons.search), findsOneWidget);
     });
 
-    testWidgets('Product list has filter button', (WidgetTester tester) async {
+    testWidgets('Product search bar accepts input', (WidgetTester tester) async {
+      String? searchValue;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: IconButton(
-              icon: Icon(Icons.filter_list),
-              onPressed: () {},
+            body: ProductSearchBar(
+              onSearch: (value) {
+                searchValue = value;
+              },
             ),
           ),
         ),
       );
 
-      expect(find.byIcon(Icons.filter_list), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'test product');
+      expect(searchValue, 'test product');
     });
 
-    testWidgets('Product list has sort button', (WidgetTester tester) async {
+    testWidgets('Product search bar shows clear button when text entered', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: IconButton(
-              icon: Icon(Icons.sort),
-              onPressed: () {},
+            body: ProductSearchBar(
+              onSearch: (_) {},
             ),
           ),
         ),
       );
 
-      expect(find.byIcon(Icons.sort), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'test');
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ProductSearchBar(
+              onSearch: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.clear), findsWidgets);
     });
 
-    testWidgets('Product list displays loading state', (WidgetTester tester) async {
+    testWidgets('Product search bar has correct hint text', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
+            body: ProductSearchBar(
+              onSearch: (_) {},
             ),
           ),
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Search Products..'), findsOneWidget);
     });
 
-    testWidgets('Product list displays empty state', (WidgetTester tester) async {
+    testWidgets('Product search bar initializes with initial value', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Center(
-              child: Text('No products found'),
+            body: ProductSearchBar(
+              initialValue: 'initial search',
+              onSearch: (_) {},
             ),
           ),
         ),
       );
 
-      expect(find.text('No products found'), findsOneWidget);
+      expect(find.text('initial search'), findsOneWidget);
     });
 
-    testWidgets('Product list is scrollable', (WidgetTester tester) async {
+    testWidgets('Product search bar has rounded border', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ListView(
-              children: List.generate(20, (i) => ListTile(title: Text('Product $i'))),
+            body: ProductSearchBar(
+              onSearch: (_) {},
             ),
           ),
         ),
       );
 
-      expect(find.byType(ListView), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+    });
+
+    testWidgets('Product search bar is contained in padding', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ProductSearchBar(
+              onSearch: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(Container), findsWidgets);
     });
   });
 }

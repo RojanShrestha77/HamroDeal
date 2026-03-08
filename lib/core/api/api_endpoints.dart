@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiEndpoints {
@@ -7,7 +6,7 @@ class ApiEndpoints {
 
   // Your PC's local network IP address.
   // Run `ipconfig` (Windows) or `ifconfig` (Mac/Linux) to find it.
-  static const String _physicalDeviceIp = '192.168.1.65';
+  static const String _physicalDeviceIp = '192.168.10.2';
   static const int _port = 5050;
 
   /// Called ONCE at app startup in main.dart.
@@ -27,11 +26,19 @@ class ApiEndpoints {
 
   // Detects at runtime: physical device gets your PC's IP,
   // emulator gets the Android emulator loopback (10.0.2.2).
+  // Uses simple heuristic: try to connect to 10.0.2.2 (emulator) first.
   static Future<String> _resolveHost() async {
     if (kIsWeb || Platform.isIOS) return 'localhost';
     if (Platform.isAndroid) {
-      final info = await DeviceInfoPlugin().androidInfo;
-      return info.isPhysicalDevice ? _physicalDeviceIp : '10.0.2.2';
+      // Try emulator first (10.0.2.2)
+      try {
+        final socket = await Socket.connect('10.0.2.2', _port,
+            timeout: const Duration(seconds: 2));
+        socket.destroy();
+        return '10.0.2.2'; // Emulator detected
+      } catch (e) {
+        return _physicalDeviceIp; // Physical device
+      }
     }
     return 'localhost';
   }
@@ -145,7 +152,9 @@ class ApiEndpoints {
 
   // ==================== Media Helper Methods ==================
   static String productImage(String filename) {
-    if (filename.startsWith('/')) return '$serverUrl$filename';
+    if (filename.startsWith('/')) {
+      return '$serverUrl$filename';
+    }
     return '$serverUrl/uploads/$filename';
   }
 
@@ -153,7 +162,9 @@ class ApiEndpoints {
       '$serverUrl/uploads/$filename';
 
   static String userProfileImage(String filename) {
-    if (filename.startsWith('/')) return '$serverUrl$filename';
+    if (filename.startsWith('/')) {
+      return '$serverUrl$filename';
+    }
     return '$serverUrl/uploads/$filename';
   }
 }

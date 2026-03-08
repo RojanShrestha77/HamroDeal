@@ -9,17 +9,15 @@ void main() {
           home: Scaffold(
             body: Column(
               children: [
-                TextField(decoration: InputDecoration(labelText: 'Email')),
-                TextField(decoration: InputDecoration(labelText: 'Password')),
+                TextFormField(decoration: const InputDecoration(labelText: 'Email')),
+                TextFormField(decoration: const InputDecoration(labelText: 'Password')),
               ],
             ),
           ),
         ),
       );
 
-      expect(find.byType(TextField), findsWidgets);
-      expect(find.text('Email'), findsOneWidget);
-      expect(find.text('Password'), findsOneWidget);
+      expect(find.byType(TextFormField), findsWidgets);
     });
 
     testWidgets('Login button is enabled when form is valid', (WidgetTester tester) async {
@@ -28,30 +26,29 @@ void main() {
           home: Scaffold(
             body: ElevatedButton(
               onPressed: () {},
-              child: Text('Login'),
+              child: const Text('SIGN IN'),
             ),
           ),
         ),
       );
 
-      expect(find.byType(ElevatedButton), findsOneWidget);
-      expect(find.text('Login'), findsOneWidget);
+      expect(find.text('SIGN IN'), findsOneWidget);
     });
 
     testWidgets('Password field obscures text by default', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: TextField(
+            body: TextFormField(
               obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: 'Password'),
             ),
           ),
         ),
       );
 
-      final textField = find.byType(TextField);
-      expect(textField, findsOneWidget);
+      final textFields = find.byType(TextFormField);
+      expect(textFields, findsWidgets);
     });
 
     testWidgets('Register link navigates to registration', (WidgetTester tester) async {
@@ -60,29 +57,28 @@ void main() {
           home: Scaffold(
             body: GestureDetector(
               onTap: () {},
-              child: Text('Create Account'),
+              child: const Text('Sign Up'),
             ),
           ),
         ),
       );
 
-      expect(find.text('Create Account'), findsOneWidget);
+      expect(find.text('Sign Up'), findsOneWidget);
     });
 
-    testWidgets('Error message displays on invalid login', (WidgetTester tester) async {
+    testWidgets('Forgot password link is displayed', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Column(
-              children: [
-                Text('Invalid email or password'),
-              ],
+            body: TextButton(
+              onPressed: () {},
+              child: const Text('Forgot Password?'),
             ),
           ),
         ),
       );
 
-      expect(find.text('Invalid email or password'), findsOneWidget);
+      expect(find.text('Forgot Password?'), findsOneWidget);
     });
   });
 }

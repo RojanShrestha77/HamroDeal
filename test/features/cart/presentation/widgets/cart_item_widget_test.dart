@@ -8,8 +8,9 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ListTile(
-              title: Text('Product Name'),
-              subtitle: Text('Quantity: 2'),
+              title: const Text('Product Name'),
+              subtitle: const Text('Quantity: 2'),
+              trailing: const Text('\$199.98'),
             ),
           ),
         ),
@@ -23,8 +24,8 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ListTile(
-              title: Text('Product'),
-              subtitle: Text('Quantity: 2'),
+              title: const Text('Product'),
+              subtitle: const Text('Quantity: 2'),
             ),
           ),
         ),
@@ -38,8 +39,8 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ListTile(
-              title: Text('Product'),
-              trailing: Text('\$199.98'),
+              title: const Text('Product'),
+              trailing: const Text('\$199.98'),
             ),
           ),
         ),
@@ -54,7 +55,7 @@ void main() {
           home: Scaffold(
             body: Row(
               children: [
-                IconButton(icon: Icon(Icons.add), onPressed: () {}),
+                IconButton(icon: const Icon(Icons.add), onPressed: () {}),
               ],
             ),
           ),
@@ -70,7 +71,7 @@ void main() {
           home: Scaffold(
             body: Row(
               children: [
-                IconButton(icon: Icon(Icons.remove), onPressed: () {}),
+                IconButton(icon: const Icon(Icons.remove), onPressed: () {}),
               ],
             ),
           ),

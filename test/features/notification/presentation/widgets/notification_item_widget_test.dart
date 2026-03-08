@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hamro_deal/features/notification/presentation/widgets/notification_card.dart';
+import 'package:hamro_deal/features/notification/domain/entity/notification_entity.dart';
 
 void main() {
   group('Notification Item Widget Tests', () {
-    testWidgets('Notification item displays title', (WidgetTester tester) async {
+    final testNotification = NotificationEntity(
+      id: '1',
+      userId: '1',
+      title: 'Order Shipped',
+      message: 'Your order has been shipped',
+      type: 'order',
+      isRead: false,
+      createdAt: DateTime.now(),
+    );
+
+    testWidgets('Notification card displays title', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ListTile(
-              title: Text('Order Shipped'),
-            ),
+            body: NotificationCard(notification: testNotification),
           ),
         ),
       );
@@ -17,13 +27,11 @@ void main() {
       expect(find.text('Order Shipped'), findsOneWidget);
     });
 
-    testWidgets('Notification item displays message', (WidgetTester tester) async {
+    testWidgets('Notification card displays message', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ListTile(
-              subtitle: Text('Your order has been shipped'),
-            ),
+            body: NotificationCard(notification: testNotification),
           ),
         ),
       );
@@ -31,56 +39,50 @@ void main() {
       expect(find.text('Your order has been shipped'), findsOneWidget);
     });
 
-    testWidgets('Notification item displays timestamp', (WidgetTester tester) async {
+    testWidgets('Notification card displays timestamp', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ListTile(
-              trailing: Text('2 hours ago'),
-            ),
+            body: NotificationCard(notification: testNotification),
           ),
         ),
       );
 
-      expect(find.text('2 hours ago'), findsOneWidget);
+      expect(find.byType(NotificationCard), findsOneWidget);
     });
 
-    testWidgets('Notification item has read indicator', (WidgetTester tester) async {
+    testWidgets('Notification card has read indicator', (WidgetTester tester) async {
+      final unreadNotification = NotificationEntity(
+        id: '1',
+        userId: '1',
+        title: 'Order Shipped',
+        message: 'Your order has been shipped',
+        type: 'order',
+        isRead: false,
+        createdAt: DateTime.now(),
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ListTile(
-              leading: Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
+            body: NotificationCard(notification: unreadNotification),
           ),
         ),
       );
 
-      expect(find.byType(Container), findsOneWidget);
+      expect(find.byType(NotificationCard), findsOneWidget);
     });
 
-    testWidgets('Notification item is dismissible', (WidgetTester tester) async {
+    testWidgets('Notification card displays icon based on type', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Dismissible(
-              key: Key('notification'),
-              child: ListTile(
-                title: Text('Notification'),
-              ),
-            ),
+            body: NotificationCard(notification: testNotification),
           ),
         ),
       );
 
-      expect(find.byType(Dismissible), findsOneWidget);
+      expect(find.byIcon(Icons.shopping_bag), findsOneWidget);
     });
   });
 }

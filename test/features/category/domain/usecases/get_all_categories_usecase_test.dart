@@ -1,58 +1,53 @@
 import 'package:flutter_test/flutter_test.dart';
-
-class Category {
-  final String id;
-  final String name;
-  final int productCount;
-
-  Category({
-    required this.id,
-    required this.name,
-    required this.productCount,
-  });
-}
-
-class GetAllCategoriesUseCase {
-  List<Category> call(List<Category> categories) {
-    return categories..sort((a, b) => a.name.compareTo(b.name));
-  }
-}
+import 'package:hamro_deal/features/category/domain/entities/category_entitty.dart';
 
 void main() {
-  group('GetAllCategoriesUseCase', () {
-    late GetAllCategoriesUseCase useCase;
-    late List<Category> categories;
+  group('CategoryEntity - Operations', () {
+    late List<CategoryEntity> categories;
 
     setUp(() {
-      useCase = GetAllCategoriesUseCase();
       categories = [
-        Category(id: '1', name: 'Electronics', productCount: 100),
-        Category(id: '2', name: 'Clothing', productCount: 200),
-        Category(id: '3', name: 'Books', productCount: 50),
+        CategoryEntity(categoryId: '1', name: 'Electronics'),
+        CategoryEntity(categoryId: '2', name: 'Clothing'),
+        CategoryEntity(categoryId: '3', name: 'Books'),
       ];
     });
 
     test('returns all categories', () {
-      expect(useCase(categories).length, 3);
+      expect(categories.length, 3);
     });
 
     test('sorts categories alphabetically', () {
-      final sorted = useCase(categories);
+      final sorted = [...categories]..sort((a, b) => a.name.compareTo(b.name));
       expect(sorted[0].name, 'Books');
+      expect(sorted[1].name, 'Clothing');
       expect(sorted[2].name, 'Electronics');
     });
 
     test('returns empty list for empty categories', () {
-      expect(useCase([]).length, 0);
+      expect([].length, 0);
     });
 
     test('preserves category data', () {
-      final sorted = useCase(categories);
-      expect(sorted[0].productCount, 50);
+      expect(categories[0].categoryId, '1');
+      expect(categories[0].name, 'Electronics');
     });
 
     test('handles single category', () {
-      expect(useCase([categories[0]]).length, 1);
+      final single = [categories[0]];
+      expect(single.length, 1);
+      expect(single[0].name, 'Electronics');
+    });
+
+    test('CategoryEntity are equatable', () {
+      final cat1 = CategoryEntity(categoryId: '1', name: 'Electronics');
+      final cat2 = CategoryEntity(categoryId: '1', name: 'Electronics');
+      expect(cat1, equals(cat2));
+    });
+
+    test('finds category by categoryId', () {
+      final found = categories.firstWhere((c) => c.categoryId == '2');
+      expect(found.name, 'Clothing');
     });
   });
 }

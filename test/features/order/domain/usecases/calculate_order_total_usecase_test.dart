@@ -1,55 +1,159 @@
 import 'package:flutter_test/flutter_test.dart';
-
-class OrderItem {
-  final String id;
-  final double price;
-  final int quantity;
-
-  OrderItem({required this.id, required this.price, required this.quantity});
-}
-
-class CalculateOrderTotalUseCase {
-  double call(List<OrderItem> items, {double shippingCost = 0, double taxRate = 0.1}) {
-    final subtotal = items.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
-    final tax = subtotal * taxRate;
-    return subtotal + tax + shippingCost;
-  }
-}
+import 'package:hamro_deal/features/order/domain/entities/order_entity.dart';
+import 'package:hamro_deal/features/order/domain/entities/order_item_entity.dart';
+import 'package:hamro_deal/features/order/domain/entities/shipping_address_entity.dart';
 
 void main() {
-  group('CalculateOrderTotalUseCase', () {
-    late CalculateOrderTotalUseCase useCase;
+  group('OrderEntity - Total Calculation', () {
+    late ShippingAddressEntity shippingAddress;
 
     setUp(() {
-      useCase = CalculateOrderTotalUseCase();
+      shippingAddress = ShippingAddressEntity(
+        fullName: 'John Doe',
+        phone: '1234567890',
+        address: '123 Main St',
+        city: 'Kathmandu',
+        state: 'Bagmati',
+        zipCode: '44600',
+        country: 'Nepal',
+      );
     });
 
-    test('calculates total with tax', () {
-      final items = [OrderItem(id: '1', price: 100, quantity: 1)];
-      expect(useCase(items), closeTo(110, 0.01));
-    });
-
-    test('calculates total with shipping', () {
-      final items = [OrderItem(id: '1', price: 100, quantity: 1)];
-      expect(useCase(items, shippingCost: 10), closeTo(120, 0.01));
-    });
-
-    test('calculates total with tax and shipping', () {
-      final items = [OrderItem(id: '1', price: 100, quantity: 1)];
-      expect(useCase(items, shippingCost: 10, taxRate: 0.1), closeTo(120, 0.01));
-    });
-
-    test('calculates total for multiple items', () {
+    test('OrderEntity calculates itemCount correctly', () {
       final items = [
-        OrderItem(id: '1', price: 100, quantity: 1),
-        OrderItem(id: '2', price: 50, quantity: 2),
+        OrderItemEntity(
+          productId: 'prod1',
+          productName: 'Laptop',
+          price: 100,
+          quantity: 2,
+          sellerId: 'seller1',
+        ),
+        OrderItemEntity(
+          productId: 'prod2',
+          productName: 'Mouse',
+          price: 50,
+          quantity: 1,
+          sellerId: 'seller1',
+        ),
       ];
-      expect(useCase(items), closeTo(220, 0.01));
+
+      final order = OrderEntity(
+        orderNumber: 'ORD001',
+        items: items,
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        subtotal: 250,
+        shippingCost: 10,
+        tax: 25,
+        total: 285,
+        status: OrderStatus.pending,
+      );
+
+      expect(order.itemCount, 3);
     });
 
-    test('calculates total with zero tax rate', () {
-      final items = [OrderItem(id: '1', price: 100, quantity: 1)];
-      expect(useCase(items, taxRate: 0), 100);
+    test('OrderEntity with single item', () {
+      final items = [
+        OrderItemEntity(
+          productId: 'prod1',
+          productName: 'Laptop',
+          price: 100,
+          quantity: 1,
+          sellerId: 'seller1',
+        ),
+      ];
+
+      final order = OrderEntity(
+        orderNumber: 'ORD001',
+        items: items,
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        subtotal: 100,
+        shippingCost: 0,
+        tax: 10,
+        total: 110,
+        status: OrderStatus.pending,
+      );
+
+      expect(order.total, 110);
+      expect(order.itemCount, 1);
+    });
+
+    test('OrderEntity with shipping cost', () {
+      final items = [
+        OrderItemEntity(
+          productId: 'prod1',
+          productName: 'Laptop',
+          price: 100,
+          quantity: 1,
+          sellerId: 'seller1',
+        ),
+      ];
+
+      final order = OrderEntity(
+        orderNumber: 'ORD001',
+        items: items,
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        subtotal: 100,
+        shippingCost: 10,
+        tax: 11,
+        total: 121,
+        status: OrderStatus.pending,
+      );
+
+      expect(order.shippingCost, 10);
+      expect(order.total, 121);
+    });
+
+    test('OrderItemEntity calculates subtotal', () {
+      final item = OrderItemEntity(
+        productId: 'prod1',
+        productName: 'Laptop',
+        price: 100,
+        quantity: 2,
+        sellerId: 'seller1',
+      );
+
+      expect(item.subtotal, 200);
+    });
+
+    test('OrderEntity are equatable', () {
+      final items = [
+        OrderItemEntity(
+          productId: 'prod1',
+          productName: 'Laptop',
+          price: 100,
+          quantity: 1,
+          sellerId: 'seller1',
+        ),
+      ];
+
+      final order1 = OrderEntity(
+        orderNumber: 'ORD001',
+        items: items,
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        subtotal: 100,
+        shippingCost: 0,
+        tax: 10,
+        total: 110,
+        status: OrderStatus.pending,
+      );
+
+      final order2 = OrderEntity(
+        orderNumber: 'ORD001',
+        items: items,
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        subtotal: 100,
+        shippingCost: 0,
+        tax: 10,
+        total: 110,
+        status: OrderStatus.pending,
+      );
+
+      expect(order1, equals(order2));
     });
   });
 }

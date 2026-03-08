@@ -8,7 +8,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ListTile(
-              title: Text('Wishlist Product'),
+              title: const Text('Wishlist Product'),
             ),
           ),
         ),
@@ -22,8 +22,8 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ListTile(
-              title: Text('Product'),
-              trailing: Text('\$49.99'),
+              title: const Text('Product'),
+              trailing: const Text('\$49.99'),
             ),
           ),
         ),
@@ -38,7 +38,7 @@ void main() {
           home: Scaffold(
             body: ListTile(
               trailing: IconButton(
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close),
                 onPressed: () {},
               ),
             ),
@@ -55,7 +55,7 @@ void main() {
           home: Scaffold(
             body: ElevatedButton(
               onPressed: () {},
-              child: Text('Add to Cart'),
+              child: const Text('Add to Cart'),
             ),
           ),
         ),
@@ -69,7 +69,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ListTile(
-              subtitle: Text('In Stock'),
+              subtitle: const Text('In Stock'),
             ),
           ),
         ),

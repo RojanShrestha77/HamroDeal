@@ -3,14 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Login Screen Widget Tests', () {
-    testWidgets('Login screen displays header', (WidgetTester tester) async {
+    testWidgets('Login screen displays welcome header', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Column(
-              children: [
+              children: const [
                 Text('Welcome Back'),
-                Text('Sign in to your account'),
+                Text('Enter your credentials to continue'),
               ],
             ),
           ),
@@ -18,7 +18,18 @@ void main() {
       );
 
       expect(find.text('Welcome Back'), findsOneWidget);
-      expect(find.text('Sign in to your account'), findsOneWidget);
+    });
+
+    testWidgets('Login screen displays subtitle', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: const Text('Enter your credentials to continue'),
+          ),
+        ),
+      );
+
+      expect(find.text('Enter your credentials to continue'), findsOneWidget);
     });
 
     testWidgets('Login screen has email input field', (WidgetTester tester) async {
@@ -27,15 +38,14 @@ void main() {
           home: Scaffold(
             body: TextField(
               decoration: InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
             ),
           ),
         ),
       );
 
-      expect(find.byIcon(Icons.email), findsOneWidget);
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
     });
 
     testWidgets('Login screen has password input field', (WidgetTester tester) async {
@@ -43,17 +53,15 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: TextField(
-              obscureText: true,
               decoration: InputDecoration(
-                labelText: 'Password',
-                prefixIcon: Icon(Icons.lock),
+                prefixIcon: const Icon(Icons.lock_outline),
               ),
             ),
           ),
         ),
       );
 
-      expect(find.byIcon(Icons.lock), findsOneWidget);
+      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
     });
 
     testWidgets('Login screen has forgot password link', (WidgetTester tester) async {
@@ -62,7 +70,7 @@ void main() {
           home: Scaffold(
             body: TextButton(
               onPressed: () {},
-              child: Text('Forgot Password?'),
+              child: const Text('Forgot Password?'),
             ),
           ),
         ),
@@ -75,14 +83,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Row(
-              children: [
-                Text('Don\'t have an account?'),
-                TextButton(
-                  onPressed: () {},
-                  child: Text('Sign Up'),
-                ),
-              ],
+            body: TextButton(
+              onPressed: () {},
+              child: const Text('Sign Up'),
             ),
           ),
         ),
@@ -97,34 +100,37 @@ void main() {
           home: Scaffold(
             body: Row(
               children: [
-                IconButton(icon: Icon(Icons.facebook), onPressed: () {}),
-                IconButton(icon: Icon(Icons.mail), onPressed: () {}),
+                OutlinedButton(
+                  onPressed: () {},
+                  child: const Text('Google'),
+                ),
+                OutlinedButton(
+                  onPressed: () {},
+                  child: const Text('Apple'),
+                ),
               ],
             ),
           ),
         ),
       );
 
-      expect(find.byIcon(Icons.facebook), findsOneWidget);
-      expect(find.byIcon(Icons.mail), findsOneWidget);
+      expect(find.text('Google'), findsOneWidget);
+      expect(find.text('Apple'), findsOneWidget);
     });
 
-    testWidgets('Login screen displays remember me checkbox', (WidgetTester tester) async {
+    testWidgets('Login screen displays sign in button', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Row(
-              children: [
-                Checkbox(value: false, onChanged: (_) {}),
-                Text('Remember me'),
-              ],
+            body: ElevatedButton(
+              onPressed: () {},
+              child: const Text('SIGN IN'),
             ),
           ),
         ),
       );
 
-      expect(find.byType(Checkbox), findsOneWidget);
-      expect(find.text('Remember me'), findsOneWidget);
+      expect(find.text('SIGN IN'), findsOneWidget);
     });
   });
 }

@@ -9,7 +9,7 @@ void main() {
           home: Scaffold(
             body: Card(
               child: ListTile(
-                title: Text('Order #12345'),
+                title: const Text('Order #12345'),
               ),
             ),
           ),
@@ -25,7 +25,7 @@ void main() {
           home: Scaffold(
             body: Card(
               child: ListTile(
-                subtitle: Text('Status: Delivered'),
+                subtitle: const Text('Status: Delivered'),
               ),
             ),
           ),
@@ -40,7 +40,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Card(
-              child: Text('2024-03-07'),
+              child: const Text('2024-03-07'),
             ),
           ),
         ),
@@ -54,7 +54,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Card(
-              child: Text('Total: \$299.99'),
+              child: const Text('Total: \$299.99'),
             ),
           ),
         ),
@@ -70,7 +70,7 @@ void main() {
             body: Card(
               child: ElevatedButton(
                 onPressed: () {},
-                child: Text('View Details'),
+                child: const Text('View Details'),
               ),
             ),
           ),

@@ -1,79 +1,107 @@
 import 'package:flutter_test/flutter_test.dart';
-
-class SortProduct {
-  final String id;
-  final String name;
-  final double price;
-  final double rating;
-
-  SortProduct({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.rating,
-  });
-}
-
-class SortProductsUseCase {
-  List<SortProduct> call(List<SortProduct> products, String sortBy) {
-    final sorted = [...products];
-    switch (sortBy) {
-      case 'price_asc':
-        sorted.sort((a, b) => a.price.compareTo(b.price));
-        break;
-      case 'price_desc':
-        sorted.sort((a, b) => b.price.compareTo(a.price));
-        break;
-      case 'rating':
-        sorted.sort((a, b) => b.rating.compareTo(a.rating));
-        break;
-      case 'name':
-        sorted.sort((a, b) => a.name.compareTo(b.name));
-        break;
-    }
-    return sorted;
-  }
-}
+import 'package:hamro_deal/features/product/domain/entities/product_entity.dart';
 
 void main() {
-  group('SortProductsUseCase', () {
-    late SortProductsUseCase useCase;
-    late List<SortProduct> products;
+  group('ProductEntity - Sorting', () {
+    late List<ProductEntity> products;
 
     setUp(() {
-      useCase = SortProductsUseCase();
       products = [
-        SortProduct(id: '1', name: 'Laptop', price: 1000, rating: 4.5),
-        SortProduct(id: '2', name: 'Mouse', price: 50, rating: 4.0),
-        SortProduct(id: '3', name: 'Keyboard', price: 150, rating: 4.8),
+        ProductEntity(
+          productId: '1',
+          title: 'Laptop',
+          description: 'High-end laptop',
+          price: 1000,
+          stock: 5,
+        ),
+        ProductEntity(
+          productId: '2',
+          title: 'Mouse',
+          description: 'Wireless mouse',
+          price: 50,
+          stock: 20,
+        ),
+        ProductEntity(
+          productId: '3',
+          title: 'Keyboard',
+          description: 'Mechanical keyboard',
+          price: 150,
+          stock: 10,
+        ),
       ];
     });
 
-    test('sorts by price ascending', () {
-      final sorted = useCase(products, 'price_asc');
+    test('ProductEntity can be sorted by price ascending', () {
+      final sorted = [...products]..sort((a, b) => a.price.compareTo(b.price));
       expect(sorted[0].price, 50);
+      expect(sorted[1].price, 150);
       expect(sorted[2].price, 1000);
     });
 
-    test('sorts by price descending', () {
-      final sorted = useCase(products, 'price_desc');
+    test('ProductEntity can be sorted by price descending', () {
+      final sorted = [...products]..sort((a, b) => b.price.compareTo(a.price));
       expect(sorted[0].price, 1000);
+      expect(sorted[1].price, 150);
       expect(sorted[2].price, 50);
     });
 
-    test('sorts by rating', () {
-      final sorted = useCase(products, 'rating');
-      expect(sorted[0].rating, 4.8);
+    test('ProductEntity can be sorted by title', () {
+      final sorted = [...products]..sort((a, b) => a.title.compareTo(b.title));
+      expect(sorted[0].title, 'Keyboard');
+      expect(sorted[1].title, 'Laptop');
+      expect(sorted[2].title, 'Mouse');
     });
 
-    test('sorts by name', () {
-      final sorted = useCase(products, 'name');
-      expect(sorted[0].name, 'Keyboard');
+    test('ProductEntity can be sorted by stock', () {
+      final sorted = [...products]..sort((a, b) => b.stock.compareTo(a.stock));
+      expect(sorted[0].stock, 20);
+      expect(sorted[1].stock, 10);
+      expect(sorted[2].stock, 5);
     });
 
-    test('returns original order for unknown sort', () {
-      final sorted = useCase(products, 'unknown');
-      expect(sorted.length, 3);
+    test('ProductEntity firstImage returns first image or null', () {
+      final productWithImages = ProductEntity(
+        productId: '1',
+        title: 'Product',
+        description: 'Description',
+        price: 100,
+        stock: 5,
+        images: ['image1.jpg', 'image2.jpg'],
+      );
+
+      expect(productWithImages.firstImage, 'image1.jpg');
+    });
+
+    test('ProductEntity firstImage returns null when no images', () {
+      final productNoImages = ProductEntity(
+        productId: '1',
+        title: 'Product',
+        description: 'Description',
+        price: 100,
+        stock: 5,
+      );
+
+      expect(productNoImages.firstImage, null);
+    });
+
+    test('ProductEntity are equatable', () {
+      final product1 = ProductEntity(
+        productId: '1',
+        title: 'Laptop',
+        description: 'High-end laptop',
+        price: 1000,
+        stock: 5,
+      );
+
+      final product2 = ProductEntity(
+        productId: '1',
+        title: 'Laptop',
+        description: 'High-end laptop',
+        price: 1000,
+        stock: 5,
+      );
+
+      expect(product1, equals(product2));
     });
   });
 }

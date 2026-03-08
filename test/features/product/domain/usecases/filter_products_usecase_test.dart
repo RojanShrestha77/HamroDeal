@@ -1,73 +1,68 @@
 import 'package:flutter_test/flutter_test.dart';
-
-class Product {
-  final String id;
-  final String name;
-  final double price;
-  final double rating;
-  final int stock;
-
-  Product({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.rating,
-    required this.stock,
-  });
-}
-
-class FilterProductsUseCase {
-  List<Product> call(
-    List<Product> products, {
-    double? minPrice,
-    double? maxPrice,
-    double? minRating,
-  }) {
-    return products.where((product) {
-      if (minPrice != null && product.price < minPrice) return false;
-      if (maxPrice != null && product.price > maxPrice) return false;
-      if (minRating != null && product.rating < minRating) return false;
-      return true;
-    }).toList();
-  }
-}
+import 'package:hamro_deal/features/product/domain/usecases/get_filtered_products_usecase.dart';
 
 void main() {
-  group('FilterProductsUseCase', () {
-    late FilterProductsUseCase useCase;
-    late List<Product> products;
+  group('GetFilteredProductsUsecase - Params', () {
+    test('GetFilteredProductsParams creates with all filters', () {
+      final params = GetFilteredProductsParams(
+        categoryId: 'cat1',
+        search: 'laptop',
+        minPrice: 50,
+        maxPrice: 150,
+        sort: 'price_asc',
+      );
 
-    setUp(() {
-      useCase = FilterProductsUseCase();
-      products = [
-        Product(id: '1', name: 'Product 1', price: 50, rating: 4.5, stock: 10),
-        Product(id: '2', name: 'Product 2', price: 100, rating: 3.5, stock: 5),
-        Product(id: '3', name: 'Product 3', price: 150, rating: 4.8, stock: 20),
-      ];
+      expect(params.categoryId, 'cat1');
+      expect(params.search, 'laptop');
+      expect(params.minPrice, 50);
+      expect(params.maxPrice, 150);
+      expect(params.sort, 'price_asc');
     });
 
-    test('returns all products when no filter applied', () {
-      expect(useCase(products).length, 3);
+    test('GetFilteredProductsParams hasFilters returns true when filters applied', () {
+      final params = GetFilteredProductsParams(
+        minPrice: 100,
+        maxPrice: 200,
+      );
+
+      expect(params.hasFilters, true);
     });
 
-    test('filters by minimum price', () {
-      final filtered = useCase(products, minPrice: 100);
-      expect(filtered.length, 2);
+    test('GetFilteredProductsParams hasFilters returns false when no filters', () {
+      final params = GetFilteredProductsParams.empty();
+
+      expect(params.hasFilters, false);
     });
 
-    test('filters by maximum price', () {
-      final filtered = useCase(products, maxPrice: 100);
-      expect(filtered.length, 2);
+    test('GetFilteredProductsParams.empty() creates empty params', () {
+      final params = GetFilteredProductsParams.empty();
+
+      expect(params.categoryId, null);
+      expect(params.search, null);
+      expect(params.minPrice, null);
+      expect(params.maxPrice, null);
+      expect(params.sort, null);
     });
 
-    test('filters by minimum rating', () {
-      final filtered = useCase(products, minRating: 4.5);
-      expect(filtered.length, 2);
+    test('GetFilteredProductsParams are equatable', () {
+      final params1 = GetFilteredProductsParams(
+        minPrice: 100,
+        maxPrice: 200,
+      );
+
+      final params2 = GetFilteredProductsParams(
+        minPrice: 100,
+        maxPrice: 200,
+      );
+
+      expect(params1, equals(params2));
     });
 
-    test('filters by multiple criteria', () {
-      final filtered = useCase(products, minPrice: 50, maxPrice: 150, minRating: 4.0);
-      expect(filtered.length, 2);
+    test('GetFilteredProductsParams with different values are not equal', () {
+      final params1 = GetFilteredProductsParams(minPrice: 100);
+      final params2 = GetFilteredProductsParams(minPrice: 200);
+
+      expect(params1, isNot(equals(params2)));
     });
   });
 }

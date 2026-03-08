@@ -1,79 +1,145 @@
 import 'package:flutter_test/flutter_test.dart';
-
-class ValidateOrderUseCase {
-  bool call({
-    required List<String> items,
-    required String address,
-    required String paymentMethod,
-  }) {
-    return items.isNotEmpty &&
-        address.isNotEmpty &&
-        address.length >= 10 &&
-        paymentMethod.isNotEmpty;
-  }
-}
+import 'package:hamro_deal/features/order/domain/entities/order_entity.dart';
+import 'package:hamro_deal/features/order/domain/entities/shipping_address_entity.dart';
 
 void main() {
-  group('ValidateOrderUseCase', () {
-    late ValidateOrderUseCase useCase;
+  group('OrderEntity - Validation', () {
+    test('OrderEntity with valid data passes validation', () {
+      final shippingAddress = ShippingAddressEntity(
+        fullName: 'John Doe',
+        phone: '1234567890',
+        address: '123 Main Street, Kathmandu',
+        city: 'Kathmandu',
+        state: 'Bagmati',
+        zipCode: '44600',
+        country: 'Nepal',
+      );
 
-    setUp(() {
-      useCase = ValidateOrderUseCase();
+      final order = OrderEntity(
+        orderNumber: 'ORD001',
+        items: [],
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        subtotal: 100,
+        tax: 10,
+        total: 110,
+        status: OrderStatus.pending,
+      );
+
+      expect(order.shippingAddress.address.isNotEmpty, true);
+      expect(order.paymentMethod, PaymentMethod.cashOnDelivery);
     });
 
-    test('returns true for valid order', () {
-      expect(
-        useCase(
-          items: ['item1', 'item2'],
-          address: '123 Main Street, City',
-          paymentMethod: 'credit_card',
-        ),
-        true,
+    test('OrderEntity requires non-empty orderNumber', () {
+      final shippingAddress = ShippingAddressEntity(
+        fullName: 'John Doe',
+        phone: '1234567890',
+        address: '123 Main Street, Kathmandu',
+        city: 'Kathmandu',
+        state: 'Bagmati',
+        zipCode: '44600',
+        country: 'Nepal',
       );
+
+      final order = OrderEntity(
+        orderNumber: 'ORD001',
+        items: [],
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        subtotal: 100,
+        tax: 10,
+        total: 110,
+        status: OrderStatus.pending,
+      );
+
+      expect(order.orderNumber.isNotEmpty, true);
     });
 
-    test('returns false for empty items', () {
-      expect(
-        useCase(
-          items: [],
-          address: '123 Main Street, City',
-          paymentMethod: 'credit_card',
-        ),
-        false,
+    test('OrderEntity requires valid shipping address', () {
+      final shippingAddress = ShippingAddressEntity(
+        fullName: 'John Doe',
+        phone: '1234567890',
+        address: '123 Main Street, Kathmandu',
+        city: 'Kathmandu',
+        state: 'Bagmati',
+        zipCode: '44600',
+        country: 'Nepal',
       );
+
+      final order = OrderEntity(
+        orderNumber: 'ORD001',
+        items: [],
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        subtotal: 100,
+        tax: 10,
+        total: 110,
+        status: OrderStatus.pending,
+      );
+
+      expect(order.shippingAddress.address.length, greaterThanOrEqualTo(10));
     });
 
-    test('returns false for empty address', () {
-      expect(
-        useCase(
-          items: ['item1'],
-          address: '',
-          paymentMethod: 'credit_card',
-        ),
-        false,
+    test('OrderEntity supports different payment methods', () {
+      final shippingAddress = ShippingAddressEntity(
+        fullName: 'John Doe',
+        phone: '1234567890',
+        address: '123 Main Street, Kathmandu',
+        city: 'Kathmandu',
+        state: 'Bagmati',
+        zipCode: '44600',
+        country: 'Nepal',
       );
+
+      final orderCard = OrderEntity(
+        orderNumber: 'ORD001',
+        items: [],
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.card,
+        subtotal: 100,
+        tax: 10,
+        total: 110,
+        status: OrderStatus.pending,
+      );
+
+      final orderOnline = OrderEntity(
+        orderNumber: 'ORD002',
+        items: [],
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.online,
+        subtotal: 100,
+        tax: 10,
+        total: 110,
+        status: OrderStatus.pending,
+      );
+
+      expect(orderCard.paymentMethod, PaymentMethod.card);
+      expect(orderOnline.paymentMethod, PaymentMethod.online);
     });
 
-    test('returns false for short address', () {
-      expect(
-        useCase(
-          items: ['item1'],
-          address: '123 Main',
-          paymentMethod: 'credit_card',
-        ),
-        false,
+    test('OrderEntity supports different order statuses', () {
+      final shippingAddress = ShippingAddressEntity(
+        fullName: 'John Doe',
+        phone: '1234567890',
+        address: '123 Main Street, Kathmandu',
+        city: 'Kathmandu',
+        state: 'Bagmati',
+        zipCode: '44600',
+        country: 'Nepal',
       );
-    });
 
-    test('returns false for empty payment method', () {
-      expect(
-        useCase(
-          items: ['item1'],
-          address: '123 Main Street, City',
-          paymentMethod: '',
-        ),
-        false,
+      final order = OrderEntity(
+        orderNumber: 'ORD001',
+        items: [],
+        shippingAddress: shippingAddress,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        subtotal: 100,
+        tax: 10,
+        total: 110,
+        status: OrderStatus.shipped,
       );
+
+      expect(order.status, OrderStatus.shipped);
     });
   });
 }

@@ -1,54 +1,62 @@
 import 'package:flutter_test/flutter_test.dart';
-
-class WishlistProduct {
-  final String id;
-  final double price;
-
-  WishlistProduct({required this.id, required this.price});
-}
-
-class GetWishlistTotalUseCase {
-  double call(List<WishlistProduct> items) {
-    return items.fold(0, (sum, item) => sum + item.price);
-  }
-}
+import 'package:hamro_deal/features/wishlist/domain/entities/wishlist_entity.dart';
+import 'package:hamro_deal/features/wishlist/domain/entities/wishlist_item_entity.dart';
 
 void main() {
-  group('GetWishlistTotalUseCase', () {
-    late GetWishlistTotalUseCase useCase;
-
-    setUp(() {
-      useCase = GetWishlistTotalUseCase();
-    });
-
+  group('WishlistEntity - Total Calculation', () {
     test('returns 0 for empty wishlist', () {
-      expect(useCase([]), 0);
+      final wishlist = WishlistEntity(items: []);
+      expect(wishlist.isEmpty, true);
+      expect(wishlist.itemCount, 0);
     });
 
-    test('calculates total for single item', () {
-      final items = [WishlistProduct(id: '1', price: 99.99)];
-      expect(useCase(items), closeTo(99.99, 0.01));
-    });
-
-    test('calculates total for multiple items', () {
+    test('calculates item count for single item', () {
       final items = [
-        WishlistProduct(id: '1', price: 100),
-        WishlistProduct(id: '2', price: 50),
+        WishlistItemEntity(
+          productId: 'prod1',
+          addedAt: DateTime.now(),
+        ),
       ];
-      expect(useCase(items), 150);
+      final wishlist = WishlistEntity(items: items);
+      expect(wishlist.itemCount, 1);
     });
 
-    test('calculates total with decimal prices', () {
+    test('calculates item count for multiple items', () {
       final items = [
-        WishlistProduct(id: '1', price: 99.99),
-        WishlistProduct(id: '2', price: 49.99),
+        WishlistItemEntity(productId: 'prod1', addedAt: DateTime.now()),
+        WishlistItemEntity(productId: 'prod2', addedAt: DateTime.now()),
       ];
-      expect(useCase(items), closeTo(149.98, 0.01));
+      final wishlist = WishlistEntity(items: items);
+      expect(wishlist.itemCount, 2);
     });
 
-    test('calculates total for large wishlist', () {
-      final items = List.generate(10, (i) => WishlistProduct(id: '$i', price: 10));
-      expect(useCase(items), 100);
+    test('wishlist isEmpty returns false when has items', () {
+      final items = [
+        WishlistItemEntity(productId: 'prod1', addedAt: DateTime.now()),
+      ];
+      final wishlist = WishlistEntity(items: items);
+      expect(wishlist.isEmpty, false);
+    });
+
+    test('calculates item count for large wishlist', () {
+      final items = List.generate(
+        10,
+        (i) => WishlistItemEntity(
+          productId: 'prod$i',
+          addedAt: DateTime.now(),
+        ),
+      );
+      final wishlist = WishlistEntity(items: items);
+      expect(wishlist.itemCount, 10);
+    });
+
+    test('WishlistEntity are equatable', () {
+      final items = [
+        WishlistItemEntity(productId: 'prod1', addedAt: DateTime.now()),
+      ];
+      final wishlist1 = WishlistEntity(items: items);
+      final wishlist2 = WishlistEntity(items: items);
+      expect(wishlist1, equals(wishlist2));
     });
   });
 }
